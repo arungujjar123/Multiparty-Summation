@@ -413,9 +413,9 @@ function QuantumProtocolsSection() {
         <h4 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-200">Protocol Overview</h4>
         <ol className="space-y-3 text-gray-700 dark:text-gray-300 text-sm">
           <li className="p-3 bg-white dark:bg-gray-800 rounded">
-            <strong>Step 1:</strong> X and Y choose polynomials f(y) and g(y) using Shamir's scheme
+            <strong>Step 1:</strong> X and Y choose polynomials f(y) and g(y) using Shamir&apos;s scheme
             <div className="font-mono text-xs mt-1 text-purple-600 dark:text-purple-400">
-              f(y) = a + c₁y + c₂y² + ... + c_{t-1}y^{t-1} mod d
+              {`f(y) = a + c₁y + c₂y² + ... + c_{t-1}y^{t-1} mod d`}
             </div>
           </li>
           <li className="p-3 bg-white dark:bg-gray-800 rounded">
@@ -424,7 +424,7 @@ function QuantumProtocolsSection() {
           <li className="p-3 bg-white dark:bg-gray-800 rounded">
             <strong>Step 3:</strong> Compute shadows using Lagrange coefficients
             <div className="font-mono text-xs mt-1 text-purple-600 dark:text-purple-400">
-              Aₖ = h(yₖ) · Πⱼ≠ₖ (0 - yⱼ)/(yₖ - yⱼ) mod d
+              {`Aₖ = h(yₖ) · Πⱼ≠ₖ (0 - yⱼ)/(yₖ - yⱼ) mod d`}
             </div>
           </li>
           <li className="p-3 bg-white dark:bg-gray-800 rounded">
@@ -434,7 +434,7 @@ function QuantumProtocolsSection() {
             <strong>Step 6-7:</strong> Players apply quantum operations and measure their particles
           </li>
           <li className="p-3 bg-white dark:bg-gray-800 rounded">
-            <strong>Step 8:</strong> Reconstruct sum: a + b = Σₖ(mₖ + Aₖ) mod d
+            <strong>Step 8:</strong> Reconstruct sum: a + b = {`Σₖ(mₖ + Aₖ) mod d`}
           </li>
         </ol>
       </div>
@@ -466,7 +466,7 @@ function QuantumProtocolsSection() {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-500">→</span>
-            Reconstructing product: a × b = Σₖ(wₖ + Bₖ) mod d
+            Reconstructing product: a × b = {`Σₖ(wₖ + Bₖ) mod d`}
           </li>
         </ul>
       </div>
