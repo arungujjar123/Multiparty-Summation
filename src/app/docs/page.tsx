@@ -2,10 +2,16 @@
  * @fileoverview Documentation page for Shamir Secret Sharing
  */
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { AchievementTracker } from "@/lib/achievements";
 
 export default function DocsPage() {
   const [activeSection, setActiveSection] = useState("introduction");
+  
+  useEffect(() => {
+    AchievementTracker.trackPageVisit("docs");
+  }, []);
 
   const sections = [
     { id: "introduction", title: "Introduction", icon: "📖" },
@@ -19,16 +25,26 @@ export default function DocsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-12 px-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-12 px-6 relative overflow-hidden">
+      {/* Animated background blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-400/10 dark:bg-purple-600/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/10 dark:bg-blue-600/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s', animationDuration: '4s'}}></div>
+        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-400/10 dark:bg-pink-600/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s', animationDuration: '5s'}}></div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-extrabold mb-4">
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400">
-              Documentation
-            </span>
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400">
+          <div className="inline-block relative mb-4">
+            <h1 className="text-5xl md:text-6xl font-extrabold mb-4 transform hover:scale-105 transition-transform duration-300">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 animate-gradient bg-[length:200%_200%]">
+                Documentation
+              </span>
+            </h1>
+            <div className="absolute -inset-2 bg-linear-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 blur-xl opacity-50 animate-pulse"></div>
+          </div>
+          <p className="text-xl text-gray-600 dark:text-gray-400 animate-fade-in-up">
             Complete guide to Shamir Secret Sharing and Secure Multi-Party Computation
           </p>
         </div>
@@ -36,23 +52,27 @@ export default function DocsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
-            <div className="sticky top-20 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 border border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-3">
-                Contents
+            <div className="sticky top-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl p-6 border-2 border-gray-200/50 dark:border-gray-700/50 hover:shadow-purple-500/20 transition-all duration-500">
+              <h3 className="text-sm font-bold text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-600 uppercase mb-4 tracking-wider">
+                📑 Contents
               </h3>
               <nav className="space-y-1">
                 {sections.map((section) => (
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                    className={`group w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 transform flex items-center gap-3 ${
                       activeSection === section.id
-                        ? "bg-linear-to-r from-blue-500 to-purple-500 text-white"
-                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        ? "bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50 scale-105 -translate-x-1"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 hover:scale-102 hover:shadow-md hover:translate-x-1"
                     }`}
                   >
-                    <span>{section.icon}</span>
-                    {section.title}
+                    <span className={`text-lg transition-transform duration-300 ${
+                      activeSection === section.id ? "animate-bounce" : "group-hover:scale-125 group-hover:rotate-12"
+                    }`}>
+                      {section.icon}
+                    </span>
+                    <span className={activeSection === section.id ? "font-bold" : ""}>{section.title}</span>
                   </button>
                 ))}
               </nav>
@@ -61,7 +81,7 @@ export default function DocsPage() {
 
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700 transition-all duration-700 hover:shadow-2xl hover:shadow-purple-500/20 animate-fade-in">
               {activeSection === "introduction" && <IntroductionSection />}
               {activeSection === "shamir" && <ShamirSection />}
               {activeSection === "summation" && <SummationSection />}
@@ -80,9 +100,9 @@ export default function DocsPage() {
 
 function IntroductionSection() {
   return (
-    <div className="prose prose-lg dark:prose-invert max-w-none">
+    <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
-        📖 Introduction
+        📖 Ishu introduction  and our new startup
       </h2>
       
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -91,7 +111,7 @@ function IntroductionSection() {
         only a threshold number of shares is needed to reconstruct the original secret.
       </p>
 
-      <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-6 rounded-r-lg my-6">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-6 rounded-r-lg my-6 transition-all duration-500 hover:shadow-lg hover:border-l-8 hover:scale-[1.02] hover:bg-blue-100 dark:hover:bg-blue-900/30">
         <h3 className="text-xl font-bold text-blue-900 dark:text-blue-300 mb-2">Key Properties</h3>
         <ul className="space-y-2 text-gray-700 dark:text-gray-300">
           <li><strong>Threshold Property:</strong> Any t shares can reconstruct the secret</li>
@@ -105,26 +125,26 @@ function IntroductionSection() {
         Applications
       </h3>
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-          <h4 className="font-bold text-purple-900 dark:text-purple-300 mb-2">Secure Storage</h4>
+        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800 transition-all duration-300 hover:shadow-lg hover:scale-105 hover:-translate-y-1 cursor-pointer group">
+          <h4 className="font-bold text-purple-900 dark:text-purple-300 mb-2 transition-all duration-300 group-hover:scale-110">Secure Storage</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Distribute encryption keys across multiple servers to prevent single points of failure
           </p>
         </div>
-        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-          <h4 className="font-bold text-green-900 dark:text-green-300 mb-2">Multi-Party Computation</h4>
+        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 transition-all duration-300 hover:shadow-lg hover:scale-105 hover:-translate-y-1 cursor-pointer group">
+          <h4 className="font-bold text-green-900 dark:text-green-300 mb-2 transition-all duration-300 group-hover:scale-110">Multi-Party Computation</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Enable parties to jointly compute functions without revealing private inputs
           </p>
         </div>
         <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border border-pink-200 dark:border-pink-800">
-          <h4 className="font-bold text-pink-900 dark:text-pink-300 mb-2">Threshold Cryptography</h4>
+          <h4 className="font-bold text-pink-900 dark:text-pink-300 mb-2 transition-all duration-300 group-hover:scale-110">Threshold Cryptography</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Require cooperation of t parties to perform cryptographic operations
           </p>
         </div>
         <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
-          <h4 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2">Privacy-Preserving Analytics</h4>
+          <h4 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2 transition-all duration-300 group-hover:scale-110">Privacy-Preserving Analytics</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Aggregate sensitive data while maintaining individual privacy
           </p>
@@ -136,7 +156,7 @@ function IntroductionSection() {
 
 function ShamirSection() {
   return (
-    <div className="prose prose-lg dark:prose-invert max-w-none">
+    <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
         🔐 Shamir's Secret Sharing Scheme
       </h2>
@@ -147,7 +167,7 @@ function ShamirSection() {
         is uniquely determined by <code>t</code> points.
       </p>
 
-      <div className="bg-gray-100 dark:bg-gray-900 p-6 rounded-lg my-6 border border-gray-300 dark:border-gray-700">
+      <div className="bg-gray-100 dark:bg-gray-900 p-6 rounded-lg my-6 border border-gray-300 dark:border-gray-700 transition-all duration-500 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-400 hover:scale-[1.01]">
         <h4 className="font-mono text-lg font-bold mb-3 text-gray-800 dark:text-gray-200">Share Generation</h4>
         <ol className="space-y-3 text-gray-700 dark:text-gray-300">
           <li><strong>1.</strong> Choose a prime p and secret s ∈ ℤ<sub>p</sub></li>
@@ -157,7 +177,7 @@ function ShamirSection() {
         </ol>
       </div>
 
-      <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg my-6 border border-green-200 dark:border-green-800">
+      <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg my-6 border border-green-200 dark:border-green-800 transition-all duration-500 hover:shadow-xl hover:border-green-500 dark:hover:border-green-400 hover:scale-[1.01]">
         <h4 className="font-mono text-lg font-bold mb-3 text-green-900 dark:text-green-300">Secret Reconstruction</h4>
         <p className="text-gray-700 dark:text-gray-300 mb-3">
           Using <strong>Lagrange Interpolation</strong>, any t shares can recover the secret:
@@ -171,7 +191,7 @@ function ShamirSection() {
       </div>
 
       <h3 className="text-2xl font-bold mt-8 mb-4 text-gray-800 dark:text-gray-100">Example</h3>
-      <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg border border-purple-200 dark:border-purple-800">
+      <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg border border-purple-200 dark:border-purple-800 transition-all duration-500 hover:shadow-xl hover:border-purple-500 dark:hover:border-purple-400 hover:scale-[1.02] hover:-translate-y-1">
         <p className="text-gray-700 dark:text-gray-300 mb-3">
           <strong>Setup:</strong> Secret s = 4, threshold t = 3, prime p = 11
         </p>
@@ -191,7 +211,7 @@ function ShamirSection() {
 
 function SummationSection() {
   return (
-    <div className="prose prose-lg dark:prose-invert max-w-none">
+    <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-green-600 to-emerald-600">
         ➕ Secure Summation Protocol
       </h2>
@@ -201,7 +221,7 @@ function SummationSection() {
         sums of secrets without any interaction, simply by adding their local shares.
       </p>
 
-      <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-6 rounded-r-lg my-6">
+      <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-6 rounded-r-lg my-6 transition-all duration-500 hover:shadow-xl hover:border-l-8 hover:scale-[1.02] hover:bg-green-100 dark:hover:bg-green-900/40">
         <h3 className="text-xl font-bold text-green-900 dark:text-green-300 mb-3">Protocol Steps</h3>
         <ol className="space-y-3 text-gray-700 dark:text-gray-300">
           <li>
@@ -219,7 +239,7 @@ function SummationSection() {
         </ol>
       </div>
 
-      <div className="bg-gray-100 dark:bg-gray-900 p-6 rounded-lg my-6">
+      <div className="bg-gray-100 dark:bg-gray-900 p-6 rounded-lg my-6 transition-all duration-500 hover:shadow-xl hover:border-2 hover:border-blue-400 hover:scale-[1.01]">
         <h4 className="font-bold text-lg mb-3 text-gray-800 dark:text-gray-200">Why It Works</h4>
         <p className="text-gray-700 dark:text-gray-300">
           If f(x) shares secret a and g(x) shares secret b, then h(x) = f(x) + g(x) shares secret a + b 
@@ -233,7 +253,7 @@ function SummationSection() {
         </p>
       </div>
 
-      <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg mt-6 border border-blue-200 dark:border-blue-800">
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg mt-6 border border-blue-200 dark:border-blue-800 transition-all duration-500 hover:shadow-xl hover:border-blue-500 hover:scale-105 hover:-translate-y-2">
         <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-2">✨ Key Advantage</h4>
         <p className="text-gray-700 dark:text-gray-300">
           <strong>Non-interactive:</strong> No communication needed! Each party independently computes their 
@@ -246,7 +266,7 @@ function SummationSection() {
 
 function MultiplicationSection() {
   return (
-    <div className="prose prose-lg dark:prose-invert max-w-none">
+    <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-600">
         ✖️ Secure Multiplication Protocol
       </h2>
@@ -256,7 +276,7 @@ function MultiplicationSection() {
         from <code>t-1</code> to <code>2(t-1)</code>, requiring <strong>degree reduction</strong> through resharing.
       </p>
 
-      <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-lg my-6">
+      <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-lg my-6 transition-all duration-500 hover:shadow-xl hover:border-l-8 hover:scale-[1.02] hover:bg-red-100 dark:hover:bg-red-900/30">
         <h3 className="text-xl font-bold text-red-900 dark:text-red-300 mb-2">⚠️ The Challenge</h3>
         <p className="text-gray-700 dark:text-gray-300">
           If f(x) and g(x) are degree t-1, then h(x) = f(x) · g(x) is degree <strong>2(t-1)</strong>. 
@@ -268,7 +288,7 @@ function MultiplicationSection() {
         BGW Protocol (Ben-Or, Goldwasser, Wigderson)
       </h3>
 
-      <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg my-6 border border-purple-200 dark:border-purple-800">
+      <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg my-6 border border-purple-200 dark:border-purple-800 transition-all duration-500 hover:shadow-2xl hover:border-purple-500 hover:scale-[1.01]">
         <h4 className="font-bold text-lg mb-4 text-purple-900 dark:text-purple-300">Protocol Steps</h4>
         <ol className="space-y-4 text-gray-700 dark:text-gray-300">
           <li className="p-3 bg-white dark:bg-gray-800 rounded border border-purple-200 dark:border-purple-700">
@@ -309,7 +329,7 @@ function MultiplicationSection() {
         </ol>
       </div>
 
-      <div className="bg-linear-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 p-6 rounded-lg my-6 border border-pink-200 dark:border-pink-800">
+      <div className="bg-linear-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 p-6 rounded-lg my-6 border border-pink-200 dark:border-pink-800 transition-all duration-500 hover:shadow-2xl hover:border-pink-500 hover:scale-[1.02] hover:-translate-y-1">
         <h4 className="font-bold text-lg mb-3 text-pink-900 dark:text-pink-300">🔄 Resharing Visualization</h4>
         <p className="text-gray-700 dark:text-gray-300 mb-3">
           The resharing step uses Lagrange basis polynomials evaluated at each player's ID:
@@ -325,7 +345,7 @@ function MultiplicationSection() {
         </p>
       </div>
 
-      <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg mt-6 border border-green-200 dark:border-green-800">
+      <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg mt-6 border border-green-200 dark:border-green-800 transition-all duration-500 hover:shadow-xl hover:border-green-500 hover:scale-105 hover:-translate-y-1">
         <h4 className="font-bold text-green-900 dark:text-green-300 mb-2">✅ Security Property</h4>
         <p className="text-gray-700 dark:text-gray-300">
           Throughout the protocol, no party learns anything beyond their own shares. The intermediate 
@@ -338,12 +358,12 @@ function MultiplicationSection() {
 
 function QuantumProtocolsSection() {
   return (
-    <div className="prose prose-lg dark:prose-invert max-w-none">
+    <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-600">
         ⚛️ Hybrid Quantum Protocols
       </h2>
 
-      <div className="bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-500 p-6 rounded-r-lg mb-6">
+      <div className="bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-500 p-6 rounded-r-lg mb-6 transition-all duration-500 hover:shadow-xl hover:border-l-8 hover:scale-[1.02] hover:bg-purple-100 dark:hover:bg-purple-900/30">
         <h3 className="text-xl font-bold text-purple-900 dark:text-purple-300 mb-2">Research Paper</h3>
         <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
           <strong>Sutradhar, K. & Om, H. (2020)</strong>
@@ -366,8 +386,8 @@ function QuantumProtocolsSection() {
       </h3>
 
       <div className="grid md:grid-cols-2 gap-4 mb-6">
-        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
-          <h4 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2">
+        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2 cursor-pointer group">
+          <h4 className="font-bold text-indigo-900 dark:text-indigo-300 mb-2 transition-all duration-300 group-hover:scale-110">
             (t, n) Threshold Approach
           </h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
@@ -377,7 +397,7 @@ function QuantumProtocolsSection() {
         </div>
 
         <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-          <h4 className="font-bold text-purple-900 dark:text-purple-300 mb-2">
+          <h4 className="font-bold text-purple-900 dark:text-purple-300 mb-2 transition-all duration-300 group-hover:scale-110">
             Secret-by-Secret Computation
           </h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
@@ -386,8 +406,8 @@ function QuantumProtocolsSection() {
           </p>
         </div>
 
-        <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border border-pink-200 dark:border-pink-800">
-          <h4 className="font-bold text-pink-900 dark:text-pink-300 mb-2">
+        <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border border-pink-200 dark:border-pink-800 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2 cursor-pointer group">
+          <h4 className="font-bold text-pink-900 dark:text-pink-300 mb-2 transition-all duration-300 group-hover:scale-110">
             Quantum Fourier Transform
           </h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
@@ -395,8 +415,8 @@ function QuantumProtocolsSection() {
           </p>
         </div>
 
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-          <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-2">
+        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2 cursor-pointer group">
+          <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-2 transition-all duration-300 group-hover:scale-110">
             Enhanced Security
           </h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
@@ -409,7 +429,7 @@ function QuantumProtocolsSection() {
         Quantum Summation Protocol
       </h3>
 
-      <div className="bg-gray-100 dark:bg-gray-900 p-6 rounded-lg border border-gray-300 dark:border-gray-700 mb-6">
+      <div className="bg-gray-100 dark:bg-gray-900 p-6 rounded-lg border border-gray-300 dark:border-gray-700 mb-6 transition-all duration-500 hover:shadow-2xl hover:border-purple-500 hover:scale-[1.01]">
         <h4 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-200">Protocol Overview</h4>
         <ol className="space-y-3 text-gray-700 dark:text-gray-300 text-sm">
           <li className="p-3 bg-white dark:bg-gray-800 rounded">
@@ -443,7 +463,7 @@ function QuantumProtocolsSection() {
         Quantum Multiplication Protocol
       </h3>
 
-      <div className="bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border-2 border-purple-200 dark:border-purple-800 mb-6">
+      <div className="bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border-2 border-purple-200 dark:border-purple-800 mb-6 transition-all duration-500 hover:shadow-2xl hover:border-purple-500 hover:scale-[1.02] hover:-translate-y-1">
         <p className="text-gray-700 dark:text-gray-300 mb-3">
           The quantum multiplication protocol extends summation by:
         </p>
@@ -476,28 +496,28 @@ function QuantumProtocolsSection() {
       </h3>
 
       <div className="space-y-4">
-        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-500">
+        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-500 transition-all duration-300 hover:shadow-lg hover:border-l-8 hover:scale-[1.02] hover:translate-x-2">
           <h4 className="font-bold text-green-900 dark:text-green-300 mb-2">✅ Better Communication Cost</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Only (t-1) message particles needed vs n particles in traditional protocols
           </p>
         </div>
 
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-500">
+        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-500 transition-all duration-300 hover:shadow-lg hover:border-l-8 hover:scale-[1.02] hover:translate-x-2">
           <h4 className="font-bold text-blue-900 dark:blue-green-300 mb-2">✅ Reduced Computation Cost</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Secret-by-secret computation (not bit-by-bit) with modulo d where d ≤ 2^n
           </p>
         </div>
 
-        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border-l-4 border-purple-500">
+        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border-l-4 border-purple-500 transition-all duration-300 hover:shadow-lg hover:border-l-8 hover:scale-[1.02] hover:translate-x-2">
           <h4 className="font-bold text-purple-900 dark:text-purple-300 mb-2">✅ Unconditional Security</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Based on quantum mechanics principles - resists all known quantum attacks
           </p>
         </div>
 
-        <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border-l-4 border-pink-500">
+        <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border-l-4 border-pink-500 transition-all duration-300 hover:shadow-lg hover:border-l-8 hover:scale-[1.02] hover:translate-x-2">
           <h4 className="font-bold text-pink-900 dark:text-pink-300 mb-2">✅ Privacy Preservation</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             No player can obtain other players' private inputs throughout the protocol
@@ -509,7 +529,7 @@ function QuantumProtocolsSection() {
         Example: Quantum Summation
       </h3>
 
-      <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-xl border border-indigo-200 dark:border-indigo-800">
+      <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-xl border border-indigo-200 dark:border-indigo-800 transition-all duration-500 hover:shadow-2xl hover:border-indigo-500 hover:scale-[1.02] hover:-translate-y-1">
         <p className="text-gray-700 dark:text-gray-300 mb-3">
           <strong>Parameters:</strong> p = 11 (prime), t = 3 (threshold), n = 7 (total players)
         </p>
@@ -528,7 +548,7 @@ function QuantumProtocolsSection() {
         </p>
       </div>
 
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-6 rounded-r-lg mt-6">
+      <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-6 rounded-r-lg mt-6 transition-all duration-500 hover:shadow-xl hover:border-l-8 hover:scale-[1.02] hover:bg-yellow-100 dark:hover:bg-yellow-900/30">
         <h4 className="font-bold text-yellow-900 dark:text-yellow-300 mb-2">💡 Practical Note</h4>
         <p className="text-sm text-gray-700 dark:text-gray-300">
           While our visualizer implements classical Shamir secret sharing (which is the foundation), the quantum 
@@ -537,7 +557,7 @@ function QuantumProtocolsSection() {
         </p>
       </div>
 
-      <div className="mt-8 p-6 bg-linear-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl border-2 border-purple-300 dark:border-purple-700">
+      <div className="mt-8 p-6 bg-linear-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl border-2 border-purple-300 dark:border-purple-700 transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:-translate-y-2 cursor-pointer">
         <h4 className="font-bold text-lg mb-3 text-purple-900 dark:text-purple-200">
           🔬 Future of Secure Computation
         </h4>
@@ -554,14 +574,14 @@ function QuantumProtocolsSection() {
 
 function SecuritySection() {
   return (
-    <div className="prose prose-lg dark:prose-invert max-w-none">
+    <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
         🛡️ Security Properties
       </h2>
 
       <div className="grid md:grid-cols-2 gap-6 my-8">
-        <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
-          <h3 className="text-xl font-bold text-blue-900 dark:text-blue-300 mb-3 flex items-center gap-2">
+        <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2 cursor-pointer group">
+          <h3 className="text-xl font-bold text-blue-900 dark:text-blue-300 mb-3 flex items-center gap-2 transition-all duration-300 group-hover:scale-110">
             <span>🔒</span> Perfect Secrecy
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
@@ -570,8 +590,8 @@ function SecuritySection() {
           </p>
         </div>
 
-        <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-xl border-2 border-green-200 dark:border-green-800">
-          <h3 className="text-xl font-bold text-green-900 dark:text-green-300 mb-3 flex items-center gap-2">
+        <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-xl border-2 border-green-200 dark:border-green-800 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2 cursor-pointer group">
+          <h3 className="text-xl font-bold text-green-900 dark:text-green-300 mb-3 flex items-center gap-2 transition-all duration-300 group-hover:scale-110">
             <span>✅</span> Threshold Property
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
@@ -580,8 +600,8 @@ function SecuritySection() {
           </p>
         </div>
 
-        <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-800">
-          <h3 className="text-xl font-bold text-purple-900 dark:text-purple-300 mb-3 flex items-center gap-2">
+        <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-800 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2 cursor-pointer group">
+          <h3 className="text-xl font-bold text-purple-900 dark:text-purple-300 mb-3 flex items-center gap-2 transition-all duration-300 group-hover:scale-110">
             <span>🎯</span> Privacy Preservation
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
@@ -590,8 +610,8 @@ function SecuritySection() {
           </p>
         </div>
 
-        <div className="p-6 bg-pink-50 dark:bg-pink-900/20 rounded-xl border-2 border-pink-200 dark:border-pink-800">
-          <h3 className="text-xl font-bold text-pink-900 dark:text-pink-300 mb-3 flex items-center gap-2">
+        <div className="p-6 bg-pink-50 dark:bg-pink-900/20 rounded-xl border-2 border-pink-200 dark:border-pink-800 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2 cursor-pointer group">
+          <h3 className="text-xl font-bold text-pink-900 dark:text-pink-300 mb-3 flex items-center gap-2 transition-all duration-300 group-hover:scale-110">
             <span>⚡</span> Verifiability
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
@@ -863,6 +883,129 @@ function ReferencesSection() {
           </ul>
         </div>
 
+        <div className="p-6 bg-linear-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl border-2 border-red-200 dark:border-red-700 shadow-lg">
+          <h3 className="text-xl font-bold text-red-900 dark:text-red-300 mb-4 flex items-center gap-2">
+            📄 Research Papers & PDFs
+          </h3>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+            Download or view original research papers and technical documentation to dive deeper into the theory and implementation.
+          </p>
+          
+          <div className="space-y-3">
+            {/* Quantum Protocols Paper */}
+            <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-red-200 dark:border-red-800 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    Hybrid Quantum Protocols (2020)
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                    Sutradhar & Om - Scientific Reports
+                  </p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300">
+                    Complete research on (t,n) threshold quantum protocols for secure multiparty summation and multiplication
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <a
+                    href="https://www.nature.com/articles/s41598-020-65871-8.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-linear-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white text-xs font-medium rounded-lg transition-all hover:scale-105 shadow-md whitespace-nowrap"
+                  >
+                    📥 Download
+                  </a>
+                  <a
+                    href="https://www.nature.com/articles/s41598-020-65871-8"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 text-xs font-medium rounded-lg border-2 border-red-300 dark:border-red-700 transition-all hover:scale-105 whitespace-nowrap"
+                  >
+                    🔗 View Online
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Original Shamir Paper */}
+            <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-red-200 dark:border-red-800 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    How to Share a Secret (1979)
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                    Adi Shamir - Communications of the ACM
+                  </p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300">
+                    The original groundbreaking paper introducing Shamir's Secret Sharing scheme
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <a
+                    href="https://web.mit.edu/6.857/OldStuff/Fall03/ref/Shamir-HowToShareASecret.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-linear-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white text-xs font-medium rounded-lg transition-all hover:scale-105 shadow-md whitespace-nowrap"
+                  >
+                    📥 Download
+                  </a>
+                  <a
+                    href="https://dl.acm.org/doi/10.1145/359168.359176"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 text-xs font-medium rounded-lg border-2 border-red-300 dark:border-red-700 transition-all hover:scale-105 whitespace-nowrap"
+                  >
+                    🔗 View Online
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* BGW Protocol Paper */}
+            <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-red-200 dark:border-red-800 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    BGW Protocol for MPC (1988)
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                    Ben-Or, Goldwasser, Wigderson - STOC
+                  </p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300">
+                    Foundational work on secure multi-party multiplication protocols
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <a
+                    href="https://dl.acm.org/doi/pdf/10.1145/62212.62213"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-linear-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white text-xs font-medium rounded-lg transition-all hover:scale-105 shadow-md whitespace-nowrap"
+                  >
+                    📥 Download
+                  </a>
+                  <a
+                    href="https://dl.acm.org/doi/10.1145/62212.62213"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 text-xs font-medium rounded-lg border-2 border-red-300 dark:border-red-700 transition-all hover:scale-105 whitespace-nowrap"
+                  >
+                    🔗 View Online
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Info note */}
+            <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 rounded-r-lg">
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                💡 <strong>Tip:</strong> These PDFs provide the theoretical foundation for the concepts implemented in this visualizer. They're perfect for academic study and deeper understanding.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700">
           <h3 className="text-xl font-bold mb-3 text-gray-800 dark:text-gray-200">
             🎓 About This Visualizer
@@ -883,6 +1026,26 @@ function ReferencesSection() {
               Interactive
             </span>
           </div>
+        </div>
+
+        {/* Test Your Knowledge CTA */}
+        <div className="mt-8 p-8 bg-linear-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl border-2 border-purple-300 dark:border-purple-700 text-center transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:-translate-y-2">
+          <div className="text-6xl mb-4 animate-bounce">🎯</div>
+          <h3 className="text-3xl font-bold mb-3 text-gray-800 dark:text-gray-200">
+            Test Your Knowledge!
+          </h3>
+          <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
+            Ready to see how much you've learned? Take our interactive quiz covering all the concepts from this documentation.
+          </p>
+          <Link
+            href="/quiz"
+            className="inline-block px-10 py-4 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xl font-bold rounded-xl shadow-xl transform hover:scale-110 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/50"
+          >
+            🚀 Start Quiz Now
+          </Link>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+            15 questions • Multiple choice • Instant feedback
+          </p>
         </div>
       </div>
     </div>

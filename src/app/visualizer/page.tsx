@@ -3,6 +3,7 @@
  */
 "use client";
 import React, { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import ControlPanel, { type OperationMode } from "@/components/ControlPanel";
 import PlayersGrid, { type PlayerData } from "@/components/PlayersGrid";
 import Stepper, { type StepperHandle } from "@/components/Stepper";
@@ -30,6 +31,8 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [showLagrangeModal, setShowLagrangeModal] = useState(false);
   const [modalType, setModalType] = useState<"sum" | "mul">("sum");
+  const [isComplete, setIsComplete] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const stepRef = useRef<StepperHandle | null>(null);
 
@@ -106,8 +109,9 @@ export default function HomePage() {
 
       stepRef.current?.reset();
       setCurrentStep("generate-polynomials");
+      setIsComplete(false);
+      setShowSuccess(false);
     } catch (err) {
-      console.error(err);
       setError(err instanceof Error ? err.message : "Generation failed");
       setPlayersData([]);
       setReshareMessages([]);
@@ -118,6 +122,11 @@ export default function HomePage() {
 
   const handleStepChange = (step: string) => {
     setCurrentStep(step);
+    if (step === "reconstruct") {
+      setIsComplete(true);
+      setTimeout(() => setShowSuccess(true), 500);
+      setTimeout(() => setShowSuccess(false), 3000);
+    }
   };
 
   const handleExport = (format: "csv" | "json") => {
@@ -162,6 +171,30 @@ export default function HomePage() {
           </div>
         </div>
       </header>
+
+      {/* Success Animation */}
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -50, scale: 0.9 }}
+            transition={{ duration: 0.5, type: "spring" }}
+            className="max-w-7xl mx-auto mb-6"
+          >
+            <div className="p-6 bg-linear-to-r from-green-500 via-emerald-500 to-teal-500 rounded-2xl shadow-2xl border-4 border-white dark:border-gray-700">
+              <div className="flex items-center justify-center gap-4">
+                <span className="text-6xl animate-bounce">🎉</span>
+                <div className="text-center">
+                  <p className="text-3xl font-extrabold text-white drop-shadow-lg">Protocol Complete!</p>
+                  <p className="text-white/90 text-lg mt-1">Secrets successfully reconstructed</p>
+                </div>
+                <span className="text-6xl animate-bounce" style={{ animationDelay: "0.1s" }}>✨</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {error && (
         <div className="max-w-7xl mx-auto mb-6 p-4 bg-linear-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl shadow-md">
@@ -223,14 +256,39 @@ export default function HomePage() {
 
         <div className="lg:col-span-2">
           {playersData.length > 0 && (
-            <div className="bg-linear-to-br from-white to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
-              <h2 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                Reconstruction Results
-              </h2>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="bg-linear-to-br from-white to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-xl p-6 border border-gray-200 dark:border-gray-700 mb-6"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                  Reconstruction Results
+                </h2>
+                {isComplete && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                    className="flex items-center gap-2 bg-green-100 dark:bg-green-900/30 px-4 py-2 rounded-full"
+                  >
+                    <span className="text-2xl">✅</span>
+                    <span className="text-sm font-bold text-green-700 dark:text-green-300">Complete</span>
+                  </motion.div>
+                )}
+              </div>
 
               <div className={`grid grid-cols-1 ${operationMode === "both" ? "md:grid-cols-2" : ""} gap-4`}>
                 {operationMode !== "multiply" && (
-                  <div className="p-6 bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border-2 border-green-200 dark:border-green-800 shadow-md">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className={`p-6 bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border-2 border-green-200 dark:border-green-800 shadow-md transition-all duration-300 ${
+                      isComplete ? "shadow-2xl shadow-green-500/50 scale-105" : ""
+                    }`}
+                  >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-2xl">➕</span>
                       <p className="text-sm font-semibold text-green-900 dark:text-green-100">
@@ -252,11 +310,18 @@ export default function HomePage() {
                     >
                       📊 View Lagrange Details
                     </button>
-                  </div>
+                  </motion.div>
                 )}
 
                 {operationMode !== "sum" && (
-                  <div className="p-6 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-800 shadow-md">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className={`p-6 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-800 shadow-md transition-all duration-300 ${
+                      isComplete ? "shadow-2xl shadow-purple-500/50 scale-105" : ""
+                    }`}
+                  >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-2xl">✖️</span>
                       <p className="text-sm font-semibold text-purple-900 dark:text-purple-100">
@@ -278,7 +343,7 @@ export default function HomePage() {
                     >
                       📊 View Lagrange Details
                     </button>
-                  </div>
+                  </motion.div>
                 )}
               </div>
 
@@ -297,7 +362,7 @@ export default function HomePage() {
                   📦 Export JSON
                 </button>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Show network matrix during resharing steps */}

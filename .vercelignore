@@ -5,10 +5,10 @@ node_modules
 .github
 tests
 *.test.ts
-*.test.tsx
+\*.test.tsx
 jest.config.js
 .vscode
 .prettierrc
 eslint.config.mjs
-COMPLETION.md
-src/app/page_temp.tsx
+\*.md
+README.md

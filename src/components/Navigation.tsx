@@ -13,7 +13,12 @@ export default function Navigation() {
   const navLinks = [
     { href: "/", label: "Home", icon: "🏠" },
     { href: "/visualizer", label: "Visualizer", icon: "🔬" },
-    { href: "/docs", label: "Documentation", icon: "📚" },
+    { href: "/docs", label: "Documentation", icon: "📚" },    { href: "/code", label: "Code", icon: "💻" },    { href: "/glossary", label: "Glossary", icon: "📖" },
+    { href: "/faq", label: "FAQ", icon: "❓" },
+    { href: "/quiz", label: "Quiz", icon: "🎯" },
+    { href: "/achievements", label: "Achievements", icon: "🏆" },
+    { href: "/dashboard", label: "Dashboard", icon: "📊" },
+    { href: "/themes", label: "Themes", icon: "🎨" },
   ];
 
   return (

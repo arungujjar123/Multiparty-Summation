@@ -48,7 +48,7 @@ export default function LagrangeModal({
               displayMode: true,
             });
           } catch (e) {
-            console.error("KaTeX render error:", e);
+            // KaTeX render error silently handled
           }
         }
       });
