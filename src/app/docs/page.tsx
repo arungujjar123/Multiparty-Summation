@@ -2,18 +2,62 @@
  * @fileoverview Documentation page for Shamir Secret Sharing
  */
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { AchievementTracker } from "@/lib/achievements";
+import { marked } from "marked";
+
+interface DocSection {
+  id: string;
+  title: string;
+  icon: string;
+  content?: string;
+}
 
 export default function DocsPage() {
+  const [sections, setSections] = useState<DocSection[]>([]);
   const [activeSection, setActiveSection] = useState("introduction");
+  const [isLoadingSections, setIsLoadingSections] = useState(true);
+  const [loadError, setLoadError] = useState("");
   
   useEffect(() => {
     AchievementTracker.trackPageVisit("docs");
   }, []);
 
-  const sections = [
+  useEffect(() => {
+    const loadSections = async () => {
+      setIsLoadingSections(true);
+      setLoadError("");
+      try {
+        const response = await fetch("/api/docs");
+        const data = await response.json();
+
+        if (!response.ok) {
+          setLoadError(data.error || "Failed to load documentation");
+          setIsLoadingSections(false);
+          return;
+        }
+
+        const loadedSections = (data.sections || []) as DocSection[];
+        setSections(loadedSections);
+        if (loadedSections.length > 0) {
+          setActiveSection((current) =>
+            loadedSections.some((section) => section.id === current)
+              ? current
+              : loadedSections[0].id
+          );
+        }
+      } catch (error) {
+        setLoadError("Failed to load documentation");
+      } finally {
+        setIsLoadingSections(false);
+      }
+    };
+
+    loadSections();
+  }, []);
+
+  const fallbackSections: DocSection[] = [
     { id: "introduction", title: "Introduction", icon: "📖" },
     { id: "shamir", title: "Shamir's Scheme", icon: "🔐" },
     { id: "summation", title: "Summation Protocol", icon: "➕" },
@@ -24,8 +68,42 @@ export default function DocsPage() {
     { id: "references", title: "References", icon: "📚" },
   ];
 
+  const visibleSections = sections.length > 0 ? sections : fallbackSections;
+  const activeContent = visibleSections.find(
+    (section) => section.id === activeSection
+  );
+
+  const renderSectionContent = () => {
+    if (!activeContent) return null;
+
+    if (activeContent.content && activeContent.content.trim().length > 0) {
+      return <MarkdownContent content={activeContent.content} />;
+    }
+
+    switch (activeContent.id) {
+      case "introduction":
+        return <IntroductionSection />;
+      case "shamir":
+        return <ShamirSection />;
+      case "summation":
+        return <SummationSection />;
+      case "multiplication":
+        return <MultiplicationSection />;
+      case "quantum":
+        return <QuantumProtocolsSection />;
+      case "security":
+        return <SecuritySection />;
+      case "implementation":
+        return <ImplementationSection />;
+      case "references":
+        return <ReferencesSection />;
+      default:
+        return <EmptySection />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-12 px-6 relative overflow-hidden">
+    <div className="min-h-screen hero-surface hero-grid py-12 px-6 relative overflow-hidden">
       {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-400/10 dark:bg-purple-600/5 rounded-full blur-3xl animate-pulse"></div>
@@ -57,7 +135,7 @@ export default function DocsPage() {
                 📑 Contents
               </h3>
               <nav className="space-y-1">
-                {sections.map((section) => (
+                {visibleSections.map((section) => (
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
@@ -82,14 +160,16 @@ export default function DocsPage() {
           {/* Main Content */}
           <div className="lg:col-span-3">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700 transition-all duration-700 hover:shadow-2xl hover:shadow-purple-500/20 animate-fade-in">
-              {activeSection === "introduction" && <IntroductionSection />}
-              {activeSection === "shamir" && <ShamirSection />}
-              {activeSection === "summation" && <SummationSection />}
-              {activeSection === "multiplication" && <MultiplicationSection />}
-              {activeSection === "quantum" && <QuantumProtocolsSection />}
-              {activeSection === "security" && <SecuritySection />}
-              {activeSection === "implementation" && <ImplementationSection />}
-              {activeSection === "references" && <ReferencesSection />}
+              {loadError && (
+                <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
+                  {loadError}
+                </div>
+              )}
+              {isLoadingSections ? (
+                <div className="text-gray-600 dark:text-gray-400">Loading documentation...</div>
+              ) : (
+                renderSectionContent()
+              )}
             </div>
           </div>
         </div>
@@ -98,11 +178,30 @@ export default function DocsPage() {
   );
 }
 
+function MarkdownContent({ content }: { content: string }) {
+  const html = useMemo(() => marked.parse(content), [content]);
+
+  return (
+    <div
+      className="prose prose-lg dark:prose-invert max-w-none animate-fade-in"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+}
+
+function EmptySection() {
+  return (
+    <div className="text-gray-600 dark:text-gray-400">
+      No content has been added for this section yet.
+    </div>
+  );
+}
+
 function IntroductionSection() {
   return (
     <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
-        📖 Ishu introduction  and our new startup
+        📖 introduction
       </h2>
       
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">

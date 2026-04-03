@@ -147,7 +147,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 p-6">
+    <div className="min-h-screen hero-surface hero-grid p-6">
       <header className="max-w-7xl mx-auto mb-8">
         <div className="text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-3">

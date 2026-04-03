@@ -170,7 +170,7 @@ export default function GlossaryPage() {
   }).sort((a, b) => a.term.localeCompare(b.term));
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-12 px-6">
+    <div className="min-h-screen hero-surface hero-grid py-12 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

@@ -265,7 +265,7 @@ export default function QuizPage() {
   if (quizCompleted) {
     const scoreMessage = getScoreMessage();
     return (
-      <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-12 px-6">
+      <div className="min-h-screen hero-surface hero-grid py-12 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border-2 border-purple-200 dark:border-purple-800 animate-fade-in">
             <div className="text-center">
@@ -331,7 +331,7 @@ export default function QuizPage() {
   const progress = ((currentQuestion + 1) / shuffledQuestions.length) * 100;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-12 px-6 relative overflow-hidden">
+    <div className="min-h-screen hero-surface hero-grid py-12 px-6 relative overflow-hidden">
       {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-400/10 dark:bg-purple-600/5 rounded-full blur-3xl animate-pulse"></div>

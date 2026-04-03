@@ -25,7 +25,6 @@ const Stepper = forwardRef<StepperHandle, Props>(({ steps, onRunStep, intervalMs
       const i = steps.indexOf(step);
       if (i >= 0) {
         setIdx(i);
-        onRunStep?.(step);
       }
     },
     getCurrentStep() {
@@ -36,6 +35,13 @@ const Stepper = forwardRef<StepperHandle, Props>(({ steps, onRunStep, intervalMs
       setPlaying(false);
     },
   }));
+  
+  // Trigger onRunStep when idx changes (except on mount)
+  useEffect(() => {
+    if (idx !== 0 || playing) {
+      onRunStep?.(steps[idx]);
+    }
+  }, [idx, steps, onRunStep, playing]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
@@ -43,7 +49,6 @@ const Stepper = forwardRef<StepperHandle, Props>(({ steps, onRunStep, intervalMs
       timer = setInterval(() => {
         setIdx((s) => {
           const next = s + 1 >= steps.length ? 0 : s + 1;
-          onRunStep?.(steps[next]);
           if (next === 0) setPlaying(false);
           return next;
         });
@@ -52,18 +57,16 @@ const Stepper = forwardRef<StepperHandle, Props>(({ steps, onRunStep, intervalMs
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [playing, steps, intervalMs, onRunStep]);
+  }, [playing, steps.length, intervalMs]);
 
   const prev = () => {
     const p = idx - 1 < 0 ? steps.length - 1 : idx - 1;
     setIdx(p);
-    onRunStep?.(steps[p]);
   };
 
   const next = () => {
     const n = idx + 1 >= steps.length ? 0 : idx + 1;
     setIdx(n);
-    onRunStep?.(steps[n]);
   };
 
   const togglePlay = () => setPlaying((p) => !p);
