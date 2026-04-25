@@ -1,7 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { AchievementTracker } from "@/lib/achievements";
 
 interface FAQItem {
   question: string;
@@ -56,7 +55,7 @@ const faqData: FAQItem[] = [
     category: "Operations"
   },
   {
-    question: "What is the BGW protocol?",
+    question: "Why is the BGW protocol?",
     answer: "BGW (Ben-Or, Goldwasser, Wigderson) is a protocol for secure multiplication. It handles the degree reduction problem by having parties reshare their multiplication results, creating new degree-(t-1) shares of the product.",
     category: "Operations"
   },

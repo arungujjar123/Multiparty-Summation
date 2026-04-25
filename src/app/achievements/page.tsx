@@ -189,10 +189,6 @@ export default function AchievementsPage() {
     completionPercentage: 0,
   });
 
-  useEffect(() => {
-    loadAchievements();
-  }, []);
-
   const loadAchievements = () => {
     const savedData = typeof window !== "undefined" 
       ? localStorage.getItem("achievements") 
@@ -241,6 +237,10 @@ export default function AchievementsPage() {
     setAchievements(updatedAchievements);
     setStats({ totalUnlocked, totalPoints, completionPercentage });
   };
+
+  useEffect(() => {
+    loadAchievements();
+  }, []);
 
   const loadUserProgress = () => {
     if (typeof window === "undefined") return {};

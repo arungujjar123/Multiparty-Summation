@@ -2,16 +2,14 @@
  * @fileoverview Documentation page for Shamir Secret Sharing
  */
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { AchievementTracker } from "@/lib/achievements";
-import { Marked } from "marked";
 
 interface DocSection {
   id: string;
   title: string;
   icon: string;
-  content: string;
   attachments?: string[];
   order: number;
 }
@@ -49,7 +47,7 @@ export default function DocsPage() {
               : loadedSections[0].id
           );
         }
-      } catch (error) {
+      } catch {
         setLoadError("Failed to load documentation");
       } finally {
         setIsLoadingSections(false);
@@ -60,14 +58,14 @@ export default function DocsPage() {
   }, []);
 
   const fallbackSections: DocSection[] = [
-    { id: "introduction", title: "Introduction", icon: "📖" },
-    { id: "shamir", title: "Shamir's Scheme", icon: "🔐" },
-    { id: "summation", title: "Summation Protocol", icon: "➕" },
-    { id: "multiplication", title: "Multiplication Protocol", icon: "✖️" },
-    { id: "quantum", title: "Quantum Protocols", icon: "⚛️" },
-    { id: "security", title: "Security Properties", icon: "🛡️" },
-    { id: "implementation", title: "Implementation", icon: "💻" },
-    { id: "references", title: "References", icon: "📚" },
+    { id: "introduction", title: "Introduction", icon: "📖", order: 1 },
+    { id: "shamir", title: "Shamir&apos;s Scheme", icon: "🔐", order: 2 },
+    { id: "summation", title: "Summation Protocol", icon: "➕", order: 3 },
+    { id: "multiplication", title: "Multiplication Protocol", icon: "✖️", order: 4 },
+    { id: "quantum", title: "Quantum Protocols", icon: "⚛️", order: 5 },
+    { id: "security", title: "Security Properties", icon: "🛡️", order: 6 },
+    { id: "implementation", title: "Implementation", icon: "💻", order: 7 },
+    { id: "references", title: "References", icon: "📚", order: 8 },
   ];
 
   const visibleSections = sections.length > 0 ? sections : fallbackSections;
@@ -78,9 +76,6 @@ export default function DocsPage() {
   const renderSectionContent = () => {
     if (!activeContent) return null;
 
-    const hasDbContent = activeContent.content && activeContent.content.trim().length > 0;
-
-    // Core sections that have beautiful hardcoded React components
     const getCoreComponent = () => {
       switch (activeContent.id) {
         case "introduction":
@@ -104,9 +99,6 @@ export default function DocsPage() {
       }
     };
 
-    const coreComponent = getCoreComponent();
-
-    // Helper to render attachments
     const renderAttachments = (urls: string[]) => {
       if (!urls || urls.length === 0) return null;
 
@@ -148,43 +140,27 @@ export default function DocsPage() {
     };
 
     const dbAttachments = activeContent.attachments || [];
-
-    // Automatically find PDF links in the markdown content and add them to the gallery
-    const extractedAttachments: string[] = [];
-    const pdfRegex = /\[.*?\]\((.*?\.pdf(.*?))\)/gi;
-    let match;
-    while ((match = pdfRegex.exec(activeContent.content || "")) !== null) {
-      const url = match[1];
-      if (!dbAttachments.includes(url)) {
-        extractedAttachments.push(url);
-      }
-    }
-
-    const allAttachments = [...dbAttachments, ...extractedAttachments];
+    const allAttachments = [...dbAttachments];
     const hasAnyAttachments = allAttachments.length > 0;
+    const coreComponent = getCoreComponent();
 
-    // Logic: 
-    // 1. If it's a core section (has built-in UI), show UI + appended DB content + gallery
-    // 2. If it's a dynamic section (no built-in UI), show DB content + gallery
     if (coreComponent) {
       return (
         <div className="space-y-12">
           {coreComponent}
-          {(hasDbContent || hasAnyAttachments) && (
+          {hasAnyAttachments && (
             <div className="pt-12 border-t-4 border-dashed border-purple-100 dark:border-purple-900/30">
-              {hasDbContent && <MarkdownContent content={activeContent.content!} />}
-              {hasAnyAttachments && renderAttachments(allAttachments)}
+              {renderAttachments(allAttachments)}
             </div>
           )}
         </div>
       );
     }
 
-    if (hasDbContent || hasAnyAttachments) {
+    if (hasAnyAttachments) {
       return (
         <div className="space-y-8">
-          {hasDbContent && <MarkdownContent content={activeContent.content!} />}
-          {hasAnyAttachments && renderAttachments(allAttachments)}
+          {renderAttachments(allAttachments)}
         </div>
       );
     }
@@ -266,46 +242,6 @@ export default function DocsPage() {
   );
 }
 
-function MarkdownContent({ content }: { content: string }) {
-  const html = useMemo(() => {
-    const customRenderer = {
-      link(token: any) {
-        const { href, text } = token;
-        const isPdf = href.toLowerCase().endsWith('.pdf') ||
-          (href.includes('cloudinary') && href.includes('/raw/upload/'));
-
-        if (isPdf) {
-          return `
-            <div class="inline-flex items-center gap-2 my-2 p-2 bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800 rounded-lg">
-              <span class="text-lg">📄</span>
-              <span class="font-bold text-sm text-gray-700 dark:text-gray-300">${text || 'PDF'}</span>
-              <a href="${href}" target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded shadow-sm no-underline!" style="text-decoration: none !important;">
-                👁️ View
-              </a>
-              <a href="${href}" download target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded shadow-sm no-underline!" style="text-decoration: none !important;">
-                📥 Download
-              </a>
-            </div>
-          `;
-        }
-
-        // Default link rendering
-        return `<a href="${href}" title="${token.title || ''}" target="_blank" rel="noopener noreferrer">${text}</a>`;
-      }
-    };
-
-    const markedInstance = new Marked();
-    markedInstance.use({ renderer: customRenderer });
-    return markedInstance.parse(content) as string;
-  }, [content]);
-
-  return (
-    <div
-      className="prose prose-lg dark:prose-invert max-w-none animate-fade-in prose-a:text-purple-600 dark:prose-a:text-purple-400 prose-a:font-semibold prose-a:underline [&_a]:text-purple-600 dark:[&_a]:text-purple-400 [&_a]:font-semibold [&_a]:underline [&_a:hover]:text-purple-700 dark:[&_a:hover]:text-purple-300"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
-}
 
 function EmptySection() {
   return (
@@ -1081,7 +1017,7 @@ function ReferencesSection() {
           <ul className="space-y-2 text-sm">
             <li className="p-3 bg-green-50 dark:bg-green-900/20 rounded">
               <a href="https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold" target="_blank" rel="noopener noreferrer">
-                Wikipedia: Shamir's Secret Sharing
+                Wikipedia: Shamir&apos;s Secret Sharing
               </a>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Comprehensive overview with examples</p>
             </li>
@@ -1155,7 +1091,7 @@ function ReferencesSection() {
                     Adi Shamir - Communications of the ACM
                   </p>
                   <p className="text-xs text-gray-700 dark:text-gray-300">
-                    The original groundbreaking paper introducing Shamir's Secret Sharing scheme
+                    The original groundbreaking paper introducing Shamir&apos;s Secret Sharing scheme
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -1217,7 +1153,7 @@ function ReferencesSection() {
             {/* Info note */}
             <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 rounded-r-lg">
               <p className="text-xs text-gray-700 dark:text-gray-300">
-                💡 <strong>Tip:</strong> These PDFs provide the theoretical foundation for the concepts implemented in this visualizer. They're perfect for academic study and deeper understanding.
+                💡 <strong>Tip:</strong> These PDFs provide the theoretical foundation for the concepts implemented in this visualizer. They&apos;re perfect for academic study and deeper understanding.
               </p>
             </div>
           </div>
@@ -1252,7 +1188,7 @@ function ReferencesSection() {
             Test Your Knowledge!
           </h3>
           <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
-            Ready to see how much you've learned? Take our interactive quiz covering all the concepts from this documentation.
+            Ready to see how much you&apos;ve learned? Take our interactive quiz covering all the concepts from this documentation.
           </p>
           <Link
             href="/quiz"

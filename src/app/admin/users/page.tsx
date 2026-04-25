@@ -14,18 +14,6 @@ export default function AdminUsersPage() {
   const [filter, setFilter] = useState<'all' | 'admin' | 'student'>('all');
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!isLoading && !isAdmin) {
-      router.push('/login');
-    }
-  }, [isAdmin, isLoading, router]);
-
-  useEffect(() => {
-    if (isAdmin) {
-      loadUsers();
-    }
-  }, [isAdmin]);
-
   const loadUsers = async () => {
     setError("");
     const response = await fetch("/api/admin/users", {
@@ -40,6 +28,18 @@ export default function AdminUsersPage() {
 
     setUsers(data.users || []);
   };
+
+  useEffect(() => {
+    if (!isLoading && !isAdmin) {
+      router.push('/login');
+    }
+  }, [isAdmin, isLoading, router]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      loadUsers();
+    }
+  }, [isAdmin]);
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     if (confirm(`Change user role to ${newRole}?`)) {

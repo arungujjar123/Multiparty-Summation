@@ -85,8 +85,7 @@ export async function POST(req: Request) {
             ).end(buffer);
         });
 
-        // @ts-ignore
-        const { secure_url, public_id, bytes } = uploadResult;
+        const { secure_url, public_id, bytes } = uploadResult as any;
         return NextResponse.json(
             {
                 file: {
