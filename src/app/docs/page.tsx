@@ -5,13 +5,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { AchievementTracker } from "@/lib/achievements";
-import { marked } from "marked";
+import { Marked } from "marked";
 
 interface DocSection {
   id: string;
   title: string;
   icon: string;
-  content?: string;
+  content: string;
+  attachments?: string[];
+  order: number;
 }
 
 export default function DocsPage() {
@@ -19,7 +21,7 @@ export default function DocsPage() {
   const [activeSection, setActiveSection] = useState("introduction");
   const [isLoadingSections, setIsLoadingSections] = useState(true);
   const [loadError, setLoadError] = useState("");
-  
+
   useEffect(() => {
     AchievementTracker.trackPageVisit("docs");
   }, []);
@@ -76,30 +78,118 @@ export default function DocsPage() {
   const renderSectionContent = () => {
     if (!activeContent) return null;
 
-    if (activeContent.content && activeContent.content.trim().length > 0) {
-      return <MarkdownContent content={activeContent.content} />;
+    const hasDbContent = activeContent.content && activeContent.content.trim().length > 0;
+
+    // Core sections that have beautiful hardcoded React components
+    const getCoreComponent = () => {
+      switch (activeContent.id) {
+        case "introduction":
+          return <IntroductionSection />;
+        case "shamir":
+          return <ShamirSection />;
+        case "summation":
+          return <SummationSection />;
+        case "multiplication":
+          return <MultiplicationSection />;
+        case "quantum":
+          return <QuantumProtocolsSection />;
+        case "security":
+          return <SecuritySection />;
+        case "implementation":
+          return <ImplementationSection />;
+        case "references":
+          return <ReferencesSection />;
+        default:
+          return null;
+      }
+    };
+
+    const coreComponent = getCoreComponent();
+
+    // Helper to render attachments
+    const renderAttachments = (urls: string[]) => {
+      if (!urls || urls.length === 0) return null;
+
+      return (
+        <div className="mt-8 space-y-4 animate-fade-in">
+          <div className="flex items-center gap-3 py-4 border-b border-purple-100 dark:border-purple-900/40">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 m-0">
+              📂 Document Gallery
+            </h3>
+            <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-full">
+              {urls.length} Files
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {urls.map((url, idx) => (
+              <div key={idx} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-purple-100 dark:border-purple-900/40 rounded-xl shadow-md hover:shadow-lg transition-all hover:border-purple-300 dark:hover:border-purple-700">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <span className="text-2xl shrink-0">📄</span>
+                  <div className="overflow-hidden">
+                    <h4 className="font-bold m-0 text-sm text-gray-800 dark:text-gray-200 truncate pr-2">
+                      {url.split('/').pop()?.split('?')[0] || 'PDF Document'}
+                    </h4>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="p-2 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-lg transition-all group" title="View PDF">
+                    👁️
+                  </a>
+                  <a href={url} download target="_blank" rel="noopener noreferrer" className="p-2 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-600 dark:text-green-400 rounded-lg transition-all group" title="Download PDF">
+                    📥
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    const dbAttachments = activeContent.attachments || [];
+
+    // Automatically find PDF links in the markdown content and add them to the gallery
+    const extractedAttachments: string[] = [];
+    const pdfRegex = /\[.*?\]\((.*?\.pdf(.*?))\)/gi;
+    let match;
+    while ((match = pdfRegex.exec(activeContent.content || "")) !== null) {
+      const url = match[1];
+      if (!dbAttachments.includes(url)) {
+        extractedAttachments.push(url);
+      }
     }
 
-    switch (activeContent.id) {
-      case "introduction":
-        return <IntroductionSection />;
-      case "shamir":
-        return <ShamirSection />;
-      case "summation":
-        return <SummationSection />;
-      case "multiplication":
-        return <MultiplicationSection />;
-      case "quantum":
-        return <QuantumProtocolsSection />;
-      case "security":
-        return <SecuritySection />;
-      case "implementation":
-        return <ImplementationSection />;
-      case "references":
-        return <ReferencesSection />;
-      default:
-        return <EmptySection />;
+    const allAttachments = [...dbAttachments, ...extractedAttachments];
+    const hasAnyAttachments = allAttachments.length > 0;
+
+    // Logic: 
+    // 1. If it's a core section (has built-in UI), show UI + appended DB content + gallery
+    // 2. If it's a dynamic section (no built-in UI), show DB content + gallery
+    if (coreComponent) {
+      return (
+        <div className="space-y-12">
+          {coreComponent}
+          {(hasDbContent || hasAnyAttachments) && (
+            <div className="pt-12 border-t-4 border-dashed border-purple-100 dark:border-purple-900/30">
+              {hasDbContent && <MarkdownContent content={activeContent.content!} />}
+              {hasAnyAttachments && renderAttachments(allAttachments)}
+            </div>
+          )}
+        </div>
+      );
     }
+
+    if (hasDbContent || hasAnyAttachments) {
+      return (
+        <div className="space-y-8">
+          {hasDbContent && <MarkdownContent content={activeContent.content!} />}
+          {hasAnyAttachments && renderAttachments(allAttachments)}
+        </div>
+      );
+    }
+
+    return <EmptySection />;
   };
 
   return (
@@ -107,10 +197,10 @@ export default function DocsPage() {
       {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-400/10 dark:bg-purple-600/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/10 dark:bg-blue-600/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s', animationDuration: '4s'}}></div>
-        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-400/10 dark:bg-pink-600/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s', animationDuration: '5s'}}></div>
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/10 dark:bg-blue-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s', animationDuration: '4s' }}></div>
+        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-400/10 dark:bg-pink-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s', animationDuration: '5s' }}></div>
       </div>
-      
+
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
@@ -139,15 +229,13 @@ export default function DocsPage() {
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
-                    className={`group w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 transform flex items-center gap-3 ${
-                      activeSection === section.id
+                    className={`group w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 transform flex items-center gap-3 ${activeSection === section.id
                         ? "bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50 scale-105 -translate-x-1"
                         : "text-gray-700 dark:text-gray-300 hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 hover:scale-102 hover:shadow-md hover:translate-x-1"
-                    }`}
+                      }`}
                   >
-                    <span className={`text-lg transition-transform duration-300 ${
-                      activeSection === section.id ? "animate-bounce" : "group-hover:scale-125 group-hover:rotate-12"
-                    }`}>
+                    <span className={`text-lg transition-transform duration-300 ${activeSection === section.id ? "animate-bounce" : "group-hover:scale-125 group-hover:rotate-12"
+                      }`}>
                       {section.icon}
                     </span>
                     <span className={activeSection === section.id ? "font-bold" : ""}>{section.title}</span>
@@ -179,11 +267,41 @@ export default function DocsPage() {
 }
 
 function MarkdownContent({ content }: { content: string }) {
-  const html = useMemo(() => marked.parse(content), [content]);
+  const html = useMemo(() => {
+    const customRenderer = {
+      link(token: any) {
+        const { href, text } = token;
+        const isPdf = href.toLowerCase().endsWith('.pdf') ||
+          (href.includes('cloudinary') && href.includes('/raw/upload/'));
+
+        if (isPdf) {
+          return `
+            <div class="inline-flex items-center gap-2 my-2 p-2 bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800 rounded-lg">
+              <span class="text-lg">📄</span>
+              <span class="font-bold text-sm text-gray-700 dark:text-gray-300">${text || 'PDF'}</span>
+              <a href="${href}" target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded shadow-sm no-underline!" style="text-decoration: none !important;">
+                👁️ View
+              </a>
+              <a href="${href}" download target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded shadow-sm no-underline!" style="text-decoration: none !important;">
+                📥 Download
+              </a>
+            </div>
+          `;
+        }
+
+        // Default link rendering
+        return `<a href="${href}" title="${token.title || ''}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+      }
+    };
+
+    const markedInstance = new Marked();
+    markedInstance.use({ renderer: customRenderer });
+    return markedInstance.parse(content) as string;
+  }, [content]);
 
   return (
     <div
-      className="prose prose-lg dark:prose-invert max-w-none animate-fade-in prose-a:text-red-600 dark:prose-a:text-red-400 prose-a:font-semibold prose-a:underline [&_a]:text-red-600 dark:[&_a]:text-red-400 [&_a]:font-semibold [&_a]:underline [&_a:hover]:text-red-700 dark:[&_a:hover]:text-red-300"
+      className="prose prose-lg dark:prose-invert max-w-none animate-fade-in prose-a:text-purple-600 dark:prose-a:text-purple-400 prose-a:font-semibold prose-a:underline [&_a]:text-purple-600 dark:[&_a]:text-purple-400 [&_a]:font-semibold [&_a]:underline [&_a:hover]:text-purple-700 dark:[&_a:hover]:text-purple-300"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
@@ -203,10 +321,10 @@ function IntroductionSection() {
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
         📖 introduction
       </h2>
-      
+
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's Secret Sharing is a cryptographic scheme introduced by <strong>Adi Shamir</strong> in 1979. 
-        It allows a secret to be divided into multiple shares, distributed among participants, such that 
+        Shamir's Secret Sharing is a cryptographic scheme introduced by <strong>Adi Shamir</strong> in 1979.
+        It allows a secret to be divided into multiple shares, distributed among participants, such that
         only a threshold number of shares is needed to reconstruct the original secret.
       </p>
 
@@ -262,7 +380,7 @@ function ShamirSection() {
 
       <h3 className="text-2xl font-bold mt-6 mb-4 text-gray-800 dark:text-gray-100">Mathematical Foundation</h3>
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's scheme is based on polynomial interpolation over finite fields. A polynomial of degree <code>t-1</code> 
+        Shamir's scheme is based on polynomial interpolation over finite fields. A polynomial of degree <code>t-1</code>
         is uniquely determined by <code>t</code> points.
       </p>
 
@@ -316,7 +434,7 @@ function SummationSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's scheme has a beautiful property: <strong>linearity</strong>. This allows parties to compute 
+        Shamir's scheme has a beautiful property: <strong>linearity</strong>. This allows parties to compute
         sums of secrets without any interaction, simply by adding their local shares.
       </p>
 
@@ -341,7 +459,7 @@ function SummationSection() {
       <div className="bg-gray-100 dark:bg-gray-900 p-6 rounded-lg my-6 transition-all duration-500 hover:shadow-xl hover:border-2 hover:border-blue-400 hover:scale-[1.01]">
         <h4 className="font-bold text-lg mb-3 text-gray-800 dark:text-gray-200">Why It Works</h4>
         <p className="text-gray-700 dark:text-gray-300">
-          If f(x) shares secret a and g(x) shares secret b, then h(x) = f(x) + g(x) shares secret a + b 
+          If f(x) shares secret a and g(x) shares secret b, then h(x) = f(x) + g(x) shares secret a + b
           because:
         </p>
         <div className="bg-white dark:bg-gray-800 p-4 mt-3 rounded border border-gray-300 dark:border-gray-700 font-mono text-sm">
@@ -355,7 +473,7 @@ function SummationSection() {
       <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg mt-6 border border-blue-200 dark:border-blue-800 transition-all duration-500 hover:shadow-xl hover:border-blue-500 hover:scale-105 hover:-translate-y-2">
         <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-2">✨ Key Advantage</h4>
         <p className="text-gray-700 dark:text-gray-300">
-          <strong>Non-interactive:</strong> No communication needed! Each party independently computes their 
+          <strong>Non-interactive:</strong> No communication needed! Each party independently computes their
           share of the sum. This is highly efficient for multi-party computation.
         </p>
       </div>
@@ -371,14 +489,14 @@ function MultiplicationSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Unlike addition, multiplication is more complex. The naive approach increases polynomial degree 
+        Unlike addition, multiplication is more complex. The naive approach increases polynomial degree
         from <code>t-1</code> to <code>2(t-1)</code>, requiring <strong>degree reduction</strong> through resharing.
       </p>
 
       <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-lg my-6 transition-all duration-500 hover:shadow-xl hover:border-l-8 hover:scale-[1.02] hover:bg-red-100 dark:hover:bg-red-900/30">
         <h3 className="text-xl font-bold text-red-900 dark:text-red-300 mb-2">⚠️ The Challenge</h3>
         <p className="text-gray-700 dark:text-gray-300">
-          If f(x) and g(x) are degree t-1, then h(x) = f(x) · g(x) is degree <strong>2(t-1)</strong>. 
+          If f(x) and g(x) are degree t-1, then h(x) = f(x) · g(x) is degree <strong>2(t-1)</strong>.
           This requires 2t-1 shares to reconstruct, breaking our threshold property!
         </p>
       </div>
@@ -447,7 +565,7 @@ function MultiplicationSection() {
       <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg mt-6 border border-green-200 dark:border-green-800 transition-all duration-500 hover:shadow-xl hover:border-green-500 hover:scale-105 hover:-translate-y-1">
         <h4 className="font-bold text-green-900 dark:text-green-300 mb-2">✅ Security Property</h4>
         <p className="text-gray-700 dark:text-gray-300">
-          Throughout the protocol, no party learns anything beyond their own shares. The intermediate 
+          Throughout the protocol, no party learns anything beyond their own shares. The intermediate
           degree-2(t-1) polynomial is never explicitly reconstructed—only converted to a new degree-(t-1) sharing.
         </p>
       </div>
@@ -476,7 +594,7 @@ function QuantumProtocolsSection() {
       </div>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Recent advances in quantum cryptography have led to the development of <strong>hybrid (t,n) threshold quantum protocols</strong> 
+        Recent advances in quantum cryptography have led to the development of <strong>hybrid (t,n) threshold quantum protocols</strong>
         that combine classical Shamir secret sharing with quantum computing techniques to achieve enhanced security and efficiency.
       </p>
 
@@ -490,7 +608,7 @@ function QuantumProtocolsSection() {
             (t, n) Threshold Approach
           </h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            Unlike traditional (n,n) approaches, only <code>t</code> players are needed to compute summation 
+            Unlike traditional (n,n) approaches, only <code>t</code> players are needed to compute summation
             and multiplication, providing better fault tolerance and flexibility.
           </p>
         </div>
@@ -500,7 +618,7 @@ function QuantumProtocolsSection() {
             Secret-by-Secret Computation
           </h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            Computation type is secret-by-secret (not bit-by-bit), significantly reducing communication 
+            Computation type is secret-by-secret (not bit-by-bit), significantly reducing communication
             and computation costs.
           </p>
         </div>
@@ -650,8 +768,8 @@ function QuantumProtocolsSection() {
       <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-6 rounded-r-lg mt-6 transition-all duration-500 hover:shadow-xl hover:border-l-8 hover:scale-[1.02] hover:bg-yellow-100 dark:hover:bg-yellow-900/30">
         <h4 className="font-bold text-yellow-900 dark:text-yellow-300 mb-2">💡 Practical Note</h4>
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          While our visualizer implements classical Shamir secret sharing (which is the foundation), the quantum 
-          protocols extend these concepts with QFT, quantum entanglement, and measurement operations for enhanced 
+          While our visualizer implements classical Shamir secret sharing (which is the foundation), the quantum
+          protocols extend these concepts with QFT, quantum entanglement, and measurement operations for enhanced
           security in quantum computing environments.
         </p>
       </div>
@@ -661,9 +779,9 @@ function QuantumProtocolsSection() {
           🔬 Future of Secure Computation
         </h4>
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          Hybrid quantum protocols represent the future of secure multi-party computation, combining the proven 
-          reliability of classical cryptographic techniques with the unprecedented security guarantees offered by 
-          quantum mechanics. As quantum computers become more accessible, these protocols will enable truly 
+          Hybrid quantum protocols represent the future of secure multi-party computation, combining the proven
+          reliability of classical cryptographic techniques with the unprecedented security guarantees offered by
+          quantum mechanics. As quantum computers become more accessible, these protocols will enable truly
           secure distributed computation at scales previously impossible.
         </p>
       </div>
@@ -684,7 +802,7 @@ function SecuritySection() {
             <span>🔒</span> Perfect Secrecy
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
-            Any t-1 or fewer shares are <strong>information-theoretically secure</strong>—they reveal 
+            Any t-1 or fewer shares are <strong>information-theoretically secure</strong>—they reveal
             absolutely nothing about the secret, even to a computationally unbounded adversary.
           </p>
         </div>
@@ -694,7 +812,7 @@ function SecuritySection() {
             <span>✅</span> Threshold Property
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
-            Any t shares can <strong>uniquely reconstruct</strong> the secret. The polynomial interpolation 
+            Any t shares can <strong>uniquely reconstruct</strong> the secret. The polynomial interpolation
             guarantees exactly one solution.
           </p>
         </div>
@@ -704,7 +822,7 @@ function SecuritySection() {
             <span>🎯</span> Privacy Preservation
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
-            During computation, parties never see the actual secrets—only their local shares. 
+            During computation, parties never see the actual secrets—only their local shares.
             The result is reconstructed without exposing intermediate values.
           </p>
         </div>
@@ -714,7 +832,7 @@ function SecuritySection() {
             <span>⚡</span> Verifiability
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
-            With additional mechanisms (commitments, zero-knowledge proofs), parties can verify that 
+            With additional mechanisms (commitments, zero-knowledge proofs), parties can verify that
             others are following the protocol correctly.
           </p>
         </div>
@@ -771,7 +889,7 @@ function ImplementationSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Our visualizer implements Shamir secret sharing using modern JavaScript with TypeScript for type safety 
+        Our visualizer implements Shamir secret sharing using modern JavaScript with TypeScript for type safety
         and BigInt arithmetic for cryptographic correctness.
       </p>
 
@@ -989,7 +1107,7 @@ function ReferencesSection() {
           <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
             Download or view original research papers and technical documentation to dive deeper into the theory and implementation.
           </p>
-          
+
           <div className="space-y-3">
             {/* Quantum Protocols Paper */}
             <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-red-200 dark:border-red-800 hover:shadow-md transition-shadow">
@@ -1110,8 +1228,8 @@ function ReferencesSection() {
             🎓 About This Visualizer
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">
-            This educational tool was built to make Shamir secret sharing and secure multi-party computation 
-            more accessible and understandable through interactive visualization. Based on research in secure 
+            This educational tool was built to make Shamir secret sharing and secure multi-party computation
+            more accessible and understandable through interactive visualization. Based on research in secure
             computation and privacy-preserving protocols.
           </p>
           <div className="flex flex-wrap gap-2">

@@ -7,6 +7,7 @@ export interface DocSection {
   title: string;
   icon: string;
   content: string;
+  attachments?: string[]; // Array of PDF URLs
   order: number;
   lastModified: string;
   createdAt: string;
@@ -42,6 +43,7 @@ export async function ensureDefaultDocs() {
     missing.map((section) => ({
       ...section,
       content: "",
+      attachments: [],
       createdAt: now,
       lastModified: now,
     }))
@@ -58,6 +60,7 @@ export async function getDocSections() {
     title: doc.title,
     icon: doc.icon,
     content: doc.content,
+    attachments: doc.attachments || [],
     order: doc.order,
     lastModified: doc.lastModified,
     createdAt: doc.createdAt,
@@ -76,6 +79,7 @@ export async function getDocSectionById(id: string) {
     title: doc.title,
     icon: doc.icon,
     content: doc.content,
+    attachments: doc.attachments || [],
     order: doc.order,
     lastModified: doc.lastModified,
     createdAt: doc.createdAt,
@@ -108,6 +112,7 @@ export async function createDocSection(params: {
     title,
     icon,
     content: "",
+    attachments: [],
     order: nextOrder,
     createdAt: now,
     lastModified: now,
@@ -120,6 +125,7 @@ export async function createDocSection(params: {
 export async function updateDocSection(
   id: string,
   updates: Partial<Pick<DocSection, "title" | "icon" | "content">> & {
+    attachments?: string[];
     contentMode?: "replace" | "append";
   }
 ) {
@@ -136,6 +142,11 @@ export async function updateDocSection(
 
   if (typeof updates.icon === "string" && updates.icon.trim()) {
     payload.icon = updates.icon.trim();
+  }
+
+  if (Array.isArray(updates.attachments)) {
+    payload.attachments = updates.attachments;
+    console.log(`[DB Update] Saving ${updates.attachments.length} attachments for section: ${id}`);
   }
 
   if (typeof updates.content === "string") {
@@ -175,8 +186,8 @@ export async function updateDocSection(
 
   if (!result) return null;
 
-  const { id: updatedId, title, icon, content, order, lastModified, createdAt } = result;
-  return { id: updatedId, title, icon, content, order, lastModified, createdAt };
+  const { id: updatedId, title, icon, content, attachments, order, lastModified, createdAt } = result;
+  return { id: updatedId, title, icon, content, attachments: attachments || [], order, lastModified, createdAt };
 }
 
 export async function deleteDocSection(id: string) {

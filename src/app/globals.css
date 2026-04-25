@@ -376,3 +376,42 @@ body {
   width: 300px;
   height: 300px;
 }
+
+/* PDF Embed Styling */
+iframe {
+  border-radius: 12px;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.prose iframe {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+@media (max-width: 768px) {
+  iframe {
+    height: 400px !important;
+  }
+}
+
+/* PDF Viewer Enhancements */
+.pdf-attachment-card {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pdf-attachment-card:hover {
+  transform: translateY(-4px);
+}
+
+.no-underline\! {
+  text-decoration: none !important;
+}
+
+@media (max-width: 640px) {
+  .pdf-viewer-container {
+    height: 400px !important;
+  }
+}

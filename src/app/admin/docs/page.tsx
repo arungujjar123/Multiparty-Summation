@@ -11,6 +11,7 @@ interface DocSection {
   id: string;
   title: string;
   content: string;
+  attachments?: string[];
   icon: string;
   lastModified: string;
 }
@@ -104,7 +105,11 @@ export default function AdminDocsPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ content: editContent, contentMode: 'replace' }),
+        body: JSON.stringify({
+          content: editContent,
+          attachments: sections.find(s => s.id === selectedSection)?.attachments || [],
+          contentMode: 'replace'
+        }),
       });
 
       const data = await response.json();
@@ -166,6 +171,7 @@ export default function AdminDocsPage() {
       formData.append('resource_type', 'raw');
       formData.append('use_filename', 'true');
       formData.append('unique_filename', 'true');
+      formData.append('access_mode', 'public');
 
       const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${sigData.cloudName}/raw/upload`;
       const uploadResponse = await fetch(cloudinaryUrl, {
@@ -182,9 +188,27 @@ export default function AdminDocsPage() {
       const fileName = selectedPdfFile.name;
       const fileUrl = uploadData.secure_url;
 
-      const snippet = `\n\n### PDF Attachment\n<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" style="color:#dc2626;font-weight:700;text-decoration:underline;">${fileName}</a>\n`;
+      // 1. Update markdown editor for visual representation
+      const snippet = `
+\n### 📄 PDF Document: ${fileName}
+\n<div class="pdf-download-link" style="margin: 10px 0;">
+  <a href="${fileUrl}" target="_blank" download="${fileName}" style="display: inline-flex; items-center: center; gap: 8px; padding: 10px 20px; background: #6366f1; color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">
+    📥 Download PDF: ${fileName}
+  </a>
+</div>
+\n`;
       setEditContent((prev) => `${prev}${snippet}`);
-      setUploadStatus('✅ PDF uploaded. Link inserted into content editor. Save to publish it.');
+
+      // 2. Update the local state for attachments (for the gallery)
+      setSections(prev => prev.map(s => {
+        if (s.id === selectedSection) {
+          const updatedAttachments = [...(s.attachments || []), fileUrl];
+          return { ...s, attachments: updatedAttachments };
+        }
+        return s;
+      }));
+
+      setUploadStatus('✅ PDF uploaded. Link added to editor and gallery.');
       setSelectedPdfFile(null);
       setFileInputKey((prev) => prev + 1);
     } catch {
@@ -192,6 +216,18 @@ export default function AdminDocsPage() {
     } finally {
       setIsUploadingPdf(false);
     }
+  };
+
+  const handleRemoveAttachment = (url: string) => {
+    setSections(prev => prev.map(s => {
+      if (s.id === selectedSection) {
+        return {
+          ...s,
+          attachments: (s.attachments || []).filter(a => a !== url)
+        };
+      }
+      return s;
+    }));
   };
 
   const handleRestoreBuiltInContent = async () => {
@@ -266,7 +302,7 @@ export default function AdminDocsPage() {
 
     const updatedSections = sections.filter(s => s.id !== sectionId);
     setSections(updatedSections);
-    
+
     if (selectedSection === sectionId) {
       setSelectedSection('');
       setEditContent('');
@@ -319,16 +355,15 @@ export default function AdminDocsPage() {
                   + Add
                 </button>
               </div>
-              
+
               <div className="space-y-2 max-h-[600px] overflow-y-auto">
                 {sections.map((section) => (
                   <div
                     key={section.id}
-                    className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
-                      selectedSection === section.id
+                    className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${selectedSection === section.id
                         ? 'bg-linear-to-r from-purple-500 to-pink-500 text-white'
                         : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
-                    }`}
+                      }`}
                     onClick={() => setSelectedSection(section.id)}
                   >
                     <div className="flex items-center gap-2 flex-1">
@@ -408,6 +443,28 @@ export default function AdminDocsPage() {
                     )}
                   </div>
 
+                  {/* Attachments List */}
+                  {sections.find(s => s.id === selectedSection)?.attachments && (sections.find(s => s.id === selectedSection)?.attachments?.length ?? 0) > 0 && (
+                    <div className="mb-4 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+                      <p className="text-sm font-semibold text-purple-900 dark:text-purple-300 mb-3">Attached PDFs</p>
+                      <div className="space-y-2">
+                        {sections.find(s => s.id === selectedSection)?.attachments?.map((url, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-purple-100 dark:border-purple-900/50">
+                            <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate flex-1 mr-2">
+                              {url.split('/').pop()}
+                            </a>
+                            <button
+                              onClick={() => handleRemoveAttachment(url)}
+                              className="text-red-500 hover:text-red-700 text-xs px-2 py-1"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex gap-3">
                     <button
                       onClick={handleSave}
@@ -438,7 +495,7 @@ export default function AdminDocsPage() {
 
                   <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                     <p className="text-sm text-blue-900 dark:text-blue-300">
-                      <strong>💡 Tip:</strong> You can use Markdown formatting including headers (# ## ###), 
+                      <strong>💡 Tip:</strong> You can use Markdown formatting including headers (# ## ###),
                       bold (**text**), italic (*text*), lists, code blocks, and PDF links.
                     </p>
                   </div>

@@ -7,6 +7,7 @@ import {
 import { deleteDocSection, updateDocSection } from "@/lib/server/docs";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function PATCH(
   req: Request,
@@ -30,6 +31,7 @@ export async function PATCH(
     title: body?.title,
     icon: body?.icon,
     content: body?.content,
+    attachments: body?.attachments,
     contentMode: body?.contentMode === "append" ? "append" : "replace",
   });
 

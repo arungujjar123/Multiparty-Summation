@@ -11,6 +11,7 @@ import {
 } from "@/lib/server/docs";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const cookieStore = await cookies();

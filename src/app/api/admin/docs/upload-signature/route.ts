@@ -42,6 +42,7 @@ export async function POST() {
         folder: "pdf-uploads",
         use_filename: true,
         unique_filename: true,
+        access_mode: "public",
     };
 
     const signature = cloudinary.utils.api_sign_request(
