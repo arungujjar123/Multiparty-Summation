@@ -15,7 +15,6 @@ export default function AdminUsersPage() {
   const [error, setError] = useState("");
 
   const loadUsers = async () => {
-    setError("");
     const response = await fetch("/api/admin/users", {
       credentials: "include",
     });

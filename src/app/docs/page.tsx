@@ -673,7 +673,7 @@ function QuantumProtocolsSection() {
         <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border-l-4 border-pink-500 transition-all duration-300 hover:shadow-lg hover:border-l-8 hover:scale-[1.02] hover:translate-x-2">
           <h4 className="font-bold text-pink-900 dark:text-pink-300 mb-2">✅ Privacy Preservation</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            No player can obtain other players' private inputs throughout the protocol
+            No player can obtain other players&apos; private inputs throughout the protocol
           </p>
         </div>
       </div>

@@ -6,7 +6,6 @@ const dbName = process.env.MONGODB_DB || "shamir_secret";
 let clientPromise: Promise<MongoClient> | null = null;
 
 declare global {
-  // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
