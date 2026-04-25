@@ -183,7 +183,7 @@ function MarkdownContent({ content }: { content: string }) {
 
   return (
     <div
-      className="prose prose-lg dark:prose-invert max-w-none animate-fade-in"
+      className="prose prose-lg dark:prose-invert max-w-none animate-fade-in prose-a:text-red-600 dark:prose-a:text-red-400 prose-a:font-semibold prose-a:underline [&_a]:text-red-600 dark:[&_a]:text-red-400 [&_a]:font-semibold [&_a]:underline [&_a:hover]:text-red-700 dark:[&_a:hover]:text-red-300"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

@@ -10,9 +10,9 @@ export const runtime = "nodejs";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await Promise.resolve(params);
+  const { id } = await params;
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const user = await getUserBySessionToken(token);
@@ -30,6 +30,7 @@ export async function PATCH(
     title: body?.title,
     icon: body?.icon,
     content: body?.content,
+    contentMode: body?.contentMode === "append" ? "append" : "replace",
   });
 
   if (!section) {
@@ -41,9 +42,9 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await Promise.resolve(params);
+  const { id } = await params;
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const user = await getUserBySessionToken(token);

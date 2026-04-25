@@ -226,6 +226,46 @@ describe("Multiplication with Resharing", () => {
     });
   });
 
+  test("manual resharing coefficients match expected z_i evaluations", () => {
+    const p = 11n;
+    const t = 3;
+
+    const fShares = [9n, 9n, 4n, 5n, 1n, 3n, 0n];
+    const gShares = [6n, 1n, 9n, 8n, 9n, 1n, 6n];
+    const manualCoefficients = [
+      [1n, 2n],
+      [3n, 1n],
+      [2n, 2n],
+      [2n, 3n],
+      [5n, 1n],
+      [2n, 1n],
+      [1n, 5n],
+    ];
+
+    const result = multiplicationReshare(fShares, gShares, t, p, undefined, manualCoefficients);
+
+    const expectedMatrix = [
+      [2n, 9n, 9n, 2n, 10n, 0n, 5n],
+      [2n, 8n, 5n, 4n, 5n, 8n, 2n],
+      [7n, 4n, 5n, 10n, 8n, 10n, 5n],
+      [1n, 1n, 7n, 8n, 4n, 6n, 3n],
+      [4n, 1n, 0n, 1n, 4n, 9n, 5n],
+      [6n, 0n, 7n, 5n, 5n, 7n, 0n],
+      [6n, 0n, 4n, 7n, 9n, 10n, 10n],
+    ];
+
+    const actualMatrix = Array.from({ length: 7 }, (_, i) =>
+      Array.from({ length: 7 }, (_, j) => {
+        const message = result.messages.find((msg) => msg.from === i + 1 && msg.to === j + 1);
+        return message?.value ?? -1n;
+      })
+    );
+    expect(actualMatrix).toEqual(expectedMatrix);
+
+    const reconstructed = reconstructFromTshares(result.Tshares, t, p);
+    expect(reconstructed).toBe(8n);
+  });
+
   test("reconstructFromTshares validates threshold", () => {
     expect(() => reconstructFromTshares([1n, 2n], 3, 11n)).toThrow("Need at least 3 shares");
   });

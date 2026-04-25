@@ -64,6 +64,24 @@ export async function getDocSections() {
   }));
 }
 
+export async function getDocSectionById(id: string) {
+  const db = await getDb();
+  const collection = db.collection<DocSection>(DOCS_COLLECTION);
+
+  const doc = (await collection.findOne({ id })) as DocSection | null;
+  if (!doc) return null;
+
+  return {
+    id: doc.id,
+    title: doc.title,
+    icon: doc.icon,
+    content: doc.content,
+    order: doc.order,
+    lastModified: doc.lastModified,
+    createdAt: doc.createdAt,
+  };
+}
+
 export async function createDocSection(params: {
   title: string;
   icon: string;
@@ -99,7 +117,12 @@ export async function createDocSection(params: {
   return { section: doc };
 }
 
-export async function updateDocSection(id: string, updates: Partial<Pick<DocSection, "title" | "icon" | "content">>) {
+export async function updateDocSection(
+  id: string,
+  updates: Partial<Pick<DocSection, "title" | "icon" | "content">> & {
+    contentMode?: "replace" | "append";
+  }
+) {
   const db = await getDb();
   const collection = db.collection<DocSection>(DOCS_COLLECTION);
 
@@ -116,18 +139,43 @@ export async function updateDocSection(id: string, updates: Partial<Pick<DocSect
   }
 
   if (typeof updates.content === "string") {
-    payload.content = updates.content;
+    if (updates.contentMode === "append") {
+      const existing = (await collection.findOne({ id })) as DocSection | null;
+      if (!existing) return null;
+      const existingContent = typeof existing.content === "string" ? existing.content : "";
+      const incomingContent = updates.content;
+
+      if (incomingContent.trim().length === 0) {
+        payload.content = existingContent;
+      } else if (
+        existingContent.length > 0 &&
+        incomingContent.length >= existingContent.length &&
+        incomingContent.startsWith(existingContent)
+      ) {
+        // Admin editor often contains full existing content + newly typed tail.
+        // In that case, append only the new tail to avoid duplicating existing content.
+        const delta = incomingContent.slice(existingContent.length);
+        payload.content = delta.trim().length > 0 ? `${existingContent}${delta}` : existingContent;
+      } else {
+        payload.content =
+          existingContent.trim().length > 0
+            ? `${existingContent}\n\n${incomingContent}`
+            : incomingContent;
+      }
+    } else {
+      payload.content = updates.content;
+    }
   }
 
-  const result = await collection.findOneAndUpdate(
+  const result = (await collection.findOneAndUpdate(
     { id },
     { $set: payload },
     { returnDocument: "after" }
-  );
+  )) as DocSection | null;
 
-  if (!result.value) return null;
+  if (!result) return null;
 
-  const { id: updatedId, title, icon, content, order, lastModified, createdAt } = result.value;
+  const { id: updatedId, title, icon, content, order, lastModified, createdAt } = result;
   return { id: updatedId, title, icon, content, order, lastModified, createdAt };
 }
 

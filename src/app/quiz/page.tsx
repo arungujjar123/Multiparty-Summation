@@ -12,7 +12,13 @@ interface QuizQuestion {
   category: string;
 }
 
-const quizQuestions: QuizQuestion[] = [
+interface DocsApiSection {
+  id: string;
+  title: string;
+  content?: string;
+}
+
+const fallbackQuizQuestions: QuizQuestion[] = [
   {
     id: 1,
     question: "What is the minimum number of shares needed to reconstruct a secret in a (3,5) Shamir Secret Sharing scheme?",
@@ -175,25 +181,124 @@ const quizQuestions: QuizQuestion[] = [
   }
 ];
 
-export default function QuizPage() {
-  // Shuffle questions on mount
-  const [shuffledQuestions] = useState<QuizQuestion[]>(() => {
-    const shuffled = [...quizQuestions];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
+function shuffleArray<T>(items: T[]): T[] {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function getExcerptFromMarkdown(content: string, maxLength = 140): string {
+  const plainText = content
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`/g, "")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/[>#*_~-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!plainText) return "No content excerpt available.";
+  if (plainText.length <= maxLength) return plainText;
+  return `${plainText.slice(0, maxLength).trim()}...`;
+}
+
+function buildQuizFromDocs(sections: DocsApiSection[]): QuizQuestion[] {
+  const sectionsWithContent = sections.filter(
+    (section) => typeof section.content === "string" && section.content.trim().length > 0
+  );
+
+  if (sectionsWithContent.length < 2) return [];
+
+  const usableSections = sectionsWithContent.slice(0, 12);
+
+  return usableSections.map((section, index) => {
+    const wrongTitles = shuffleArray(
+      usableSections
+        .filter((candidate) => candidate.id !== section.id)
+        .map((candidate) => candidate.title)
+    ).slice(0, Math.min(3, usableSections.length - 1));
+
+    const options = shuffleArray([section.title, ...wrongTitles]);
+    const correctAnswer = options.indexOf(section.title);
+    const excerpt = getExcerptFromMarkdown(section.content || "");
+
+    return {
+      id: index + 1,
+      question: `Which documentation section best matches this excerpt: "${excerpt}"`,
+      options,
+      correctAnswer,
+      explanation: `This excerpt comes from the \"${section.title}\" section in your documentation.`,
+      category: "Documentation",
+    };
   });
-  
+}
+
+export default function QuizPage() {
+  const [questionBank, setQuestionBank] = useState<QuizQuestion[]>(fallbackQuizQuestions);
+  const [shuffledQuestions, setShuffledQuestions] = useState<QuizQuestion[]>([]);
+  const [questionSource, setQuestionSource] = useState<"docs" | "fallback">("fallback");
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+  const [questionLoadError, setQuestionLoadError] = useState("");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
-  const [answeredQuestions, setAnsweredQuestions] = useState<boolean[]>(new Array(shuffledQuestions.length).fill(false));
+  const [answeredQuestions, setAnsweredQuestions] = useState<boolean[]>([]);
   const [quizCompleted, setQuizCompleted] = useState(false);
 
+  const startQuiz = (questions: QuizQuestion[]) => {
+    const shuffled = shuffleArray(questions);
+    setShuffledQuestions(shuffled);
+    setCurrentQuestion(0);
+    setSelectedAnswer(null);
+    setShowExplanation(false);
+    setScore(0);
+    setAnsweredQuestions(new Array(shuffled.length).fill(false));
+    setQuizCompleted(false);
+  };
+
+  useEffect(() => {
+    const loadQuestions = async () => {
+      setIsLoadingQuestions(true);
+      setQuestionLoadError("");
+
+      try {
+        const response = await fetch("/api/docs");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to load docs");
+        }
+
+        const docsBasedQuestions = buildQuizFromDocs((data.sections || []) as DocsApiSection[]);
+
+        if (docsBasedQuestions.length >= 3) {
+          setQuestionBank(docsBasedQuestions);
+          setQuestionSource("docs");
+          startQuiz(docsBasedQuestions);
+        } else {
+          setQuestionBank(fallbackQuizQuestions);
+          setQuestionSource("fallback");
+          startQuiz(fallbackQuizQuestions);
+        }
+      } catch {
+        setQuestionBank(fallbackQuizQuestions);
+        setQuestionSource("fallback");
+        setQuestionLoadError("Unable to load docs-based quiz. Using built-in questions.");
+        startQuiz(fallbackQuizQuestions);
+      } finally {
+        setIsLoadingQuestions(false);
+      }
+    };
+
+    loadQuestions();
+  }, []);
+
   const handleAnswerSelect = (answerIndex: number) => {
+    if (!shuffledQuestions[currentQuestion]) return;
     if (answeredQuestions[currentQuestion]) return;
     
     setSelectedAnswer(answerIndex);
@@ -204,7 +309,7 @@ export default function QuizPage() {
     setAnsweredQuestions(newAnswered);
     
     if (answerIndex === shuffledQuestions[currentQuestion].correctAnswer) {
-      setScore(score + 1);
+      setScore((previousScore) => previousScore + 1);
     }
   };
 
@@ -241,13 +346,7 @@ export default function QuizPage() {
   };
 
   const resetQuiz = () => {
-    // Reshuffle questions for new attempt
-    const shuffled = [...quizQuestions];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    window.location.reload(); // Reload to get fresh shuffled questions
+    startQuiz(questionBank);
   };
 
   const getScorePercentage = () => {
@@ -261,6 +360,40 @@ export default function QuizPage() {
     if (percentage >= 60) return { text: "Good effort! 👍", color: "text-purple-600 dark:text-purple-400" };
     return { text: "Keep studying! 📚", color: "text-orange-600 dark:text-orange-400" };
   };
+
+  if (isLoadingQuestions) {
+    return (
+      <div className="min-h-screen hero-surface hero-grid py-12 px-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border-2 border-gray-200 dark:border-gray-700">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-3">Loading Quiz...</h1>
+            <p className="text-gray-600 dark:text-gray-400">Preparing questions from your existing documentation.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (shuffledQuestions.length === 0) {
+    return (
+      <div className="min-h-screen hero-surface hero-grid py-12 px-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border-2 border-gray-200 dark:border-gray-700">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-3">No Quiz Questions Available</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Add content in your docs sections to automatically generate quiz questions.
+            </p>
+            <Link
+              href="/docs"
+              className="inline-block px-6 py-3 rounded-xl font-bold bg-linear-to-r from-blue-600 to-purple-600 text-white"
+            >
+              Go To Docs
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (quizCompleted) {
     const scoreMessage = getScoreMessage();
@@ -350,8 +483,13 @@ export default function QuizPage() {
             Test your understanding of Shamir Secret Sharing
           </p>
           <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
-            🔀 Questions are randomized for each attempt
+            {questionSource === "docs"
+              ? "📄 Questions are generated from your current documentation"
+              : "🔀 Using built-in questions (docs content not sufficient yet)"}
           </p>
+          {questionLoadError && (
+            <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">{questionLoadError}</p>
+          )}
         </div>
 
         {/* Progress Bar */}

@@ -6,6 +6,7 @@ import React from "react";
 
 export interface PlayerData {
   x: bigint | number;
+  secretShares: string[];
   f: string;
   g: string;
   hSum: string;
@@ -67,6 +68,13 @@ export default function PlayersGrid({
 
   const visibleFields = getVisibleFields(currentStep);
 
+  const getSecretLabel = (index: number) => {
+    if (index < 26) {
+      return String.fromCharCode(97 + index);
+    }
+    return `s${index + 1}`;
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {players.map((player, idx) => {
@@ -87,19 +95,15 @@ export default function PlayersGrid({
             </h3>
 
             <div className="space-y-2 text-sm">
-              {visibleFields.has("f") && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">f({playerId}):</span>
-                  <span className="font-mono text-purple-600 dark:text-purple-400">{player.f}</span>
-                </div>
-              )}
-
-              {visibleFields.has("g") && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">g({playerId}):</span>
-                  <span className="font-mono text-purple-600 dark:text-purple-400">{player.g}</span>
-                </div>
-              )}
+              {visibleFields.has("f") &&
+                player.secretShares.map((share, secretIndex) => (
+                  <div className="flex justify-between" key={secretIndex}>
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {getSecretLabel(secretIndex)}({playerId}):
+                    </span>
+                    <span className="font-mono text-purple-600 dark:text-purple-400">{share}</span>
+                  </div>
+                ))}
 
               {visibleFields.has("hSum") && (
                 <div className="flex justify-between border-t pt-2 dark:border-gray-600">
