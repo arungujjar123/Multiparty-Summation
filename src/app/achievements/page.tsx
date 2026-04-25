@@ -17,6 +17,24 @@ interface Achievement {
   requirement: string;
 }
 
+interface UserProgress {
+  quiz_attempts: number;
+  quiz_perfect_scores: number;
+  visited_docs: boolean;
+  visited_glossary: boolean;
+  visited_faq: boolean;
+  visited_code: boolean;
+  visited_all_pages: boolean;
+  visualizer_runs: number;
+  completed_summation: number;
+  completed_multiplication: number;
+  first_visit_date: string | null;
+  unlocked_count: number;
+  total_points: number;
+  unlocked_all: boolean;
+  [key: string]: string | number | boolean | null;
+}
+
 const ACHIEVEMENTS_DATA: Omit<Achievement, "unlocked" | "unlockedDate">[] = [
   // Quiz Achievements
   {
@@ -189,7 +207,7 @@ export default function AchievementsPage() {
     completionPercentage: 0,
   });
 
-  const loadAchievements = () => {
+  const loadAchievements = React.useCallback(() => {
     const savedData = typeof window !== "undefined" 
       ? localStorage.getItem("achievements") 
       : null;
@@ -236,14 +254,31 @@ export default function AchievementsPage() {
 
     setAchievements(updatedAchievements);
     setStats({ totalUnlocked, totalPoints, completionPercentage });
-  };
+  }, [achievements]);
 
   useEffect(() => {
     loadAchievements();
-  }, []);
+  }, [loadAchievements]);
 
-  const loadUserProgress = () => {
-    if (typeof window === "undefined") return {};
+  const loadUserProgress = (): UserProgress => {
+    if (typeof window === "undefined") {
+      return {
+        quiz_attempts: 0,
+        quiz_perfect_scores: 0,
+        visited_docs: false,
+        visited_glossary: false,
+        visited_faq: false,
+        visited_code: false,
+        visited_all_pages: false,
+        visualizer_runs: 0,
+        completed_summation: 0,
+        completed_multiplication: 0,
+        first_visit_date: null,
+        unlocked_count: 0,
+        total_points: 0,
+        unlocked_all: false,
+      };
+    }
 
     return {
       quiz_attempts: parseInt(localStorage.getItem("quiz_attempts") || "0"),
@@ -269,7 +304,7 @@ export default function AchievementsPage() {
 
   const checkAchievementRequirement = (
     achievement: Omit<Achievement, "unlocked" | "unlockedDate">,
-    progress: any
+    progress: UserProgress
   ): boolean => {
     try {
       // Special handling for meta-achievements
@@ -304,7 +339,7 @@ export default function AchievementsPage() {
       }
 
       return false;
-    } catch (error) {
+    } catch {
       return false;
     }
   };
@@ -358,7 +393,7 @@ export default function AchievementsPage() {
             🏆 Achievements
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-            Track your learning journey and unlock badges as you master Shamir's Secret Sharing!
+            Track your learning journey and unlock badges as you master Shamir&apos;s Secret Sharing!
           </p>
 
           {/* Stats Dashboard */}

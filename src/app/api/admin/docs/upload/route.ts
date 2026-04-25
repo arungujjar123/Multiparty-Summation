@@ -85,7 +85,13 @@ export async function POST(req: Request) {
             ).end(buffer);
         });
 
-        const { secure_url, public_id, bytes } = uploadResult as any;
+        interface CloudinaryUploadResult {
+            secure_url: string;
+            public_id: string;
+            bytes: number;
+        }
+
+        const { secure_url, public_id, bytes } = uploadResult as CloudinaryUploadResult;
         return NextResponse.json(
             {
                 file: {
