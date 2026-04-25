@@ -2,7 +2,7 @@
  * @fileoverview Main page for Shamir MPC Visualizer
  */
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ControlPanel, { type OperationMode } from "@/components/ControlPanel";
 import PlayersGrid, { type PlayerData } from "@/components/PlayersGrid";
@@ -19,9 +19,16 @@ export default function HomePage() {
   const [p, setP] = useState("11");
   const [n, setN] = useState(7);
   const [t, setT] = useState(3);
-  const [a, setA] = useState("4");
-  const [b, setB] = useState("2");
+  const [secretCount, setSecretCountState] = useState(2);
+  const [secrets, setSecrets] = useState<string[]>(["4", "2"]);
   const [seed, setSeed] = useState<number | undefined>(undefined);
+  const [useManualCoefficients, setUseManualCoefficients] = useState(false);
+  const [manualCoefficients, setManualCoefficients] = useState<string[][]>([
+    ["1", "1"],
+    ["1", "1"],
+  ]);
+  const [useManualReshareCoefficients, setUseManualReshareCoefficients] = useState(false);
+  const [manualReshareCoefficients, setManualReshareCoefficients] = useState<string[][]>([]);
 
   const [playersData, setPlayersData] = useState<PlayerData[]>([]);
   const [reshareMessages, setReshareMessages] = useState<ReshareMessage[]>([]);
@@ -36,13 +43,135 @@ export default function HomePage() {
 
   const stepRef = useRef<StepperHandle | null>(null);
 
+  const resizeCoefficientMatrix = (matrix: string[][], secretsLen: number, degree: number) => {
+    return Array.from({ length: secretsLen }, (_, secretIndex) => {
+      const existingRow = matrix[secretIndex] ?? [];
+      const normalizedRow = Array.from({ length: degree }, (_, coeffIndex) =>
+        existingRow[coeffIndex] ?? "0"
+      );
+      return normalizedRow;
+    });
+  };
+
+  const resizePerPlayerCoefficientMatrix = (
+    matrix: string[][],
+    playersLen: number,
+    degree: number
+  ) => {
+    return Array.from({ length: playersLen }, (_, playerIndex) => {
+      const existingRow = matrix[playerIndex] ?? [];
+      const normalizedRow = Array.from({ length: degree }, (_, coeffIndex) =>
+        existingRow[coeffIndex] ?? "0"
+      );
+      return normalizedRow;
+    });
+  };
+
+  const setSecretCount = (next: number) => {
+    const normalized = Number.isFinite(next) ? Math.max(1, Math.min(12, Math.floor(next))) : 1;
+    setSecretCountState(normalized);
+    setSecrets((prev) => {
+      const resized = [...prev];
+      while (resized.length < normalized) {
+        resized.push("0");
+      }
+      return resized.slice(0, normalized);
+    });
+  };
+
+  const setSecretAt = (index: number, value: string) => {
+    setSecrets((prev) => {
+      const next = [...prev];
+      while (next.length < secretCount) {
+        next.push("0");
+      }
+      next[index] = value;
+      return next;
+    });
+  };
+
+  const setCoefficientAt = (secretIndex: number, coeffIndex: number, value: string) => {
+    setManualCoefficients((prev) => {
+      const resized = resizeCoefficientMatrix(prev, secretCount, Math.max(t - 1, 0));
+      resized[secretIndex][coeffIndex] = value;
+      return resized;
+    });
+  };
+
+  const setReshareCoefficientAt = (playerIndex: number, coeffIndex: number, value: string) => {
+    setManualReshareCoefficients((prev) => {
+      const resized = resizePerPlayerCoefficientMatrix(prev, n, Math.max(t - 1, 0));
+      resized[playerIndex][coeffIndex] = value;
+      return resized;
+    });
+  };
+
+  useEffect(() => {
+    const minSecrets = operationMode === "sum" || operationMode === "shamir" ? 1 : 2;
+    if (secretCount < minSecrets) {
+      setSecretCount(minSecrets);
+    }
+  }, [operationMode, secretCount]);
+
+  useEffect(() => {
+    if (operationMode === "shamir" && secretCount !== 1) {
+      setSecretCount(1);
+    }
+  }, [operationMode, secretCount]);
+
+  useEffect(() => {
+    setManualCoefficients((prev) => resizeCoefficientMatrix(prev, secretCount, Math.max(t - 1, 0)));
+  }, [secretCount, t]);
+
+  useEffect(() => {
+    setManualReshareCoefficients((prev) =>
+      resizePerPlayerCoefficientMatrix(prev, n, Math.max(t - 1, 0))
+    );
+  }, [n, t]);
+
+  const getExpectedSumText = () => {
+    try {
+      const P = toBig(p);
+      const values = secrets.slice(0, secretCount).map((v) => toBig(v || "0"));
+      const sum = values.reduce((acc, cur) => (acc + cur) % P, 0n);
+      return sum.toString();
+    } catch {
+      return "-";
+    }
+  };
+
+  const getExpectedMulText = () => {
+    try {
+      if (secretCount < 2) return "-";
+      const P = toBig(p);
+      const values = secrets.slice(0, secretCount).map((v) => toBig(v || "0"));
+      const product = values.reduce((acc, cur) => (acc * cur) % P, 1n);
+      return product.toString();
+    } catch {
+      return "-";
+    }
+  };
+
   const generateInitial = () => {
     try {
       setError(null);
 
       const P = toBig(p);
-      const A = toBig(a);
-      const B = toBig(b);
+      const minSecrets = operationMode === "sum" || operationMode === "shamir" ? 1 : 2;
+      if (secretCount < minSecrets) {
+        throw new Error(`Need at least ${minSecrets} secret(s) for current mode`);
+      }
+
+      const effectiveSecretCount = operationMode === "shamir" ? 1 : secretCount;
+      const inputSecrets = secrets.slice(0, effectiveSecretCount);
+      const parsedSecrets = inputSecrets.map((value, index) => {
+        try {
+          return toBig(value);
+        } catch {
+          const symbol = index < 26 ? String.fromCharCode(97 + index) : `s${index + 1}`;
+          throw new Error(`Secret ${symbol} must be a valid integer`);
+        }
+      });
 
       if (!isPrime(P)) {
         throw new Error(`p=${p} is not prime`);
@@ -50,41 +179,142 @@ export default function HomePage() {
       if (t > n) {
         throw new Error(`Threshold t=${t} cannot exceed number of players n=${n}`);
       }
-      if (operationMode !== "sum" && n < 2 * t - 1) {
+      if ((operationMode === "multiply" || operationMode === "both") && n < 2 * t - 1) {
         throw new Error(`Need at least ${2 * t - 1} players for multiplication (have ${n})`);
       }
-      if (A < 0n || A >= P) {
-        throw new Error(`Secret a must be in range [0, ${P - 1n}]`);
-      }
-      if (operationMode !== "sum") {
-        if (B < 0n || B >= P) {
-          throw new Error(`Secret b must be in range [0, ${P - 1n}]`);
+
+      for (let index = 0; index < parsedSecrets.length; index++) {
+        const secretValue = parsedSecrets[index];
+        if (secretValue < 0n || secretValue >= P) {
+          const symbol = index < 26 ? String.fromCharCode(97 + index) : `s${index + 1}`;
+          throw new Error(`Secret ${symbol} must be in range [0, ${P - 1n}]`);
         }
       }
 
-      const f = createShares(A, n, t, P, seed);
-      const g = operationMode !== "sum" 
-        ? createShares(B, n, t, P, seed ? seed + 1000 : undefined)
-        : createShares(0n, n, t, P, seed ? seed + 1000 : undefined); // Dummy for sum-only
-      const fShares = f.shares.map((s) => s.y);
-      const gShares = g.shares.map((s) => s.y);
+      const manualCoefficientValues: bigint[][] | undefined = useManualCoefficients
+        ? parsedSecrets.map((_, secretIndex) => {
+            const degree = Math.max(t - 1, 0);
+            const row = manualCoefficients[secretIndex] ?? [];
+            if (row.length !== degree) {
+              const symbol = secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
+              throw new Error(`Secret ${symbol} needs exactly ${degree} coefficient(s)`);
+            }
 
-      const hSum = operationMode !== "multiply" ? localSumShares(fShares, gShares, P) : fShares.map(() => 0n);
+            return row.map((coefficientValue, coeffIndex) => {
+              let parsed: bigint;
+              try {
+                parsed = toBig(coefficientValue || "0");
+              } catch {
+                const symbol = secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
+                throw new Error(`Coefficient a${coeffIndex + 1} for secret ${symbol} must be a valid integer`);
+              }
 
-      const resharingResult = operationMode !== "sum"
-        ? multiplicationReshare(
-            fShares,
-            gShares,
+              if (parsed < 0n || parsed >= P) {
+                const symbol = secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
+                throw new Error(`Coefficient a${coeffIndex + 1} for secret ${symbol} must be in range [0, ${P - 1n}]`);
+              }
+
+              return parsed;
+            });
+          })
+        : undefined;
+
+      const manualReshareCoefficientValues: bigint[][] | undefined = useManualReshareCoefficients
+        ? Array.from({ length: n }, (_, playerIndex) => {
+            const degree = Math.max(t - 1, 0);
+            const row = manualReshareCoefficients[playerIndex] ?? [];
+            if (row.length !== degree) {
+              throw new Error(
+                `Player P${playerIndex + 1} needs exactly ${degree} resharing coefficient(s)`
+              );
+            }
+
+            return row.map((coefficientValue, coeffIndex) => {
+              let parsed: bigint;
+              try {
+                parsed = toBig(coefficientValue || "0");
+              } catch {
+                throw new Error(
+                  `Resharing coefficient a${coeffIndex + 1} for player P${playerIndex + 1} must be a valid integer`
+                );
+              }
+
+              if (parsed < 0n || parsed >= P) {
+                throw new Error(
+                  `Resharing coefficient a${coeffIndex + 1} for player P${playerIndex + 1} must be in range [0, ${P - 1n}]`
+                );
+              }
+
+              return parsed;
+            });
+          })
+        : undefined;
+
+      const shareGroups = parsedSecrets.map((secretValue, index) =>
+        createShares(
+          secretValue,
+          n,
+          t,
+          P,
+          seed !== undefined ? seed + index * 1000 : undefined,
+          manualCoefficientValues?.[index]
+        )
+      );
+      const secretShares = shareGroups.map((group) => group.shares.map((share) => share.y));
+
+      const fShares = secretShares[0] ?? new Array(n).fill(0n);
+      const gShares = secretShares[1] ?? new Array(n).fill(0n);
+
+      let hSum = new Array(n).fill(0n) as bigint[];
+      if (operationMode !== "multiply") {
+        for (const shareList of secretShares) {
+          hSum = localSumShares(hSum, shareList, P);
+        }
+      }
+
+      const resharingResult = (() => {
+        if (operationMode === "sum" || operationMode === "shamir") {
+          return { h: fShares.map(() => 0n), Tshares: fShares.map(() => 0n), messages: [] };
+        }
+
+        let currentShares = secretShares[0];
+        let latestRound = {
+          h: fShares.map(() => 0n),
+          Tshares: currentShares,
+          messages: [] as ReshareMessage[],
+        };
+        const allMessages: ReshareMessage[] = [];
+
+        for (let index = 1; index < secretShares.length; index++) {
+          const round = multiplicationReshare(
+            currentShares,
+            secretShares[index],
             t,
             P,
-            seed ? seed + 2000 : undefined
-          )
-        : { h: fShares.map(() => 0n), Tshares: fShares.map(() => 0n), messages: [] };
+            seed !== undefined ? seed + 2000 + index * 1000 : undefined,
+            manualReshareCoefficientValues
+          );
+          currentShares = round.Tshares;
+          latestRound = {
+            h: round.h,
+            Tshares: round.Tshares,
+            messages: round.messages,
+          };
+          allMessages.push(...round.messages);
+        }
 
-      const players: PlayerData[] = f.shares.map((fs, idx) => ({
-        x: fs.x,
-        f: fs.y.toString(),
-        g: g.shares[idx].y.toString(),
+        return {
+          h: latestRound.h,
+          Tshares: latestRound.Tshares,
+          messages: allMessages,
+        };
+      })();
+
+      const players: PlayerData[] = Array.from({ length: n }, (_, idx) => ({
+        x: BigInt(idx + 1),
+        secretShares: secretShares.map((shares) => shares[idx].toString()),
+        f: fShares[idx].toString(),
+        g: gShares[idx].toString(),
         hSum: hSum[idx].toString(),
         hProd: resharingResult.h[idx].toString(),
         T: resharingResult.Tshares[idx].toString(),
@@ -100,12 +330,16 @@ export default function HomePage() {
       const sumRecon = lagrangeAtZero(sumPoints, P);
       setReconSum(sumRecon.toString());
 
-      const tPoints = resharingResult.Tshares.slice(0, t).map((y: bigint, i: number) => ({
-        x: BigInt(i + 1),
-        y,
-      }));
-      const mulRecon = lagrangeAtZero(tPoints, P);
-      setReconMul(mulRecon.toString());
+      if (operationMode === "multiply" || operationMode === "both") {
+        const tPoints = resharingResult.Tshares.slice(0, t).map((y: bigint, i: number) => ({
+          x: BigInt(i + 1),
+          y,
+        }));
+        const mulRecon = lagrangeAtZero(tPoints, P);
+        setReconMul(mulRecon.toString());
+      } else {
+        setReconMul("N/A");
+      }
 
       stepRef.current?.reset();
       setCurrentStep("generate-polynomials");
@@ -133,7 +367,25 @@ export default function HomePage() {
     if (playersData.length === 0 || !reconSum || !reconMul) return;
 
     const runData: RunData = {
-      parameters: { p, n, t, a, b, seed },
+      parameters: {
+        p,
+        n,
+        t,
+        operationMode,
+        secretCount,
+        secrets: secrets.slice(0, secretCount),
+        seed,
+        useManualCoefficients,
+        manualCoefficients: useManualCoefficients
+          ? manualCoefficients.slice(0, secretCount).map((row) => row.slice(0, Math.max(t - 1, 0)))
+          : undefined,
+        useManualReshareCoefficients,
+        manualReshareCoefficients: useManualReshareCoefficients
+          ? manualReshareCoefficients
+              .slice(0, n)
+              .map((row) => row.slice(0, Math.max(t - 1, 0)))
+          : undefined,
+      },
       players: playersData,
       results: { reconSum, reconMul },
       timestamp: new Date().toISOString(),
@@ -214,10 +466,18 @@ export default function HomePage() {
             setN={setN}
             t={t}
             setT={setT}
-            a={a}
-            setA={setA}
-            b={b}
-            setB={setB}
+            secretCount={secretCount}
+            setSecretCount={setSecretCount}
+            secrets={secrets}
+            setSecretAt={setSecretAt}
+            useManualCoefficients={useManualCoefficients}
+            setUseManualCoefficients={setUseManualCoefficients}
+            manualCoefficients={manualCoefficients}
+            setCoefficientAt={setCoefficientAt}
+            useManualReshareCoefficients={useManualReshareCoefficients}
+            setUseManualReshareCoefficients={setUseManualReshareCoefficients}
+            manualReshareCoefficients={manualReshareCoefficients}
+            setReshareCoefficientAt={setReshareCoefficientAt}
             seed={seed}
             setSeed={setSeed}
             operationMode={operationMode}
@@ -228,7 +488,9 @@ export default function HomePage() {
           <Stepper
             ref={stepRef}
             steps={
-              operationMode === "sum"
+              operationMode === "shamir"
+                ? ["generate-polynomials", "compute-shares", "reconstruct"]
+                : operationMode === "sum"
                 ? ["generate-polynomials", "compute-shares", "compute-local-sum", "reconstruct"]
                 : operationMode === "multiply"
                   ? [
@@ -280,7 +542,7 @@ export default function HomePage() {
               </div>
 
               <div className={`grid grid-cols-1 ${operationMode === "both" ? "md:grid-cols-2" : ""} gap-4`}>
-                {operationMode !== "multiply" && (
+                {(operationMode === "shamir" || operationMode === "sum" || operationMode === "both") && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -290,16 +552,18 @@ export default function HomePage() {
                     }`}
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-2xl">➕</span>
+                      <span className="text-2xl">{operationMode === "shamir" ? "🔐" : "➕"}</span>
                       <p className="text-sm font-semibold text-green-900 dark:text-green-100">
-                        Summation (a + b)
+                        {operationMode === "shamir"
+                          ? "Shamir Secret Reconstruction"
+                          : "Summation (all secrets)"}
                       </p>
                     </div>
                     <p className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
                       {reconSum ?? "-"}
                     </p>
                     <p className="text-xs text-green-700 dark:text-green-300 mb-3">
-                      Expected: {((toBig(a) + toBig(b)) % toBig(p)).toString()}
+                      Expected: {operationMode === "shamir" ? secrets[0] ?? "-" : getExpectedSumText()}
                     </p>
                     <button
                       onClick={() => {
@@ -313,7 +577,7 @@ export default function HomePage() {
                   </motion.div>
                 )}
 
-                {operationMode !== "sum" && (
+                {(operationMode === "multiply" || operationMode === "both") && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -325,14 +589,14 @@ export default function HomePage() {
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-2xl">✖️</span>
                       <p className="text-sm font-semibold text-purple-900 dark:text-purple-100">
-                        Multiplication (a × b)
+                        Multiplication (all secrets)
                       </p>
                     </div>
                     <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
                       {reconMul ?? "-"}
                     </p>
                     <p className="text-xs text-purple-700 dark:text-purple-300 mb-3">
-                      Expected: {((toBig(a) * toBig(b)) % toBig(p)).toString()}
+                      Expected: {getExpectedMulText()}
                     </p>
                     <button
                       onClick={() => {
@@ -366,7 +630,7 @@ export default function HomePage() {
           )}
 
           {/* Show network matrix during resharing steps */}
-          {operationMode !== "sum" && 
+          {(operationMode === "multiply" || operationMode === "both") &&
             (currentStep === "reshare-send" || currentStep === "reshare-aggregate") &&
             reshareMessages.length > 0 && (
               <div className="mb-6">
@@ -391,22 +655,28 @@ export default function HomePage() {
       {/* Lagrange Modal */}
       {playersData.length > 0 && (
         <LagrangeModal
+          key={`${modalType}-${showLagrangeModal ? "open" : "closed"}-${t}-${playersData.length}`}
           isOpen={showLagrangeModal}
           onClose={() => setShowLagrangeModal(false)}
           shares={
             modalType === "sum"
-              ? playersData.slice(0, t).map((p) => ({
+              ? playersData.map((p) => ({
                   x: Number(p.x),
                   y: p.hSum,
                 }))
-              : playersData.slice(0, t).map((p) => ({
+              : playersData.map((p) => ({
                   x: Number(p.x),
                   y: p.T,
                 }))
           }
+          threshold={t}
           p={p}
           title={
-            modalType === "sum" ? "Summation Lagrange Details" : "Multiplication Lagrange Details"
+            modalType === "sum"
+              ? operationMode === "shamir"
+                ? "Shamir Reconstruction Details"
+                : "Summation Lagrange Details"
+              : "Multiplication Lagrange Details"
           }
         />
       )}

@@ -35,7 +35,7 @@ export default function RegisterPage() {
       } else {
         setError(result.error || "Signup failed");
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred");
     } finally {
       setLoading(false);

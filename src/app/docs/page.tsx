@@ -2,16 +2,16 @@
  * @fileoverview Documentation page for Shamir Secret Sharing
  */
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { AchievementTracker } from "@/lib/achievements";
-import { marked } from "marked";
 
 interface DocSection {
   id: string;
   title: string;
   icon: string;
-  content?: string;
+  attachments?: string[];
+  order: number;
 }
 
 export default function DocsPage() {
@@ -19,7 +19,7 @@ export default function DocsPage() {
   const [activeSection, setActiveSection] = useState("introduction");
   const [isLoadingSections, setIsLoadingSections] = useState(true);
   const [loadError, setLoadError] = useState("");
-  
+
   useEffect(() => {
     AchievementTracker.trackPageVisit("docs");
   }, []);
@@ -47,7 +47,7 @@ export default function DocsPage() {
               : loadedSections[0].id
           );
         }
-      } catch (error) {
+      } catch {
         setLoadError("Failed to load documentation");
       } finally {
         setIsLoadingSections(false);
@@ -58,14 +58,14 @@ export default function DocsPage() {
   }, []);
 
   const fallbackSections: DocSection[] = [
-    { id: "introduction", title: "Introduction", icon: "📖" },
-    { id: "shamir", title: "Shamir's Scheme", icon: "🔐" },
-    { id: "summation", title: "Summation Protocol", icon: "➕" },
-    { id: "multiplication", title: "Multiplication Protocol", icon: "✖️" },
-    { id: "quantum", title: "Quantum Protocols", icon: "⚛️" },
-    { id: "security", title: "Security Properties", icon: "🛡️" },
-    { id: "implementation", title: "Implementation", icon: "💻" },
-    { id: "references", title: "References", icon: "📚" },
+    { id: "introduction", title: "Introduction", icon: "📖", order: 1 },
+    { id: "shamir", title: "Shamir&apos;s Scheme", icon: "🔐", order: 2 },
+    { id: "summation", title: "Summation Protocol", icon: "➕", order: 3 },
+    { id: "multiplication", title: "Multiplication Protocol", icon: "✖️", order: 4 },
+    { id: "quantum", title: "Quantum Protocols", icon: "⚛️", order: 5 },
+    { id: "security", title: "Security Properties", icon: "🛡️", order: 6 },
+    { id: "implementation", title: "Implementation", icon: "💻", order: 7 },
+    { id: "references", title: "References", icon: "📚", order: 8 },
   ];
 
   const visibleSections = sections.length > 0 ? sections : fallbackSections;
@@ -76,30 +76,96 @@ export default function DocsPage() {
   const renderSectionContent = () => {
     if (!activeContent) return null;
 
-    if (activeContent.content && activeContent.content.trim().length > 0) {
-      return <MarkdownContent content={activeContent.content} />;
+    const getCoreComponent = () => {
+      switch (activeContent.id) {
+        case "introduction":
+          return <IntroductionSection />;
+        case "shamir":
+          return <ShamirSection />;
+        case "summation":
+          return <SummationSection />;
+        case "multiplication":
+          return <MultiplicationSection />;
+        case "quantum":
+          return <QuantumProtocolsSection />;
+        case "security":
+          return <SecuritySection />;
+        case "implementation":
+          return <ImplementationSection />;
+        case "references":
+          return <ReferencesSection />;
+        default:
+          return null;
+      }
+    };
+
+    const renderAttachments = (urls: string[]) => {
+      if (!urls || urls.length === 0) return null;
+
+      return (
+        <div className="mt-8 space-y-4 animate-fade-in">
+          <div className="flex items-center gap-3 py-4 border-b border-purple-100 dark:border-purple-900/40">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 m-0">
+              📂 Document Gallery
+            </h3>
+            <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-full">
+              {urls.length} Files
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {urls.map((url, idx) => (
+              <div key={idx} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-purple-100 dark:border-purple-900/40 rounded-xl shadow-md hover:shadow-lg transition-all hover:border-purple-300 dark:hover:border-purple-700">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <span className="text-2xl shrink-0">📄</span>
+                  <div className="overflow-hidden">
+                    <h4 className="font-bold m-0 text-sm text-gray-800 dark:text-gray-200 truncate pr-2">
+                      {url.split('/').pop()?.split('?')[0] || 'PDF Document'}
+                    </h4>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="p-2 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-lg transition-all group" title="View PDF">
+                    👁️
+                  </a>
+                  <a href={url} download target="_blank" rel="noopener noreferrer" className="p-2 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-600 dark:text-green-400 rounded-lg transition-all group" title="Download PDF">
+                    📥
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    const dbAttachments = activeContent.attachments || [];
+    const allAttachments = [...dbAttachments];
+    const hasAnyAttachments = allAttachments.length > 0;
+    const coreComponent = getCoreComponent();
+
+    if (coreComponent) {
+      return (
+        <div className="space-y-12">
+          {coreComponent}
+          {hasAnyAttachments && (
+            <div className="pt-12 border-t-4 border-dashed border-purple-100 dark:border-purple-900/30">
+              {renderAttachments(allAttachments)}
+            </div>
+          )}
+        </div>
+      );
     }
 
-    switch (activeContent.id) {
-      case "introduction":
-        return <IntroductionSection />;
-      case "shamir":
-        return <ShamirSection />;
-      case "summation":
-        return <SummationSection />;
-      case "multiplication":
-        return <MultiplicationSection />;
-      case "quantum":
-        return <QuantumProtocolsSection />;
-      case "security":
-        return <SecuritySection />;
-      case "implementation":
-        return <ImplementationSection />;
-      case "references":
-        return <ReferencesSection />;
-      default:
-        return <EmptySection />;
+    if (hasAnyAttachments) {
+      return (
+        <div className="space-y-8">
+          {renderAttachments(allAttachments)}
+        </div>
+      );
     }
+
+    return <EmptySection />;
   };
 
   return (
@@ -107,10 +173,10 @@ export default function DocsPage() {
       {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-400/10 dark:bg-purple-600/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/10 dark:bg-blue-600/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s', animationDuration: '4s'}}></div>
-        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-400/10 dark:bg-pink-600/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s', animationDuration: '5s'}}></div>
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/10 dark:bg-blue-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s', animationDuration: '4s' }}></div>
+        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-400/10 dark:bg-pink-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s', animationDuration: '5s' }}></div>
       </div>
-      
+
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
@@ -139,15 +205,13 @@ export default function DocsPage() {
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
-                    className={`group w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 transform flex items-center gap-3 ${
-                      activeSection === section.id
+                    className={`group w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 transform flex items-center gap-3 ${activeSection === section.id
                         ? "bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50 scale-105 -translate-x-1"
                         : "text-gray-700 dark:text-gray-300 hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 hover:scale-102 hover:shadow-md hover:translate-x-1"
-                    }`}
+                      }`}
                   >
-                    <span className={`text-lg transition-transform duration-300 ${
-                      activeSection === section.id ? "animate-bounce" : "group-hover:scale-125 group-hover:rotate-12"
-                    }`}>
+                    <span className={`text-lg transition-transform duration-300 ${activeSection === section.id ? "animate-bounce" : "group-hover:scale-125 group-hover:rotate-12"
+                      }`}>
                       {section.icon}
                     </span>
                     <span className={activeSection === section.id ? "font-bold" : ""}>{section.title}</span>
@@ -178,16 +242,6 @@ export default function DocsPage() {
   );
 }
 
-function MarkdownContent({ content }: { content: string }) {
-  const html = useMemo(() => marked.parse(content), [content]);
-
-  return (
-    <div
-      className="prose prose-lg dark:prose-invert max-w-none animate-fade-in"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
-}
 
 function EmptySection() {
   return (
@@ -203,10 +257,10 @@ function IntroductionSection() {
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
         📖 introduction
       </h2>
-      
+
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's Secret Sharing is a cryptographic scheme introduced by <strong>Adi Shamir</strong> in 1979. 
-        It allows a secret to be divided into multiple shares, distributed among participants, such that 
+        Shamir&apos;s Secret Sharing is a cryptographic scheme introduced by <strong>Adi Shamir</strong> in 1979.
+        It allows a secret to be divided into multiple shares, distributed among participants, such that
         only a threshold number of shares is needed to reconstruct the original secret.
       </p>
 
@@ -257,12 +311,12 @@ function ShamirSection() {
   return (
     <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
-        🔐 Shamir's Secret Sharing Scheme
+        🔐 Shamir&apos;s Secret Sharing Scheme
       </h2>
 
       <h3 className="text-2xl font-bold mt-6 mb-4 text-gray-800 dark:text-gray-100">Mathematical Foundation</h3>
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's scheme is based on polynomial interpolation over finite fields. A polynomial of degree <code>t-1</code> 
+        Shamir&apos;s scheme is based on polynomial interpolation over finite fields. A polynomial of degree <code>t-1</code>
         is uniquely determined by <code>t</code> points.
       </p>
 
@@ -316,7 +370,7 @@ function SummationSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's scheme has a beautiful property: <strong>linearity</strong>. This allows parties to compute 
+        Shamir&apos;s scheme has a beautiful property: <strong>linearity</strong>. This allows parties to compute
         sums of secrets without any interaction, simply by adding their local shares.
       </p>
 
@@ -324,7 +378,7 @@ function SummationSection() {
         <h3 className="text-xl font-bold text-green-900 dark:text-green-300 mb-3">Protocol Steps</h3>
         <ol className="space-y-3 text-gray-700 dark:text-gray-300">
           <li>
-            <strong>Step 1:</strong> Share secrets a and b using Shamir's scheme
+            <strong>Step 1:</strong> Share secrets a and b using Shamir&apos;s scheme
             <div className="ml-4 mt-1 text-sm">Party i receives: f<sub>i</sub> = f(i) and g<sub>i</sub> = g(i)</div>
           </li>
           <li>
@@ -341,7 +395,7 @@ function SummationSection() {
       <div className="bg-gray-100 dark:bg-gray-900 p-6 rounded-lg my-6 transition-all duration-500 hover:shadow-xl hover:border-2 hover:border-blue-400 hover:scale-[1.01]">
         <h4 className="font-bold text-lg mb-3 text-gray-800 dark:text-gray-200">Why It Works</h4>
         <p className="text-gray-700 dark:text-gray-300">
-          If f(x) shares secret a and g(x) shares secret b, then h(x) = f(x) + g(x) shares secret a + b 
+          If f(x) shares secret a and g(x) shares secret b, then h(x) = f(x) + g(x) shares secret a + b
           because:
         </p>
         <div className="bg-white dark:bg-gray-800 p-4 mt-3 rounded border border-gray-300 dark:border-gray-700 font-mono text-sm">
@@ -355,7 +409,7 @@ function SummationSection() {
       <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg mt-6 border border-blue-200 dark:border-blue-800 transition-all duration-500 hover:shadow-xl hover:border-blue-500 hover:scale-105 hover:-translate-y-2">
         <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-2">✨ Key Advantage</h4>
         <p className="text-gray-700 dark:text-gray-300">
-          <strong>Non-interactive:</strong> No communication needed! Each party independently computes their 
+          <strong>Non-interactive:</strong> No communication needed! Each party independently computes their
           share of the sum. This is highly efficient for multi-party computation.
         </p>
       </div>
@@ -371,14 +425,14 @@ function MultiplicationSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Unlike addition, multiplication is more complex. The naive approach increases polynomial degree 
+        Unlike addition, multiplication is more complex. The naive approach increases polynomial degree
         from <code>t-1</code> to <code>2(t-1)</code>, requiring <strong>degree reduction</strong> through resharing.
       </p>
 
       <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-lg my-6 transition-all duration-500 hover:shadow-xl hover:border-l-8 hover:scale-[1.02] hover:bg-red-100 dark:hover:bg-red-900/30">
         <h3 className="text-xl font-bold text-red-900 dark:text-red-300 mb-2">⚠️ The Challenge</h3>
         <p className="text-gray-700 dark:text-gray-300">
-          If f(x) and g(x) are degree t-1, then h(x) = f(x) · g(x) is degree <strong>2(t-1)</strong>. 
+          If f(x) and g(x) are degree t-1, then h(x) = f(x) · g(x) is degree <strong>2(t-1)</strong>.
           This requires 2t-1 shares to reconstruct, breaking our threshold property!
         </p>
       </div>
@@ -431,7 +485,7 @@ function MultiplicationSection() {
       <div className="bg-linear-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 p-6 rounded-lg my-6 border border-pink-200 dark:border-pink-800 transition-all duration-500 hover:shadow-2xl hover:border-pink-500 hover:scale-[1.02] hover:-translate-y-1">
         <h4 className="font-bold text-lg mb-3 text-pink-900 dark:text-pink-300">🔄 Resharing Visualization</h4>
         <p className="text-gray-700 dark:text-gray-300 mb-3">
-          The resharing step uses Lagrange basis polynomials evaluated at each player's ID:
+          The resharing step uses Lagrange basis polynomials evaluated at each player&apos;s ID:
         </p>
         <div className="bg-white dark:bg-gray-800 p-4 rounded border border-pink-300 dark:border-pink-700 font-mono text-sm">
           s<sub>i,j</sub> = h<sub>i</sub> · λ<sub>i</sub>(j)
@@ -447,7 +501,7 @@ function MultiplicationSection() {
       <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg mt-6 border border-green-200 dark:border-green-800 transition-all duration-500 hover:shadow-xl hover:border-green-500 hover:scale-105 hover:-translate-y-1">
         <h4 className="font-bold text-green-900 dark:text-green-300 mb-2">✅ Security Property</h4>
         <p className="text-gray-700 dark:text-gray-300">
-          Throughout the protocol, no party learns anything beyond their own shares. The intermediate 
+          Throughout the protocol, no party learns anything beyond their own shares. The intermediate
           degree-2(t-1) polynomial is never explicitly reconstructed—only converted to a new degree-(t-1) sharing.
         </p>
       </div>
@@ -468,7 +522,7 @@ function QuantumProtocolsSection() {
           <strong>Sutradhar, K. & Om, H. (2020)</strong>
         </p>
         <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-          "Hybrid Quantum Protocols for Secure Multiparty Summation and Multiplication"
+          &quot;Hybrid Quantum Protocols for Secure Multiparty Summation and Multiplication&quot;
         </p>
         <p className="text-xs text-purple-700 dark:text-purple-400">
           <em>Scientific Reports</em>, 10, 9097. doi:10.1038/s41598-020-65871-8
@@ -476,7 +530,7 @@ function QuantumProtocolsSection() {
       </div>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Recent advances in quantum cryptography have led to the development of <strong>hybrid (t,n) threshold quantum protocols</strong> 
+        Recent advances in quantum cryptography have led to the development of <strong>hybrid (t,n) threshold quantum protocols</strong>
         that combine classical Shamir secret sharing with quantum computing techniques to achieve enhanced security and efficiency.
       </p>
 
@@ -490,7 +544,7 @@ function QuantumProtocolsSection() {
             (t, n) Threshold Approach
           </h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            Unlike traditional (n,n) approaches, only <code>t</code> players are needed to compute summation 
+            Unlike traditional (n,n) approaches, only <code>t</code> players are needed to compute summation
             and multiplication, providing better fault tolerance and flexibility.
           </p>
         </div>
@@ -500,7 +554,7 @@ function QuantumProtocolsSection() {
             Secret-by-Secret Computation
           </h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            Computation type is secret-by-secret (not bit-by-bit), significantly reducing communication 
+            Computation type is secret-by-secret (not bit-by-bit), significantly reducing communication
             and computation costs.
           </p>
         </div>
@@ -569,11 +623,11 @@ function QuantumProtocolsSection() {
         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
           <li className="flex items-start gap-2">
             <span className="text-purple-500">→</span>
-            Computing h'(yᵢ) = f(yᵢ) × g(yᵢ) mod d locally
+            Computing h&apos;(yᵢ) = f(yᵢ) × g(yᵢ) mod d locally
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-500">→</span>
-            Sharing h'(yᵢ) using new random polynomials zᵢ(x)
+            Sharing h&apos;(yᵢ) using new random polynomials zᵢ(x)
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-500">→</span>
@@ -619,7 +673,7 @@ function QuantumProtocolsSection() {
         <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border-l-4 border-pink-500 transition-all duration-300 hover:shadow-lg hover:border-l-8 hover:scale-[1.02] hover:translate-x-2">
           <h4 className="font-bold text-pink-900 dark:text-pink-300 mb-2">✅ Privacy Preservation</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            No player can obtain other players' private inputs throughout the protocol
+            No player can obtain other players&apos; private inputs throughout the protocol
           </p>
         </div>
       </div>
@@ -650,8 +704,8 @@ function QuantumProtocolsSection() {
       <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-6 rounded-r-lg mt-6 transition-all duration-500 hover:shadow-xl hover:border-l-8 hover:scale-[1.02] hover:bg-yellow-100 dark:hover:bg-yellow-900/30">
         <h4 className="font-bold text-yellow-900 dark:text-yellow-300 mb-2">💡 Practical Note</h4>
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          While our visualizer implements classical Shamir secret sharing (which is the foundation), the quantum 
-          protocols extend these concepts with QFT, quantum entanglement, and measurement operations for enhanced 
+          While our visualizer implements classical Shamir secret sharing (which is the foundation), the quantum
+          protocols extend these concepts with QFT, quantum entanglement, and measurement operations for enhanced
           security in quantum computing environments.
         </p>
       </div>
@@ -661,9 +715,9 @@ function QuantumProtocolsSection() {
           🔬 Future of Secure Computation
         </h4>
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          Hybrid quantum protocols represent the future of secure multi-party computation, combining the proven 
-          reliability of classical cryptographic techniques with the unprecedented security guarantees offered by 
-          quantum mechanics. As quantum computers become more accessible, these protocols will enable truly 
+          Hybrid quantum protocols represent the future of secure multi-party computation, combining the proven
+          reliability of classical cryptographic techniques with the unprecedented security guarantees offered by
+          quantum mechanics. As quantum computers become more accessible, these protocols will enable truly
           secure distributed computation at scales previously impossible.
         </p>
       </div>
@@ -684,7 +738,7 @@ function SecuritySection() {
             <span>🔒</span> Perfect Secrecy
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
-            Any t-1 or fewer shares are <strong>information-theoretically secure</strong>—they reveal 
+            Any t-1 or fewer shares are <strong>information-theoretically secure</strong>—they reveal
             absolutely nothing about the secret, even to a computationally unbounded adversary.
           </p>
         </div>
@@ -694,7 +748,7 @@ function SecuritySection() {
             <span>✅</span> Threshold Property
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
-            Any t shares can <strong>uniquely reconstruct</strong> the secret. The polynomial interpolation 
+            Any t shares can <strong>uniquely reconstruct</strong> the secret. The polynomial interpolation
             guarantees exactly one solution.
           </p>
         </div>
@@ -704,7 +758,7 @@ function SecuritySection() {
             <span>🎯</span> Privacy Preservation
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
-            During computation, parties never see the actual secrets—only their local shares. 
+            During computation, parties never see the actual secrets—only their local shares.
             The result is reconstructed without exposing intermediate values.
           </p>
         </div>
@@ -714,7 +768,7 @@ function SecuritySection() {
             <span>⚡</span> Verifiability
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm">
-            With additional mechanisms (commitments, zero-knowledge proofs), parties can verify that 
+            With additional mechanisms (commitments, zero-knowledge proofs), parties can verify that
             others are following the protocol correctly.
           </p>
         </div>
@@ -771,7 +825,7 @@ function ImplementationSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Our visualizer implements Shamir secret sharing using modern JavaScript with TypeScript for type safety 
+        Our visualizer implements Shamir secret sharing using modern JavaScript with TypeScript for type safety
         and BigInt arithmetic for cryptographic correctness.
       </p>
 
@@ -876,7 +930,7 @@ function ReferencesSection() {
           <div className="space-y-4 text-sm">
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded">
               <p className="font-semibold text-gray-800 dark:text-gray-200">
-                Shamir, A. (1979). "How to share a secret"
+                Shamir, A. (1979). &quot;How to share a secret&quot;
               </p>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
                 <em>Communications of the ACM</em>, 22(11), 612-613.
@@ -891,10 +945,10 @@ function ReferencesSection() {
                 Ben-Or, M., Goldwasser, S., & Wigderson, A. (1988)
               </p>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
-                "Completeness theorems for non-cryptographic fault-tolerant distributed computation"
+                &quot;Completeness theorems for non-cryptographic fault-tolerant distributed computation&quot;
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                <em>STOC '88</em> - BGW protocol for secure multiplication with resharing.
+                <em>STOC &apos;88</em> - BGW protocol for secure multiplication with resharing.
               </p>
             </div>
 
@@ -903,7 +957,7 @@ function ReferencesSection() {
                 Cramer, R., Damgård, I., & Nielsen, J. B. (2015)
               </p>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
-                "Secure Multiparty Computation and Secret Sharing"
+                &quot;Secure Multiparty Computation and Secret Sharing&quot;
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                 Comprehensive textbook on MPC theory and practice.
@@ -963,7 +1017,7 @@ function ReferencesSection() {
           <ul className="space-y-2 text-sm">
             <li className="p-3 bg-green-50 dark:bg-green-900/20 rounded">
               <a href="https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold" target="_blank" rel="noopener noreferrer">
-                Wikipedia: Shamir's Secret Sharing
+                Wikipedia: Shamir&apos;s Secret Sharing
               </a>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Comprehensive overview with examples</p>
             </li>
@@ -989,7 +1043,7 @@ function ReferencesSection() {
           <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
             Download or view original research papers and technical documentation to dive deeper into the theory and implementation.
           </p>
-          
+
           <div className="space-y-3">
             {/* Quantum Protocols Paper */}
             <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-red-200 dark:border-red-800 hover:shadow-md transition-shadow">
@@ -1037,7 +1091,7 @@ function ReferencesSection() {
                     Adi Shamir - Communications of the ACM
                   </p>
                   <p className="text-xs text-gray-700 dark:text-gray-300">
-                    The original groundbreaking paper introducing Shamir's Secret Sharing scheme
+                    The original groundbreaking paper introducing Shamir&apos;s Secret Sharing scheme
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -1099,7 +1153,7 @@ function ReferencesSection() {
             {/* Info note */}
             <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 rounded-r-lg">
               <p className="text-xs text-gray-700 dark:text-gray-300">
-                💡 <strong>Tip:</strong> These PDFs provide the theoretical foundation for the concepts implemented in this visualizer. They're perfect for academic study and deeper understanding.
+                💡 <strong>Tip:</strong> These PDFs provide the theoretical foundation for the concepts implemented in this visualizer. They&apos;re perfect for academic study and deeper understanding.
               </p>
             </div>
           </div>
@@ -1110,8 +1164,8 @@ function ReferencesSection() {
             🎓 About This Visualizer
           </h3>
           <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">
-            This educational tool was built to make Shamir secret sharing and secure multi-party computation 
-            more accessible and understandable through interactive visualization. Based on research in secure 
+            This educational tool was built to make Shamir secret sharing and secure multi-party computation
+            more accessible and understandable through interactive visualization. Based on research in secure
             computation and privacy-preserving protocols.
           </p>
           <div className="flex flex-wrap gap-2">
@@ -1134,7 +1188,7 @@ function ReferencesSection() {
             Test Your Knowledge!
           </h3>
           <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
-            Ready to see how much you've learned? Take our interactive quiz covering all the concepts from this documentation.
+            Ready to see how much you&apos;ve learned? Take our interactive quiz covering all the concepts from this documentation.
           </p>
           <Link
             href="/quiz"

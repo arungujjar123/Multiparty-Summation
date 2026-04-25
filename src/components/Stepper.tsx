@@ -72,13 +72,13 @@ const Stepper = forwardRef<StepperHandle, Props>(({ steps, onRunStep, intervalMs
   const togglePlay = () => setPlaying((p) => !p);
 
   const stepLabels: Record<string, string> = {
-    "generate-polynomials": "1. Generate Polynomials",
-    "compute-shares": "2. Compute Shares",
-    "compute-local-sum": "3. Local Sum",
-    "compute-local-prod": "4. Local Product",
-    "reshare-send": "5. Reshare (Send)",
-    "reshare-aggregate": "6. Aggregate T-shares",
-    reconstruct: "7. Reconstruct",
+    "generate-polynomials": "Generate Polynomials",
+    "compute-shares": "Compute Shares",
+    "compute-local-sum": "Local Sum",
+    "compute-local-prod": "Local Product",
+    "reshare-send": "Reshare (Send)",
+    "reshare-aggregate": "Aggregate T-shares",
+    reconstruct: "Reconstruct",
   };
 
   return (
@@ -87,7 +87,7 @@ const Stepper = forwardRef<StepperHandle, Props>(({ steps, onRunStep, intervalMs
 
       <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
         <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-          {stepLabels[steps[idx]] || steps[idx]}
+          {`${idx + 1}. ${stepLabels[steps[idx]] || steps[idx]}`}
         </p>
       </div>
 
@@ -126,7 +126,7 @@ const Stepper = forwardRef<StepperHandle, Props>(({ steps, onRunStep, intervalMs
                   : "bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-500"
             }`}
           >
-            {stepLabels[step] || step}
+            {`${i + 1}. ${stepLabels[step] || step}`}
           </div>
         ))}
       </div>

@@ -13,6 +13,7 @@ interface LagrangeModalProps {
   onClose: () => void;
   shares: Array<{ x: number; y: string }>;
   p: string;
+  threshold?: number;
   title?: string;
 }
 
@@ -21,12 +22,39 @@ export default function LagrangeModal({
   onClose,
   shares,
   p,
+  threshold,
   title = "Lagrange Interpolation Details",
 }: LagrangeModalProps) {
-  // Derive details from props directly
+  const requiredShares = Math.max(1, threshold ?? shares.length);
+  const [selectedXValues, setSelectedXValues] = React.useState<number[]>(() =>
+    shares.slice(0, requiredShares).map((share) => share.x)
+  );
+
+  const selectedShares = React.useMemo(() => {
+    const selectedSet = new Set(selectedXValues);
+    return shares.filter((share) => selectedSet.has(share.x));
+  }, [shares, selectedXValues]);
+
+  const togglePlayer = (playerX: number) => {
+    setSelectedXValues((prev) => {
+      if (prev.includes(playerX)) {
+        return prev;
+      }
+
+      if (prev.length >= requiredShares) {
+        return [...prev.slice(1), playerX];
+      }
+
+      return [...prev, playerX];
+    });
+  };
+
+  const isSelectionComplete = selectedShares.length === requiredShares;
+
+  // Derive details from selected shares
   const details = React.useMemo(() => {
-    if (isOpen && shares.length > 0) {
-      const points = shares.map((s) => ({
+    if (isOpen && isSelectionComplete) {
+      const points = selectedShares.map((s) => ({
         x: BigInt(s.x),
         y: toBig(s.y),
       }));
@@ -34,7 +62,7 @@ export default function LagrangeModal({
       return lagrangeWithDetails(points, P);
     }
     return null;
-  }, [isOpen, shares, p]);
+  }, [isOpen, selectedShares, isSelectionComplete, p]);
 
   useEffect(() => {
     if (isOpen && details) {
@@ -47,7 +75,7 @@ export default function LagrangeModal({
               throwOnError: false,
               displayMode: true,
             });
-          } catch (e) {
+          } catch {
             // KaTeX render error silently handled
           }
         }
@@ -82,10 +110,42 @@ export default function LagrangeModal({
                 </h3>
                 <div
                   className="katex-formula text-center"
-                  data-formula="f(0) = \sum_{i=1}^{t} y_i \cdot \lambda_i"
+                  data-formula={`f(0) = \\sum_{i=1}^{${requiredShares}} y_i \\cdot \\lambda_i`}
                 ></div>
                 <p className="text-sm text-blue-800 dark:text-blue-200 mt-2">
-                  Where λᵢ are the Lagrange coefficients computed from the x-coordinates
+                  Where λᵢ are computed from the x-coordinates of your selected players
+                </p>
+              </div>
+
+              {/* Player selection */}
+              <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Select Players for Reconstruction
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Choose any {requiredShares} player(s). Click a new player to replace the oldest selected one.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {shares.map((share) => {
+                    const isSelected = selectedXValues.includes(share.x);
+                    return (
+                      <button
+                        key={share.x}
+                        type="button"
+                        onClick={() => togglePlayer(share.x)}
+                        className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors ${
+                          isSelected
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-blue-500"
+                        }`}
+                      >
+                        P{share.x}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">
+                  Selected: {selectedXValues.map((x) => `P${x}`).join(", ") || "None"}
                 </p>
               </div>
 
@@ -95,19 +155,26 @@ export default function LagrangeModal({
                   Points Used (x, y)
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {details.points.map((pt, i) => (
+                  {selectedShares.map((pt, i) => (
                     <div
                       key={i}
                       className="bg-gray-100 dark:bg-gray-700 p-2 rounded text-center font-mono"
                     >
-                      ({pt.x.toString()}, {pt.y.toString()})
+                      ({pt.x}, {pt.y})
                     </div>
                   ))}
                 </div>
               </div>
 
+              {!isSelectionComplete && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200">
+                  Select exactly {requiredShares} player(s) to view lambda coefficients and reconstruction details.
+                </div>
+              )}
+
               {/* Lambda coefficients */}
-              <div>
+              {details && (
+                <div>
                 <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">
                   Lagrange Coefficients (λᵢ)
                 </h3>
@@ -148,10 +215,12 @@ export default function LagrangeModal({
                     </div>
                   ))}
                 </div>
-              </div>
+                </div>
+              )}
 
               {/* Individual terms */}
-              <div>
+              {details && (
+                <div>
                 <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">Terms (yᵢ × λᵢ)</h3>
                 <div className="space-y-2">
                   {details.terms.map((term, i) => (
@@ -168,10 +237,12 @@ export default function LagrangeModal({
                     </div>
                   ))}
                 </div>
-              </div>
+                </div>
+              )}
 
               {/* Final sum */}
-              <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border-2 border-indigo-300 dark:border-indigo-700">
+              {details && (
+                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border-2 border-indigo-300 dark:border-indigo-700">
                 <h3 className="font-bold text-indigo-900 dark:text-indigo-100 mb-2">
                   Final Result
                 </h3>
@@ -184,7 +255,8 @@ export default function LagrangeModal({
                     {details.result.toString()}
                   </span>
                 </div>
-              </div>
+                </div>
+              )}
             </>
           )}
         </div>

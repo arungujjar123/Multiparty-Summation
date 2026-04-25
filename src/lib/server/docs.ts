@@ -7,6 +7,7 @@ export interface DocSection {
   title: string;
   icon: string;
   content: string;
+  attachments?: string[]; // Array of PDF URLs
   order: number;
   lastModified: string;
   createdAt: string;
@@ -42,6 +43,7 @@ export async function ensureDefaultDocs() {
     missing.map((section) => ({
       ...section,
       content: "",
+      attachments: [],
       createdAt: now,
       lastModified: now,
     }))
@@ -58,10 +60,30 @@ export async function getDocSections() {
     title: doc.title,
     icon: doc.icon,
     content: doc.content,
+    attachments: doc.attachments || [],
     order: doc.order,
     lastModified: doc.lastModified,
     createdAt: doc.createdAt,
   }));
+}
+
+export async function getDocSectionById(id: string) {
+  const db = await getDb();
+  const collection = db.collection<DocSection>(DOCS_COLLECTION);
+
+  const doc = (await collection.findOne({ id })) as DocSection | null;
+  if (!doc) return null;
+
+  return {
+    id: doc.id,
+    title: doc.title,
+    icon: doc.icon,
+    content: doc.content,
+    attachments: doc.attachments || [],
+    order: doc.order,
+    lastModified: doc.lastModified,
+    createdAt: doc.createdAt,
+  };
 }
 
 export async function createDocSection(params: {
@@ -90,6 +112,7 @@ export async function createDocSection(params: {
     title,
     icon,
     content: "",
+    attachments: [],
     order: nextOrder,
     createdAt: now,
     lastModified: now,
@@ -99,7 +122,13 @@ export async function createDocSection(params: {
   return { section: doc };
 }
 
-export async function updateDocSection(id: string, updates: Partial<Pick<DocSection, "title" | "icon" | "content">>) {
+export async function updateDocSection(
+  id: string,
+  updates: Partial<Pick<DocSection, "title" | "icon" | "content">> & {
+    attachments?: string[];
+    contentMode?: "replace" | "append";
+  }
+) {
   const db = await getDb();
   const collection = db.collection<DocSection>(DOCS_COLLECTION);
 
@@ -115,20 +144,50 @@ export async function updateDocSection(id: string, updates: Partial<Pick<DocSect
     payload.icon = updates.icon.trim();
   }
 
-  if (typeof updates.content === "string") {
-    payload.content = updates.content;
+  if (Array.isArray(updates.attachments)) {
+    payload.attachments = updates.attachments;
+    console.log(`[DB Update] Saving ${updates.attachments.length} attachments for section: ${id}`);
   }
 
-  const result = await collection.findOneAndUpdate(
+  if (typeof updates.content === "string") {
+    if (updates.contentMode === "append") {
+      const existing = (await collection.findOne({ id })) as DocSection | null;
+      if (!existing) return null;
+      const existingContent = typeof existing.content === "string" ? existing.content : "";
+      const incomingContent = updates.content;
+
+      if (incomingContent.trim().length === 0) {
+        payload.content = existingContent;
+      } else if (
+        existingContent.length > 0 &&
+        incomingContent.length >= existingContent.length &&
+        incomingContent.startsWith(existingContent)
+      ) {
+        // Admin editor often contains full existing content + newly typed tail.
+        // In that case, append only the new tail to avoid duplicating existing content.
+        const delta = incomingContent.slice(existingContent.length);
+        payload.content = delta.trim().length > 0 ? `${existingContent}${delta}` : existingContent;
+      } else {
+        payload.content =
+          existingContent.trim().length > 0
+            ? `${existingContent}\n\n${incomingContent}`
+            : incomingContent;
+      }
+    } else {
+      payload.content = updates.content;
+    }
+  }
+
+  const result = (await collection.findOneAndUpdate(
     { id },
     { $set: payload },
     { returnDocument: "after" }
-  );
+  )) as DocSection | null;
 
-  if (!result.value) return null;
+  if (!result) return null;
 
-  const { id: updatedId, title, icon, content, order, lastModified, createdAt } = result.value;
-  return { id: updatedId, title, icon, content, order, lastModified, createdAt };
+  const { id: updatedId, title, icon, content, attachments, order, lastModified, createdAt } = result;
+  return { id: updatedId, title, icon, content, attachments: attachments || [], order, lastModified, createdAt };
 }
 
 export async function deleteDocSection(id: string) {

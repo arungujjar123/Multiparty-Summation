@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
         const data = await response.json();
         setUser(data.user || null);
-      } catch (error) {
+      } catch {
         setUser(null);
       } finally {
         setIsLoading(false);
