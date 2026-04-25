@@ -38,10 +38,11 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ user }, { status: 200 });
-  } catch (err: any) {
-    console.error("Login Error:", err);
+  } catch (err: unknown) {
+    const error = err as Error;
+    console.error("Login Error:", error);
     return NextResponse.json(
-      { error: err?.message || "Internal server error" },
+      { error: error?.message || "Internal server error" },
       { status: 500 }
     );
   }

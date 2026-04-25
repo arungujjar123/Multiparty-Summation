@@ -12,10 +12,11 @@ export async function GET() {
     const user = await getUserBySessionToken(token);
 
     return NextResponse.json({ user }, { status: 200 });
-  } catch (err: any) {
-    console.error("Auth Me Error:", err);
+  } catch (err: unknown) {
+    const error = err as Error;
+    console.error("Auth Me Error:", error);
     return NextResponse.json(
-      { error: err?.message || "Internal server error" },
+      { error: error?.message || "Internal server error" },
       { status: 500 }
     );
   }
