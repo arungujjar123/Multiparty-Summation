@@ -278,7 +278,8 @@ export default function AchievementsPage() {
       // Simple requirement parsing
       if (requirement.includes(">=")) {
         const [key, value] = requirement.split(">=").map((s) => s.trim());
-        return (context[key] || 0) >= parseInt(value);
+        const val = context[key];
+        return (typeof val === 'number' ? val : 0) >= parseInt(value);
       }
       if (requirement.includes("===")) {
         const [key, value] = requirement.split("===").map((s) => s.trim());

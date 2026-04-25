@@ -58,14 +58,19 @@ export default function AdminDocsPage() {
 
   useEffect(() => {
     if (isAdmin) {
-      loadSections();
+      Promise.resolve().then(() => {
+        loadSections();
+      });
     }
   }, [isAdmin, loadSections]);
 
   useEffect(() => {
     if (selectedSection && sections.length > 0) {
       const section = sections.find(s => s.id === selectedSection);
-      setEditContent(section?.content || '');
+      const content = section?.content || '';
+      Promise.resolve().then(() => {
+        setEditContent(content);
+      });
     }
   }, [selectedSection, sections]);
 
