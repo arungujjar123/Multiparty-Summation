@@ -63,23 +63,20 @@ export default function HomePage() {
       }
 
       const f = createShares(A, n, t, P, seed);
-      const g = operationMode !== "sum" 
-        ? createShares(B, n, t, P, seed ? seed + 1000 : undefined)
-        : createShares(0n, n, t, P, seed ? seed + 1000 : undefined); // Dummy for sum-only
+      const g =
+        operationMode !== "sum"
+          ? createShares(B, n, t, P, seed ? seed + 1000 : undefined)
+          : createShares(0n, n, t, P, seed ? seed + 1000 : undefined); // Dummy for sum-only
       const fShares = f.shares.map((s) => s.y);
       const gShares = g.shares.map((s) => s.y);
 
-      const hSum = operationMode !== "multiply" ? localSumShares(fShares, gShares, P) : fShares.map(() => 0n);
+      const hSum =
+        operationMode !== "multiply" ? localSumShares(fShares, gShares, P) : fShares.map(() => 0n);
 
-      const resharingResult = operationMode !== "sum"
-        ? multiplicationReshare(
-            fShares,
-            gShares,
-            t,
-            P,
-            seed ? seed + 2000 : undefined
-          )
-        : { h: fShares.map(() => 0n), Tshares: fShares.map(() => 0n), messages: [] };
+      const resharingResult =
+        operationMode !== "sum"
+          ? multiplicationReshare(fShares, gShares, t, P, seed ? seed + 2000 : undefined)
+          : { h: fShares.map(() => 0n), Tshares: fShares.map(() => 0n), messages: [] };
 
       const players: PlayerData[] = f.shares.map((fs, idx) => ({
         x: fs.x,
@@ -156,7 +153,8 @@ export default function HomePage() {
             </span>
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            🔐 Interactive visualization of Shamir secret sharing with summation and multiplication protocols
+            🔐 Interactive visualization of Shamir secret sharing with summation and multiplication
+            protocols
           </p>
           <div className="mt-4 flex justify-center gap-4 text-sm text-gray-500 dark:text-gray-500">
             <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700">
@@ -186,10 +184,14 @@ export default function HomePage() {
               <div className="flex items-center justify-center gap-4">
                 <span className="text-6xl animate-bounce">🎉</span>
                 <div className="text-center">
-                  <p className="text-3xl font-extrabold text-white drop-shadow-lg">Protocol Complete!</p>
+                  <p className="text-3xl font-extrabold text-white drop-shadow-lg">
+                    Protocol Complete!
+                  </p>
                   <p className="text-white/90 text-lg mt-1">Secrets successfully reconstructed</p>
                 </div>
-                <span className="text-6xl animate-bounce" style={{ animationDelay: "0.1s" }}>✨</span>
+                <span className="text-6xl animate-bounce" style={{ animationDelay: "0.1s" }}>
+                  ✨
+                </span>
               </div>
             </div>
           </motion.div>
@@ -274,12 +276,16 @@ export default function HomePage() {
                     className="flex items-center gap-2 bg-green-100 dark:bg-green-900/30 px-4 py-2 rounded-full"
                   >
                     <span className="text-2xl">✅</span>
-                    <span className="text-sm font-bold text-green-700 dark:text-green-300">Complete</span>
+                    <span className="text-sm font-bold text-green-700 dark:text-green-300">
+                      Complete
+                    </span>
                   </motion.div>
                 )}
               </div>
 
-              <div className={`grid grid-cols-1 ${operationMode === "both" ? "md:grid-cols-2" : ""} gap-4`}>
+              <div
+                className={`grid grid-cols-1 ${operationMode === "both" ? "md:grid-cols-2" : ""} gap-4`}
+              >
                 {operationMode !== "multiply" && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -366,7 +372,7 @@ export default function HomePage() {
           )}
 
           {/* Show network matrix during resharing steps */}
-          {operationMode !== "sum" && 
+          {operationMode !== "sum" &&
             (currentStep === "reshare-send" || currentStep === "reshare-aggregate") &&
             reshareMessages.length > 0 && (
               <div className="mb-6">

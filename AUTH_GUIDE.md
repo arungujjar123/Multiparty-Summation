@@ -5,6 +5,7 @@ This application now includes a complete authentication system with role-based a
 ## Features
 
 ### 🔐 Authentication System
+
 - **Sign Up**: Create new user accounts
 - **Login**: Secure authentication
 - **Session Management**: Persistent login state using localStorage
@@ -13,6 +14,7 @@ This application now includes a complete authentication system with role-based a
 ### 👥 User Roles
 
 #### 🎓 Student Role (Default)
+
 - Access to all learning resources:
   - Interactive Visualizer
   - Documentation
@@ -23,6 +25,7 @@ This application now includes a complete authentication system with role-based a
 - Take quizzes and earn badges
 
 #### 👑 Admin Role
+
 - **All Student privileges** plus:
 - **Manage Documentation**: Edit and add documentation content
 - **User Management**: View, edit, and delete users
@@ -33,12 +36,14 @@ This application now includes a complete authentication system with role-based a
 ## Getting Started
 
 ### Default Admin Account
+
 ```
 Email: admin@shamir.edu
 Password: admin123
 ```
 
 ### Creating New Users
+
 1. Click "Login" in the navigation
 2. Select "Sign up"
 3. Enter your details (email, password, name)
@@ -80,7 +85,9 @@ src/
 ## Key Components
 
 ### Authentication Context (`AuthContext.tsx`)
+
 Provides authentication state and functions throughout the app:
+
 - `user`: Current logged-in user object
 - `isAdmin`: Boolean indicating admin status
 - `isLoading`: Loading state
@@ -89,11 +96,14 @@ Provides authentication state and functions throughout the app:
 - `signOut()`: Logout function
 
 ### Protected Routes
+
 Routes automatically redirect to login if user is not authenticated:
+
 - `/dashboard`
 - `/admin/*`
 
 Admin-only routes redirect non-admin users to login:
+
 - `/admin/docs`
 - `/admin/users`
 - `/admin/analytics`
@@ -101,12 +111,13 @@ Admin-only routes redirect non-admin users to login:
 ## Usage Examples
 
 ### Using Auth in Components
+
 ```typescript
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function MyComponent() {
   const { user, isAdmin, signOut } = useAuth();
-  
+
   return (
     <div>
       {user && <p>Welcome, {user.name}!</p>}
@@ -118,6 +129,7 @@ export default function MyComponent() {
 ```
 
 ### Protecting Routes
+
 ```typescript
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -126,7 +138,7 @@ import { useEffect } from 'react';
 export default function ProtectedPage() {
   const { user, isAdmin, isLoading } = useAuth();
   const router = useRouter();
-  
+
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/login');
@@ -135,9 +147,9 @@ export default function ProtectedPage() {
       router.push('/dashboard'); // Redirect if not admin
     }
   }, [user, isAdmin, isLoading, router]);
-  
+
   if (isLoading || !user) return <div>Loading...</div>;
-  
+
   return <div>Protected Content</div>;
 }
 ```
@@ -145,6 +157,7 @@ export default function ProtectedPage() {
 ## Admin Capabilities
 
 ### Documentation Management
+
 - **Add new sections**: Click "+ Add" button
 - **Edit content**: Select section and modify content
 - **Delete sections**: Click delete button on any section
@@ -152,6 +165,7 @@ export default function ProtectedPage() {
 - **Auto-save**: Changes saved to localStorage
 
 ### User Management
+
 - **View all users**: See complete user list with roles
 - **Filter users**: Filter by role (All/Admin/Student)
 - **Change roles**: Dropdown to switch between admin/student
@@ -161,6 +175,7 @@ export default function ProtectedPage() {
 ## Security Notes
 
 ⚠️ **Important**: This is a demo/educational implementation:
+
 - Passwords are stored in plain text in localStorage
 - No backend authentication server
 - Not suitable for production use
@@ -176,15 +191,19 @@ export default function ProtectedPage() {
 ## Customization
 
 ### Adding New Roles
+
 Edit `src/lib/auth.ts`:
+
 ```typescript
-export type UserRole = 'admin' | 'student' | 'teacher' | 'moderator';
+export type UserRole = "admin" | "student" | "teacher" | "moderator";
 ```
 
 ### Changing Default Admin
+
 Edit `DEFAULT_ADMIN` in `src/lib/auth.ts`
 
 ### Adding Role-Based Features
+
 ```typescript
 // In your component
 if (isAdmin) {
@@ -192,7 +211,7 @@ if (isAdmin) {
 }
 
 // Or check specific user properties
-if (user?.role === 'teacher') {
+if (user?.role === "teacher") {
   // Show teacher features
 }
 ```
@@ -200,11 +219,13 @@ if (user?.role === 'teacher') {
 ## Data Storage
 
 All data is stored in browser localStorage:
+
 - `shamir_users`: User account data
 - `shamir_current_user`: Currently logged-in user
 - `doc_sections`: Documentation content (admin-editable)
 
 To reset all data, clear browser localStorage or open DevTools Console:
+
 ```javascript
 localStorage.clear();
 location.reload();
@@ -213,6 +234,7 @@ location.reload();
 ## Next Steps
 
 To make this production-ready:
+
 1. Set up a backend API (Node.js, Python Flask/Django, etc.)
 2. Implement proper authentication (JWT, OAuth)
 3. Use a real database (PostgreSQL, MongoDB, etc.)

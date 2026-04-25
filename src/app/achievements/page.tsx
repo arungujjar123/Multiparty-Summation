@@ -234,7 +234,7 @@ export default function AchievementsPage() {
       visited_glossary: localStorage.getItem("visited_glossary") === "true",
       visited_faq: localStorage.getItem("visited_faq") === "true",
       visited_code: localStorage.getItem("visited_code") === "true",
-      visited_all_pages: 
+      visited_all_pages:
         localStorage.getItem("visited_docs") === "true" &&
         localStorage.getItem("visited_glossary") === "true" &&
         localStorage.getItem("visited_faq") === "true" &&
@@ -249,54 +249,59 @@ export default function AchievementsPage() {
     };
   }, []);
 
-  const checkAchievementRequirement = useCallback((
-    achievement: Omit<Achievement, "unlocked" | "unlockedDate">,
-    progress: UserProgress
-  ): boolean => {
-    try {
-      // Special handling for meta-achievements
-      if (achievement.id === "all-achievements") {
-        const currentUnlocked = achievements.filter((a) => a.unlocked && a.id !== "all-achievements").length;
-        return currentUnlocked >= 10;
-      }
-      if (achievement.id === "point-collector") {
-        const currentPoints = achievements
-          .filter((a) => a.unlocked && a.id !== "point-collector")
-          .reduce((sum, a) => sum + a.points, 0);
-        return currentPoints >= 200;
-      }
-      if (achievement.id === "completionist") {
-        const totalAchievements = ACHIEVEMENTS_DATA.length;
-        const currentUnlocked = achievements.filter((a) => a.unlocked && a.id !== "completionist").length;
-        return currentUnlocked >= totalAchievements - 1;
-      }
+  const checkAchievementRequirement = useCallback(
+    (
+      achievement: Omit<Achievement, "unlocked" | "unlockedDate">,
+      progress: UserProgress
+    ): boolean => {
+      try {
+        // Special handling for meta-achievements
+        if (achievement.id === "all-achievements") {
+          const currentUnlocked = achievements.filter(
+            (a) => a.unlocked && a.id !== "all-achievements"
+          ).length;
+          return currentUnlocked >= 10;
+        }
+        if (achievement.id === "point-collector") {
+          const currentPoints = achievements
+            .filter((a) => a.unlocked && a.id !== "point-collector")
+            .reduce((sum, a) => sum + a.points, 0);
+          return currentPoints >= 200;
+        }
+        if (achievement.id === "completionist") {
+          const totalAchievements = ACHIEVEMENTS_DATA.length;
+          const currentUnlocked = achievements.filter(
+            (a) => a.unlocked && a.id !== "completionist"
+          ).length;
+          return currentUnlocked >= totalAchievements - 1;
+        }
 
-      // Evaluate requirement string
-      const requirement = achievement.requirement;
-      const context = { ...progress };
-      
-      // Simple requirement parsing
-      if (requirement.includes(">=")) {
-        const [key, value] = requirement.split(">=").map((s) => s.trim());
-        const val = context[key];
-        return (typeof val === 'number' ? val : 0) >= parseInt(value);
-      }
-      if (requirement.includes("===")) {
-        const [key, value] = requirement.split("===").map((s) => s.trim());
-        return context[key] === (value === "true");
-      }
+        // Evaluate requirement string
+        const requirement = achievement.requirement;
+        const context = { ...progress };
 
-      return false;
-    } catch {
-      return false;
-    }
-  }, [achievements]);
+        // Simple requirement parsing
+        if (requirement.includes(">=")) {
+          const [key, value] = requirement.split(">=").map((s) => s.trim());
+          const val = context[key];
+          return (typeof val === "number" ? val : 0) >= parseInt(value);
+        }
+        if (requirement.includes("===")) {
+          const [key, value] = requirement.split("===").map((s) => s.trim());
+          return context[key] === (value === "true");
+        }
+
+        return false;
+      } catch {
+        return false;
+      }
+    },
+    [achievements]
+  );
 
   const loadAchievements = useCallback(() => {
-    const savedData = typeof window !== "undefined" 
-      ? localStorage.getItem("achievements") 
-      : null;
-    
+    const savedData = typeof window !== "undefined" ? localStorage.getItem("achievements") : null;
+
     const unlockedAchievements = savedData ? JSON.parse(savedData) : {};
 
     // Check and unlock achievements based on current progress
@@ -308,21 +313,24 @@ export default function AchievementsPage() {
       return {
         ...achievement,
         unlocked: isUnlocked,
-        unlockedDate: isUnlocked 
+        unlockedDate: isUnlocked
           ? previousData?.unlockedDate || new Date().toISOString()
           : undefined,
       };
     });
 
     // Save updated achievements
-    const achievementsToSave = updatedAchievements.reduce((acc, achievement) => {
-      if (achievement.unlocked) {
-        acc[achievement.id] = {
-          unlockedDate: achievement.unlockedDate,
-        };
-      }
-      return acc;
-    }, {} as Record<string, { unlockedDate: string }>);
+    const achievementsToSave = updatedAchievements.reduce(
+      (acc, achievement) => {
+        if (achievement.unlocked) {
+          acc[achievement.id] = {
+            unlockedDate: achievement.unlockedDate,
+          };
+        }
+        return acc;
+      },
+      {} as Record<string, { unlockedDate: string }>
+    );
 
     if (typeof window !== "undefined") {
       localStorage.setItem("achievements", JSON.stringify(achievementsToSave));
@@ -333,9 +341,7 @@ export default function AchievementsPage() {
     const totalPoints = updatedAchievements
       .filter((a) => a.unlocked)
       .reduce((sum, a) => sum + a.points, 0);
-    const completionPercentage = Math.round(
-      (totalUnlocked / ACHIEVEMENTS_DATA.length) * 100
-    );
+    const completionPercentage = Math.round((totalUnlocked / ACHIEVEMENTS_DATA.length) * 100);
 
     // Defer state updates to next microtask to avoid cascading render warning
     Promise.resolve().then(() => {
@@ -353,11 +359,11 @@ export default function AchievementsPage() {
 
   const resetProgress = () => {
     if (typeof window === "undefined") return;
-    
+
     const confirmReset = window.confirm(
       "Are you sure you want to reset all achievements? This cannot be undone."
     );
-    
+
     if (confirmReset) {
       localStorage.removeItem("achievements");
       localStorage.removeItem("quiz_attempts");
@@ -400,7 +406,8 @@ export default function AchievementsPage() {
             🏆 Achievements
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-            Track your learning journey and unlock badges as you master Shamir&apos;s Secret Sharing!
+            Track your learning journey and unlock badges as you master Shamir&apos;s Secret
+            Sharing!
           </p>
 
           {/* Stats Dashboard */}
@@ -410,9 +417,7 @@ export default function AchievementsPage() {
               <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
                 {stats.totalUnlocked}/{ACHIEVEMENTS_DATA.length}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Achievements Unlocked
-              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Achievements Unlocked</div>
             </div>
 
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 border-orange-300 dark:border-orange-700">
@@ -420,9 +425,7 @@ export default function AchievementsPage() {
               <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
                 {stats.totalPoints}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Total Points
-              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Total Points</div>
             </div>
 
             <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 border-red-300 dark:border-red-700">
@@ -430,9 +433,7 @@ export default function AchievementsPage() {
               <div className="text-3xl font-bold text-red-600 dark:text-red-400">
                 {stats.completionPercentage}%
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Completion
-              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Completion</div>
             </div>
           </div>
 
@@ -477,16 +478,12 @@ export default function AchievementsPage() {
                   className="group p-6 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl shadow-lg border-2 border-yellow-400 dark:border-yellow-600 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 animate-fade-in"
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className="text-5xl animate-bounce">
-                      {achievement.icon}
-                    </div>
+                    <div className="text-5xl animate-bounce">{achievement.icon}</div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                         +{achievement.points}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        points
-                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">points</div>
                     </div>
                   </div>
                   <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100">
@@ -522,16 +519,12 @@ export default function AchievementsPage() {
                   className="group p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border-2 border-gray-300 dark:border-gray-700 opacity-60 hover:opacity-80 transition-all duration-300"
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className="text-5xl grayscale">
-                      {achievement.icon}
-                    </div>
+                    <div className="text-5xl grayscale">{achievement.icon}</div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-gray-400 dark:text-gray-500">
                         +{achievement.points}
                       </div>
-                      <div className="text-xs text-gray-400 dark:text-gray-500">
-                        points
-                      </div>
+                      <div className="text-xs text-gray-400 dark:text-gray-500">points</div>
                     </div>
                   </div>
                   <h3 className="text-xl font-bold mb-2 text-gray-600 dark:text-gray-400">

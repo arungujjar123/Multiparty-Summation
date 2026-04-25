@@ -12,7 +12,9 @@ export interface DocSection {
   createdAt: string;
 }
 
-export const DEFAULT_DOC_SECTIONS: Array<Omit<DocSection, "content" | "lastModified" | "createdAt">> = [
+export const DEFAULT_DOC_SECTIONS: Array<
+  Omit<DocSection, "content" | "lastModified" | "createdAt">
+> = [
   { id: "introduction", title: "Introduction", icon: "📖", order: 1 },
   { id: "shamir", title: "Shamir's Scheme", icon: "🔐", order: 2 },
   { id: "summation", title: "Summation Protocol", icon: "➕", order: 3 },
@@ -64,10 +66,7 @@ export async function getDocSections() {
   }));
 }
 
-export async function createDocSection(params: {
-  title: string;
-  icon: string;
-}) {
+export async function createDocSection(params: { title: string; icon: string }) {
   const db = await getDb();
   const collection = db.collection<DocSection>(DOCS_COLLECTION);
 
@@ -99,7 +98,10 @@ export async function createDocSection(params: {
   return { section: doc };
 }
 
-export async function updateDocSection(id: string, updates: Partial<Pick<DocSection, "title" | "icon" | "content">>) {
+export async function updateDocSection(
+  id: string,
+  updates: Partial<Pick<DocSection, "title" | "icon" | "content">>
+) {
   const db = await getDb();
   const collection = db.collection<DocSection>(DOCS_COLLECTION);
 

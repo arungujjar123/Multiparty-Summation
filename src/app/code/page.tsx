@@ -126,7 +126,7 @@ if __name__ == "__main__":
     # Try with different subset
     reconstructed2 = sss.reconstruct_secret(shares[1:4])
     print(f"\\nReconstructed from different {threshold} shares: {reconstructed2}")
-    print(f"Match: {reconstructed2 == secret}")`
+    print(f"Match: {reconstructed2 == secret}")`,
   },
   {
     id: "javascript-basic",
@@ -273,7 +273,7 @@ console.log("Shares:", shares);
 
 const reconstructed = sss.reconstructSecret(shares.slice(0, threshold));
 console.log(\`\\nReconstructed: \${reconstructed}\`);
-console.log(\`Match: \${reconstructed === secret}\`);`
+console.log(\`Match: \${reconstructed === secret}\`);`,
   },
   {
     id: "python-summation",
@@ -351,7 +351,7 @@ if __name__ == "__main__":
     
     # Key insight: Individual secrets remain private!
     print("\\n✓ Individual secrets were never revealed")
-    print("✓ Only the final sum is known to all parties")`
+    print("✓ Only the final sum is known to all parties")`,
   },
   {
     id: "javascript-multiplication",
@@ -487,23 +487,24 @@ export class SecureMultiplication extends ShamirSecretSharing {
   console.log(\`\\nSecure Product: \${result}\`);
   console.log(\`Expected: \${expected}\`);
   console.log(\`Match: \${result === expected}\`);
-})();`
-  }
+})();`,
+  },
 ];
 
 export default function CodeExamplesPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string>("All");
-  
+
   useEffect(() => {
     AchievementTracker.trackPageVisit("code");
   }, []);
 
   const languages = ["All", "Python", "JavaScript"];
 
-  const filteredExamples = selectedLanguage === "All" 
-    ? codeExamples 
-    : codeExamples.filter(ex => ex.language === selectedLanguage);
+  const filteredExamples =
+    selectedLanguage === "All"
+      ? codeExamples
+      : codeExamples.filter((ex) => ex.language === selectedLanguage);
 
   const copyToClipboard = async (code: string, id: string) => {
     try {
@@ -530,7 +531,7 @@ export default function CodeExamplesPage() {
             💻 Code Examples
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Production-ready implementations of Shamir&apos;s Secret Sharing in multiple languages. 
+            Production-ready implementations of Shamir&apos;s Secret Sharing in multiple languages.
             Copy, modify, and integrate into your projects!
           </p>
         </div>
@@ -547,9 +548,11 @@ export default function CodeExamplesPage() {
                   : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-purple-500 dark:hover:border-purple-400"
               }`}
             >
-              {lang === "All" ? "🌐 All Languages" : 
-               lang === "Python" ? "🐍 Python" : 
-               "📜 JavaScript/TypeScript"}
+              {lang === "All"
+                ? "🌐 All Languages"
+                : lang === "Python"
+                  ? "🐍 Python"
+                  : "📜 JavaScript/TypeScript"}
             </button>
           ))}
         </div>
@@ -567,12 +570,8 @@ export default function CodeExamplesPage() {
                   <div className="flex items-start gap-4">
                     <span className="text-5xl">{example.icon}</span>
                     <div>
-                      <h2 className="text-2xl font-bold text-white mb-2">
-                        {example.title}
-                      </h2>
-                      <p className="text-purple-100 mb-2">
-                        {example.description}
-                      </p>
+                      <h2 className="text-2xl font-bold text-white mb-2">{example.title}</h2>
+                      <p className="text-purple-100 mb-2">{example.description}</p>
                       <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-sm font-semibold rounded-full">
                         {example.language}
                       </span>
@@ -661,7 +660,7 @@ export default function CodeExamplesPage() {
               </h4>
               <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-sm">
                 <code>
-{`# Python 3.7+ required
+                  {`# Python 3.7+ required
 # No external dependencies needed!
 
 # Run the examples:
@@ -676,7 +675,7 @@ python secure_summation.py`}
               </h4>
               <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-sm">
                 <code>
-{`# Node.js 12+ or modern browser
+                  {`# Node.js 12+ or modern browser
 # No external dependencies!
 
 # Run with Node.js:

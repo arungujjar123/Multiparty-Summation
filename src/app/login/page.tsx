@@ -2,46 +2,46 @@
  * @fileoverview Login/Signup page
  */
 "use client";
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const { signIn, signUp } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       if (isLogin) {
         const result = await signIn(email, password);
         if (result.success) {
-          router.push('/dashboard');
+          router.push("/dashboard");
         } else {
-          setError(result.error || 'Login failed');
+          setError(result.error || "Login failed");
         }
       } else {
         if (!name.trim()) {
-          setError('Please enter your name');
+          setError("Please enter your name");
           setLoading(false);
           return;
         }
         const result = await signUp(email, password, name);
         if (result.success) {
-          router.push('/dashboard');
+          router.push("/dashboard");
         } else {
-          setError(result.error || 'Signup failed');
+          setError(result.error || "Signup failed");
         }
       }
     } catch {
@@ -56,25 +56,30 @@ export default function LoginPage() {
       {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-96 h-96 bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute top-40 right-10 w-80 h-80 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s', animationDuration: '3s'}}></div>
+        <div
+          className="absolute top-40 right-10 w-80 h-80 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s", animationDuration: "3s" }}
+        ></div>
       </div>
 
       <div className="max-w-md w-full relative z-10">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-extrabold mb-2">
             <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
+              {isLogin ? "Welcome Back" : "Create Account"}
             </span>
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            {isLogin ? 'Sign in to continue' : 'Join our learning platform'}
+            {isLogin ? "Sign in to continue" : "Join our learning platform"}
           </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
           {/* Demo Credentials */}
           <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <p className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">Demo Credentials:</p>
+            <p className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">
+              Demo Credentials:
+            </p>
             <p className="text-xs text-blue-700 dark:text-blue-400">
               <strong>Admin:</strong> admin@shamir.edu / admin123
             </p>
@@ -140,7 +145,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full py-3 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Sign Up'}
+              {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
             </button>
           </form>
 
@@ -148,7 +153,7 @@ export default function LoginPage() {
             <button
               onClick={() => {
                 setIsLogin(!isLogin);
-                setError('');
+                setError("");
               }}
               className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium text-sm"
             >

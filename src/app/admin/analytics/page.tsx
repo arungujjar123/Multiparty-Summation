@@ -2,9 +2,9 @@
  * @fileoverview Admin Analytics Dashboard
  */
 "use client";
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AdminAnalyticsPage() {
   const { isAdmin, isLoading } = useAuth();
@@ -12,7 +12,7 @@ export default function AdminAnalyticsPage() {
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [isAdmin, isLoading, router]);
 
@@ -47,24 +47,30 @@ export default function AdminAnalyticsPage() {
             Analytics Coming Soon
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-8">
-            This page will display detailed analytics about user activity, quiz performance, 
-            and documentation views.
+            This page will display detailed analytics about user activity, quiz performance, and
+            documentation views.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
             <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-800">
               <div className="text-3xl mb-2">📈</div>
               <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-1">User Engagement</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Track active users and session data</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Track active users and session data
+              </p>
             </div>
             <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800">
               <div className="text-3xl mb-2">🎯</div>
               <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-1">Quiz Performance</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Analyze quiz scores and completion rates</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Analyze quiz scores and completion rates
+              </p>
             </div>
             <div className="p-6 bg-pink-50 dark:bg-pink-900/20 rounded-xl border-2 border-pink-200 dark:border-pink-800">
               <div className="text-3xl mb-2">📚</div>
               <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-1">Content Views</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Monitor documentation page views</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Monitor documentation page views
+              </p>
             </div>
           </div>
         </div>

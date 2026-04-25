@@ -1,14 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import {
-  getUserBySessionToken,
-  SESSION_COOKIE_NAME,
-} from "@/lib/server/auth";
-import {
-  createDocSection,
-  ensureDefaultDocs,
-  getDocSections,
-} from "@/lib/server/docs";
+import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/server/auth";
+import { createDocSection, ensureDefaultDocs, getDocSections } from "@/lib/server/docs";
 
 export const runtime = "nodejs";
 

@@ -18,18 +18,12 @@ export async function POST(req: Request) {
     const { email, password } = body || {};
 
     if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
     }
 
     const user = await verifyUserCredentials(email, password);
     if (!user) {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
     const session = await createSession(user.id);

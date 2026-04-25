@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import {
-  getUserBySessionToken,
-  listUsers,
-  SESSION_COOKIE_NAME,
-} from "@/lib/server/auth";
+import { getUserBySessionToken, listUsers, SESSION_COOKIE_NAME } from "@/lib/server/auth";
 
 export const runtime = "nodejs";
 

@@ -10,9 +10,9 @@ export class AchievementTracker {
    */
   static trackPageVisit(page: "docs" | "glossary" | "faq" | "code" | "visualizer") {
     if (!this.isBrowser) return;
-    
+
     localStorage.setItem(`visited_${page}`, "true");
-    
+
     // Track first visit
     if (!localStorage.getItem("first_visit_date")) {
       localStorage.setItem("first_visit_date", new Date().toISOString());
@@ -30,9 +30,7 @@ export class AchievementTracker {
 
     // Track perfect scores
     if (score === totalQuestions) {
-      const perfectScores = parseInt(
-        localStorage.getItem("quiz_perfect_scores") || "0"
-      );
+      const perfectScores = parseInt(localStorage.getItem("quiz_perfect_scores") || "0");
       localStorage.setItem("quiz_perfect_scores", (perfectScores + 1).toString());
     }
   }
@@ -60,20 +58,14 @@ export class AchievementTracker {
 
     return {
       quiz_attempts: parseInt(localStorage.getItem("quiz_attempts") || "0"),
-      quiz_perfect_scores: parseInt(
-        localStorage.getItem("quiz_perfect_scores") || "0"
-      ),
+      quiz_perfect_scores: parseInt(localStorage.getItem("quiz_perfect_scores") || "0"),
       visited_docs: localStorage.getItem("visited_docs") === "true",
       visited_glossary: localStorage.getItem("visited_glossary") === "true",
       visited_faq: localStorage.getItem("visited_faq") === "true",
       visited_code: localStorage.getItem("visited_code") === "true",
       visualizer_runs: parseInt(localStorage.getItem("visualizer_runs") || "0"),
-      completed_summation: parseInt(
-        localStorage.getItem("completed_summation") || "0"
-      ),
-      completed_multiplication: parseInt(
-        localStorage.getItem("completed_multiplication") || "0"
-      ),
+      completed_summation: parseInt(localStorage.getItem("completed_summation") || "0"),
+      completed_multiplication: parseInt(localStorage.getItem("completed_multiplication") || "0"),
       first_visit_date: localStorage.getItem("first_visit_date"),
     };
   }

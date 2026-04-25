@@ -9,7 +9,9 @@ declare global {
 
 export async function getDb() {
   if (!uri) {
-    throw new Error("MONGODB_URI environment variable is not set. Please check your configuration.");
+    throw new Error(
+      "MONGODB_URI environment variable is not set. Please check your configuration."
+    );
   }
 
   if (!global._mongoClientPromise) {

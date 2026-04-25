@@ -9,10 +9,7 @@ import {
 
 export const runtime = "nodejs";
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
@@ -34,10 +31,7 @@ export async function PATCH(
   }
 
   if (id === user.id) {
-    return NextResponse.json(
-      { error: "You cannot change your own role" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "You cannot change your own role" }, { status: 400 });
   }
 
   const updated = await updateUserRole(id, role);
@@ -48,10 +42,7 @@ export async function PATCH(
   return NextResponse.json({ success: true }, { status: 200 });
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
@@ -66,10 +57,7 @@ export async function DELETE(
   }
 
   if (id === user.id) {
-    return NextResponse.json(
-      { error: "You cannot delete your own account" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "You cannot delete your own account" }, { status: 400 });
   }
 
   const deleted = await deleteUserById(id);

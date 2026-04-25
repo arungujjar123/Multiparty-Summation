@@ -9,10 +9,20 @@ export default function HomePage() {
   return (
     <div className="min-h-screen hero-surface hero-grid relative overflow-hidden">
       <div className="hero-noise absolute inset-0 pointer-events-none" aria-hidden="true"></div>
-      <div className="absolute -top-36 right-10 h-96 w-96 rounded-full bg-cyan-500/20 blur-3xl animate-float" aria-hidden="true"></div>
-      <div className="absolute top-40 -left-24 h-80 w-80 rounded-full bg-sky-400/20 blur-3xl animate-pulse" aria-hidden="true"></div>
-      <div className="absolute bottom-10 right-1/4 h-72 w-72 rounded-full bg-teal-400/20 blur-3xl animate-float" style={{ animationDelay: "1.5s" }} aria-hidden="true"></div>
-      
+      <div
+        className="absolute -top-36 right-10 h-96 w-96 rounded-full bg-cyan-500/20 blur-3xl animate-float"
+        aria-hidden="true"
+      ></div>
+      <div
+        className="absolute top-40 -left-24 h-80 w-80 rounded-full bg-sky-400/20 blur-3xl animate-pulse"
+        aria-hidden="true"
+      ></div>
+      <div
+        className="absolute bottom-10 right-1/4 h-72 w-72 rounded-full bg-teal-400/20 blur-3xl animate-float"
+        style={{ animationDelay: "1.5s" }}
+        aria-hidden="true"
+      ></div>
+
       {/* Hero Section */}
       <section className="pt-24 pb-20 px-6 relative z-10">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-[1.15fr_0.85fr] gap-12 items-center">
@@ -28,7 +38,8 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="mt-6 text-lg md:text-xl text-slate-300 max-w-2xl">
-              Explore threshold security, polynomial sharing, and secure summation with a live simulator built for clarity and speed.
+              Explore threshold security, polynomial sharing, and secure summation with a live
+              simulator built for clarity and speed.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               <Link

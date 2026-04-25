@@ -10,7 +10,11 @@ interface AuthContextType {
   isAdmin: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (
+    email: string,
+    password: string,
+    name: string
+  ) => Promise<{ success: boolean; error?: string }>;
   signOut: () => void;
 }
 
@@ -81,14 +85,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAdmin: isAdmin(user),
-      isLoading,
-      signIn,
-      signUp,
-      signOut,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAdmin: isAdmin(user),
+        isLoading,
+        signIn,
+        signUp,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -97,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

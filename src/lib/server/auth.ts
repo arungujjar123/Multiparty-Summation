@@ -53,10 +53,9 @@ export async function ensureDefaultAdmin() {
 
   if (existing) {
     if (existing.role !== "admin") {
-      await db.collection<UserDoc>(USERS_COLLECTION).updateOne(
-        { _id: existing._id },
-        { $set: { role: "admin" } }
-      );
+      await db
+        .collection<UserDoc>(USERS_COLLECTION)
+        .updateOne({ _id: existing._id }, { $set: { role: "admin" } });
     }
     return;
   }

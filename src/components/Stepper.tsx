@@ -35,7 +35,7 @@ const Stepper = forwardRef<StepperHandle, Props>(({ steps, onRunStep, intervalMs
       setPlaying(false);
     },
   }));
-  
+
   // Trigger onRunStep when idx changes (except on mount)
   useEffect(() => {
     if (idx !== 0 || playing) {

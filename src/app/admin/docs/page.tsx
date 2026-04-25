@@ -18,28 +18,28 @@ export default function AdminDocsPage() {
   const { isAdmin, isLoading } = useAuth();
   const router = useRouter();
   const [sections, setSections] = useState<DocSection[]>([]);
-  const [selectedSection, setSelectedSection] = useState<string>('');
-  const [editContent, setEditContent] = useState('');
-  const [saveStatus, setSaveStatus] = useState('');
-  const [error, setError] = useState('');
+  const [selectedSection, setSelectedSection] = useState<string>("");
+  const [editContent, setEditContent] = useState("");
+  const [saveStatus, setSaveStatus] = useState("");
+  const [error, setError] = useState("");
   const [isLoadingDocs, setIsLoadingDocs] = useState(true);
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [isAdmin, isLoading, router]);
 
   const loadSections = React.useCallback(async () => {
     setIsLoadingDocs(true);
-    setError('');
-    const response = await fetch('/api/admin/docs', {
-      credentials: 'include',
+    setError("");
+    const response = await fetch("/api/admin/docs", {
+      credentials: "include",
     });
     const data = await response.json();
 
     if (!response.ok) {
-      setError(data.error || 'Failed to load sections');
+      setError(data.error || "Failed to load sections");
       setIsLoadingDocs(false);
       return;
     }
@@ -66,8 +66,8 @@ export default function AdminDocsPage() {
 
   useEffect(() => {
     if (selectedSection && sections.length > 0) {
-      const section = sections.find(s => s.id === selectedSection);
-      const content = section?.content || '';
+      const section = sections.find((s) => s.id === selectedSection);
+      const content = section?.content || "";
       Promise.resolve().then(() => {
         setEditContent(content);
       });
@@ -76,43 +76,43 @@ export default function AdminDocsPage() {
 
   const handleSave = async () => {
     if (!selectedSection) return;
-    setError('');
+    setError("");
 
     const response = await fetch(`/api/admin/docs/${selectedSection}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ content: editContent }),
     });
 
     const data = await response.json();
     if (!response.ok) {
-      setError(data.error || 'Failed to save section');
+      setError(data.error || "Failed to save section");
       return;
     }
 
     const updated = data.section as DocSection;
     setSections((prev) => prev.map((section) => (section.id === updated.id ? updated : section)));
-    setSaveStatus('✅ Saved successfully!');
-    setTimeout(() => setSaveStatus(''), 3000);
+    setSaveStatus("✅ Saved successfully!");
+    setTimeout(() => setSaveStatus(""), 3000);
   };
 
   const handleAddNewSection = async () => {
-    const title = prompt('Enter section title:');
+    const title = prompt("Enter section title:");
     if (!title) return;
 
-    const icon = prompt('Enter section icon (emoji):') || '📄';
+    const icon = prompt("Enter section icon (emoji):") || "📄";
 
-    const response = await fetch('/api/admin/docs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+    const response = await fetch("/api/admin/docs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ title, icon }),
     });
 
     const data = await response.json();
     if (!response.ok) {
-      setError(data.error || 'Failed to add section');
+      setError(data.error || "Failed to add section");
       return;
     }
 
@@ -122,25 +122,25 @@ export default function AdminDocsPage() {
   };
 
   const handleDeleteSection = async (sectionId: string) => {
-    if (!confirm('Are you sure you want to delete this section?')) return;
+    if (!confirm("Are you sure you want to delete this section?")) return;
 
     const response = await fetch(`/api/admin/docs/${sectionId}`, {
-      method: 'DELETE',
-      credentials: 'include',
+      method: "DELETE",
+      credentials: "include",
     });
 
     const data = await response.json();
     if (!response.ok) {
-      setError(data.error || 'Failed to delete section');
+      setError(data.error || "Failed to delete section");
       return;
     }
 
-    const updatedSections = sections.filter(s => s.id !== sectionId);
+    const updatedSections = sections.filter((s) => s.id !== sectionId);
     setSections(updatedSections);
-    
+
     if (selectedSection === sectionId) {
-      setSelectedSection('');
-      setEditContent('');
+      setSelectedSection("");
+      setEditContent("");
     }
   };
 
@@ -190,15 +190,15 @@ export default function AdminDocsPage() {
                   + Add
                 </button>
               </div>
-              
+
               <div className="space-y-2 max-h-[600px] overflow-y-auto">
                 {sections.map((section) => (
                   <div
                     key={section.id}
                     className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
                       selectedSection === section.id
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
                     }`}
                     onClick={() => setSelectedSection(section.id)}
                   >
@@ -228,8 +228,8 @@ export default function AdminDocsPage() {
                 <>
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {sections.find(s => s.id === selectedSection)?.icon}{' '}
-                      {sections.find(s => s.id === selectedSection)?.title}
+                      {sections.find((s) => s.id === selectedSection)?.icon}{" "}
+                      {sections.find((s) => s.id === selectedSection)?.title}
                     </h2>
                     {saveStatus && (
                       <span className="text-green-600 dark:text-green-400 font-medium">
@@ -259,8 +259,8 @@ export default function AdminDocsPage() {
                     </button>
                     <button
                       onClick={() => {
-                        setSelectedSection('');
-                        setEditContent('');
+                        setSelectedSection("");
+                        setEditContent("");
                       }}
                       className="px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold rounded-lg transition-all"
                     >
@@ -270,8 +270,8 @@ export default function AdminDocsPage() {
 
                   <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                     <p className="text-sm text-blue-900 dark:text-blue-300">
-                      <strong>💡 Tip:</strong> You can use Markdown formatting including headers (# ## ###), 
-                      bold (**text**), italic (*text*), lists, and code blocks.
+                      <strong>💡 Tip:</strong> You can use Markdown formatting including headers (#
+                      ## ###), bold (**text**), italic (*text*), lists, and code blocks.
                     </p>
                   </div>
                 </>

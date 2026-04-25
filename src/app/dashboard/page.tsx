@@ -2,10 +2,10 @@
  * @fileoverview User Dashboard
  */
 "use client";
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const { user, isAdmin, isLoading, signOut } = useAuth();
@@ -13,7 +13,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [user, isLoading, router]);
 
@@ -32,20 +32,45 @@ export default function DashboardPage() {
 
   const handleSignOut = () => {
     signOut();
-    router.push('/');
+    router.push("/");
   };
 
   const studentLinks = [
-    { href: '/visualizer', title: 'Interactive Visualizer', icon: '🎨', description: 'Explore Shamir secret sharing' },
-    { href: '/docs', title: 'Documentation', icon: '📚', description: 'Learn the theory' },
-    { href: '/quiz', title: 'Take Quiz', icon: '📝', description: 'Test your knowledge' },
-    { href: '/achievements', title: 'Achievements', icon: '🏆', description: 'Track your progress' },
+    {
+      href: "/visualizer",
+      title: "Interactive Visualizer",
+      icon: "🎨",
+      description: "Explore Shamir secret sharing",
+    },
+    { href: "/docs", title: "Documentation", icon: "📚", description: "Learn the theory" },
+    { href: "/quiz", title: "Take Quiz", icon: "📝", description: "Test your knowledge" },
+    {
+      href: "/achievements",
+      title: "Achievements",
+      icon: "🏆",
+      description: "Track your progress",
+    },
   ];
 
   const adminLinks = [
-    { href: '/admin/docs', title: 'Manage Documentation', icon: '📝', description: 'Edit and add content' },
-    { href: '/admin/users', title: 'Manage Users', icon: '👥', description: 'View and manage users' },
-    { href: '/admin/analytics', title: 'Analytics', icon: '📊', description: 'View platform statistics' },
+    {
+      href: "/admin/docs",
+      title: "Manage Documentation",
+      icon: "📝",
+      description: "Edit and add content",
+    },
+    {
+      href: "/admin/users",
+      title: "Manage Users",
+      icon: "👥",
+      description: "View and manage users",
+    },
+    {
+      href: "/admin/analytics",
+      title: "Analytics",
+      icon: "📊",
+      description: "View platform statistics",
+    },
   ];
 
   return (
@@ -53,7 +78,10 @@ export default function DashboardPage() {
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-96 h-96 bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute top-40 right-10 w-80 h-80 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s', animationDuration: '3s'}}></div>
+        <div
+          className="absolute top-40 right-10 w-80 h-80 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s", animationDuration: "3s" }}
+        ></div>
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
@@ -65,12 +93,14 @@ export default function DashboardPage() {
                 Welcome back, {user.name}! 👋
               </h1>
               <div className="flex items-center gap-3">
-                <span className={`px-4 py-1.5 rounded-full text-sm font-bold ${
-                  isAdmin 
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
-                    : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
-                }`}>
-                  {isAdmin ? '👑 Admin' : '🎓 Student'}
+                <span
+                  className={`px-4 py-1.5 rounded-full text-sm font-bold ${
+                    isAdmin
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                      : "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
+                  }`}
+                >
+                  {isAdmin ? "👑 Admin" : "🎓 Student"}
                 </span>
                 <span className="text-gray-600 dark:text-gray-400 text-sm">{user.email}</span>
               </div>

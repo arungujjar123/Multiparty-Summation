@@ -1,17 +1,11 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import {
-  getUserBySessionToken,
-  SESSION_COOKIE_NAME,
-} from "@/lib/server/auth";
+import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/server/auth";
 import { deleteDocSection, updateDocSection } from "@/lib/server/docs";
 
 export const runtime = "nodejs";
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
@@ -39,10 +33,7 @@ export async function PATCH(
   return NextResponse.json({ section }, { status: 200 });
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;

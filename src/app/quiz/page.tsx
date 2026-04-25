@@ -15,27 +15,36 @@ interface QuizQuestion {
 const quizQuestions: QuizQuestion[] = [
   {
     id: 1,
-    question: "What is the minimum number of shares needed to reconstruct a secret in a (3,5) Shamir Secret Sharing scheme?",
+    question:
+      "What is the minimum number of shares needed to reconstruct a secret in a (3,5) Shamir Secret Sharing scheme?",
     options: ["2 shares", "3 shares", "4 shares", "5 shares"],
     correctAnswer: 1,
-    explanation: "In a (t,n) scheme, t shares are required. So in a (3,5) scheme, you need exactly 3 shares to reconstruct the secret.",
-    category: "Basics"
+    explanation:
+      "In a (t,n) scheme, t shares are required. So in a (3,5) scheme, you need exactly 3 shares to reconstruct the secret.",
+    category: "Basics",
   },
   {
     id: 2,
     question: "What mathematical concept is Shamir's Secret Sharing based on?",
-    options: ["Matrix multiplication", "Polynomial interpolation", "Elliptic curves", "Hash functions"],
+    options: [
+      "Matrix multiplication",
+      "Polynomial interpolation",
+      "Elliptic curves",
+      "Hash functions",
+    ],
     correctAnswer: 1,
-    explanation: "Shamir's scheme uses polynomial interpolation over finite fields. A polynomial of degree t-1 is uniquely determined by t points.",
-    category: "Math Foundation"
+    explanation:
+      "Shamir's scheme uses polynomial interpolation over finite fields. A polynomial of degree t-1 is uniquely determined by t points.",
+    category: "Math Foundation",
   },
   {
     id: 3,
     question: "How many shares reveal NO information about the secret in a threshold-3 scheme?",
     options: ["0 shares", "1 share", "2 shares", "3 shares"],
     correctAnswer: 2,
-    explanation: "In a threshold-t scheme, any t-1 or fewer shares reveal absolutely nothing about the secret. This is called perfect secrecy.",
-    category: "Security"
+    explanation:
+      "In a threshold-t scheme, any t-1 or fewer shares reveal absolutely nothing about the secret. This is called perfect secrecy.",
+    category: "Security",
   },
   {
     id: 4,
@@ -44,11 +53,12 @@ const quizQuestions: QuizQuestion[] = [
       "It's faster than regular addition",
       "It requires no communication between parties",
       "It uses less memory",
-      "It works with decimal numbers"
+      "It works with decimal numbers",
     ],
     correctAnswer: 1,
-    explanation: "Summation is non-interactive! Each party can locally add their shares without any communication, thanks to the linearity property.",
-    category: "Summation"
+    explanation:
+      "Summation is non-interactive! Each party can locally add their shares without any communication, thanks to the linearity property.",
+    category: "Summation",
   },
   {
     id: 5,
@@ -57,11 +67,12 @@ const quizQuestions: QuizQuestion[] = [
       "Multiplication takes more CPU time",
       "It increases the polynomial degree",
       "It requires more memory",
-      "It's mathematically impossible"
+      "It's mathematically impossible",
     ],
     correctAnswer: 1,
-    explanation: "Multiplying two degree-(t-1) polynomials results in a degree-2(t-1) polynomial, requiring degree reduction through resharing.",
-    category: "Multiplication"
+    explanation:
+      "Multiplying two degree-(t-1) polynomials results in a degree-2(t-1) polynomial, requiring degree reduction through resharing.",
+    category: "Multiplication",
   },
   {
     id: 6,
@@ -70,35 +81,41 @@ const quizQuestions: QuizQuestion[] = [
       "Big Giant Web protocol",
       "Ben-Or, Goldwasser, Wigderson protocol",
       "Binary Gateway Workflow",
-      "Blockchain Gateway Web"
+      "Blockchain Gateway Web",
     ],
     correctAnswer: 1,
-    explanation: "BGW is named after its creators: Ben-Or, Goldwasser, and Wigderson. It's used for secure multiplication with degree reduction.",
-    category: "Multiplication"
+    explanation:
+      "BGW is named after its creators: Ben-Or, Goldwasser, and Wigderson. It's used for secure multiplication with degree reduction.",
+    category: "Multiplication",
   },
   {
     id: 7,
-    question: "What is the degree of the polynomial used to share a secret in a threshold-t scheme?",
+    question:
+      "What is the degree of the polynomial used to share a secret in a threshold-t scheme?",
     options: ["t", "t-1", "t+1", "2t"],
     correctAnswer: 1,
-    explanation: "The polynomial has degree t-1. This ensures that exactly t points are needed to uniquely determine the polynomial.",
-    category: "Math Foundation"
+    explanation:
+      "The polynomial has degree t-1. This ensures that exactly t points are needed to uniquely determine the polynomial.",
+    category: "Math Foundation",
   },
   {
     id: 8,
     question: "Which property allows Shamir's scheme to perform addition on shared secrets?",
     options: ["Homomorphism", "Linearity", "Commutativity", "Associativity"],
     correctAnswer: 1,
-    explanation: "Linearity allows addition of shares to correspond to addition of secrets: f(x) + g(x) shares the sum of the secrets.",
-    category: "Properties"
+    explanation:
+      "Linearity allows addition of shares to correspond to addition of secrets: f(x) + g(x) shares the sum of the secrets.",
+    category: "Properties",
   },
   {
     id: 9,
-    question: "How many messages are exchanged in the resharing step of BGW multiplication protocol with n parties?",
+    question:
+      "How many messages are exchanged in the resharing step of BGW multiplication protocol with n parties?",
     options: ["n messages", "n² messages", "2n messages", "log(n) messages"],
     correctAnswer: 1,
-    explanation: "Each party sends a sub-share to every other party, resulting in n² total messages during resharing.",
-    category: "Multiplication"
+    explanation:
+      "Each party sends a sub-share to every other party, resulting in n² total messages during resharing.",
+    category: "Multiplication",
   },
   {
     id: 10,
@@ -107,24 +124,27 @@ const quizQuestions: QuizQuestion[] = [
       "Computational security",
       "Information-theoretic security",
       "Quantum security",
-      "Probabilistic security"
+      "Probabilistic security",
     ],
     correctAnswer: 1,
-    explanation: "Shamir's scheme provides information-theoretic (unconditional) security - it's secure even against computationally unbounded adversaries.",
-    category: "Security"
+    explanation:
+      "Shamir's scheme provides information-theoretic (unconditional) security - it's secure even against computationally unbounded adversaries.",
+    category: "Security",
   },
   {
     id: 11,
-    question: "In quantum hybrid protocols, what is the main advantage over classical (n,n) approaches?",
+    question:
+      "In quantum hybrid protocols, what is the main advantage over classical (n,n) approaches?",
     options: [
       "Faster computation",
       "Only t players needed instead of all n",
       "Better encryption",
-      "Smaller message size"
+      "Smaller message size",
     ],
     correctAnswer: 1,
-    explanation: "Hybrid (t,n) quantum protocols only require t players to compute summation/multiplication, providing better fault tolerance.",
-    category: "Quantum"
+    explanation:
+      "Hybrid (t,n) quantum protocols only require t players to compute summation/multiplication, providing better fault tolerance.",
+    category: "Quantum",
   },
   {
     id: 12,
@@ -133,19 +153,22 @@ const quizQuestions: QuizQuestion[] = [
       "Larger prime numbers",
       "Quantum Fourier Transform and entanglement",
       "Faster processors",
-      "More polynomial coefficients"
+      "More polynomial coefficients",
     ],
     correctAnswer: 1,
-    explanation: "Quantum protocols use QFT, quantum entanglement, and measurement operations to achieve unconditional security based on quantum mechanics.",
-    category: "Quantum"
+    explanation:
+      "Quantum protocols use QFT, quantum entanglement, and measurement operations to achieve unconditional security based on quantum mechanics.",
+    category: "Quantum",
   },
   {
     id: 13,
-    question: "If you have shares (1,5), (2,8), (3,13) from a degree-2 polynomial, how many shares do you need to reconstruct?",
+    question:
+      "If you have shares (1,5), (2,8), (3,13) from a degree-2 polynomial, how many shares do you need to reconstruct?",
     options: ["1 share", "2 shares", "3 shares", "All shares"],
     correctAnswer: 2,
-    explanation: "A degree-2 polynomial requires exactly 3 points (t=3) to uniquely determine it using Lagrange interpolation.",
-    category: "Math Foundation"
+    explanation:
+      "A degree-2 polynomial requires exactly 3 points (t=3) to uniquely determine it using Lagrange interpolation.",
+    category: "Math Foundation",
   },
   {
     id: 14,
@@ -154,11 +177,12 @@ const quizQuestions: QuizQuestion[] = [
       "They can partially reconstruct the secret",
       "They learn nothing about the secret",
       "They can guess with 50% probability",
-      "They can factor the secret"
+      "They can factor the secret",
     ],
     correctAnswer: 1,
-    explanation: "With t-1 shares, the adversary gains zero information about the secret. All possible secrets are equally likely.",
-    category: "Security"
+    explanation:
+      "With t-1 shares, the adversary gains zero information about the secret. All possible secrets are equally likely.",
+    category: "Security",
   },
   {
     id: 15,
@@ -167,12 +191,13 @@ const quizQuestions: QuizQuestion[] = [
       "To generate random polynomials",
       "To reconstruct the secret from shares",
       "To encrypt the shares",
-      "To verify share authenticity"
+      "To verify share authenticity",
     ],
     correctAnswer: 1,
-    explanation: "Lagrange interpolation is used to reconstruct the polynomial (and thus the secret at x=0) from t or more shares.",
-    category: "Math Foundation"
-  }
+    explanation:
+      "Lagrange interpolation is used to reconstruct the polynomial (and thus the secret at x=0) from t or more shares.",
+    category: "Math Foundation",
+  },
 ];
 
 export default function QuizPage() {
@@ -185,24 +210,26 @@ export default function QuizPage() {
     }
     return shuffled;
   });
-  
+
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
-  const [answeredQuestions, setAnsweredQuestions] = useState<boolean[]>(new Array(shuffledQuestions.length).fill(false));
+  const [answeredQuestions, setAnsweredQuestions] = useState<boolean[]>(
+    new Array(shuffledQuestions.length).fill(false)
+  );
   const [quizCompleted, setQuizCompleted] = useState(false);
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (answeredQuestions[currentQuestion]) return;
-    
+
     setSelectedAnswer(answerIndex);
     setShowExplanation(true);
-    
+
     const newAnswered = [...answeredQuestions];
     newAnswered[currentQuestion] = true;
     setAnsweredQuestions(newAnswered);
-    
+
     if (answerIndex === shuffledQuestions[currentQuestion].correctAnswer) {
       setScore(score + 1);
     }
@@ -215,10 +242,10 @@ export default function QuizPage() {
       setShowExplanation(false);
     } else {
       setQuizCompleted(true);
-      
+
       // Track achievement
       AchievementTracker.trackQuizAttempt(score, shuffledQuestions.length);
-      
+
       // Save to quiz history for dashboard
       const attempt = {
         date: new Date().toISOString(),
@@ -256,9 +283,12 @@ export default function QuizPage() {
 
   const getScoreMessage = () => {
     const percentage = getScorePercentage();
-    if (percentage >= 90) return { text: "Outstanding! 🏆", color: "text-green-600 dark:text-green-400" };
-    if (percentage >= 75) return { text: "Great job! 🌟", color: "text-blue-600 dark:text-blue-400" };
-    if (percentage >= 60) return { text: "Good effort! 👍", color: "text-purple-600 dark:text-purple-400" };
+    if (percentage >= 90)
+      return { text: "Outstanding! 🏆", color: "text-green-600 dark:text-green-400" };
+    if (percentage >= 75)
+      return { text: "Great job! 🌟", color: "text-blue-600 dark:text-blue-400" };
+    if (percentage >= 60)
+      return { text: "Good effort! 👍", color: "text-purple-600 dark:text-purple-400" };
     return { text: "Keep studying! 📚", color: "text-orange-600 dark:text-orange-400" };
   };
 
@@ -274,7 +304,7 @@ export default function QuizPage() {
                   Quiz Complete!
                 </span>
               </h1>
-              
+
               <div className="mb-8">
                 <div className="text-8xl font-bold mb-4 animate-scale-pulse">
                   {getScorePercentage()}%
@@ -292,9 +322,7 @@ export default function QuizPage() {
                   <div
                     key={index}
                     className={`h-3 rounded-full transition-all duration-300 ${
-                      index < score
-                        ? "bg-green-500"
-                        : "bg-red-400"
+                      index < score ? "bg-green-500" : "bg-red-400"
                     }`}
                   />
                 ))}
@@ -335,7 +363,10 @@ export default function QuizPage() {
       {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-400/10 dark:bg-purple-600/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/10 dark:bg-blue-600/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div
+          className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/10 dark:bg-blue-600/5 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
       </div>
 
       <div className="max-w-4xl mx-auto relative z-10">
@@ -357,7 +388,9 @@ export default function QuizPage() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-            <span>Question {currentQuestion + 1} of {shuffledQuestions.length}</span>
+            <span>
+              Question {currentQuestion + 1} of {shuffledQuestions.length}
+            </span>
             <span>{Math.round(progress)}% Complete</span>
           </div>
           <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -384,9 +417,9 @@ export default function QuizPage() {
               const isSelected = selectedAnswer === index;
               const isCorrect = index === question.correctAnswer;
               const showResult = showExplanation;
-              
+
               let className = "p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ";
-              
+
               if (showResult) {
                 if (isCorrect) {
                   className += "border-green-500 bg-green-50 dark:bg-green-900/20 ";
@@ -402,22 +435,24 @@ export default function QuizPage() {
               }
 
               return (
-                <div
-                  key={index}
-                  onClick={() => handleAnswerSelect(index)}
-                  className={className}
-                >
+                <div key={index} onClick={() => handleAnswerSelect(index)} className={className}>
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-                      showResult && isCorrect
-                        ? "bg-green-500 text-white"
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
+                        showResult && isCorrect
+                          ? "bg-green-500 text-white"
+                          : showResult && isSelected
+                            ? "bg-red-500 text-white"
+                            : isSelected
+                              ? "bg-purple-500 text-white"
+                              : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                      }`}
+                    >
+                      {showResult && isCorrect
+                        ? "✓"
                         : showResult && isSelected
-                        ? "bg-red-500 text-white"
-                        : isSelected
-                        ? "bg-purple-500 text-white"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                    }`}>
-                      {showResult && isCorrect ? "✓" : showResult && isSelected ? "✗" : String.fromCharCode(65 + index)}
+                          ? "✗"
+                          : String.fromCharCode(65 + index)}
                     </div>
                     <span className="text-gray-800 dark:text-gray-200 font-medium flex-1">
                       {option}
@@ -429,21 +464,23 @@ export default function QuizPage() {
           </div>
 
           {showExplanation && (
-            <div className={`p-6 rounded-xl border-2 animate-fade-in ${
-              selectedAnswer === question.correctAnswer
-                ? "bg-green-50 dark:bg-green-900/20 border-green-500"
-                : "bg-blue-50 dark:bg-blue-900/20 border-blue-500"
-            }`}>
-              <h3 className={`font-bold text-lg mb-2 ${
+            <div
+              className={`p-6 rounded-xl border-2 animate-fade-in ${
                 selectedAnswer === question.correctAnswer
-                  ? "text-green-900 dark:text-green-300"
-                  : "text-blue-900 dark:text-blue-300"
-              }`}>
+                  ? "bg-green-50 dark:bg-green-900/20 border-green-500"
+                  : "bg-blue-50 dark:bg-blue-900/20 border-blue-500"
+              }`}
+            >
+              <h3
+                className={`font-bold text-lg mb-2 ${
+                  selectedAnswer === question.correctAnswer
+                    ? "text-green-900 dark:text-green-300"
+                    : "text-blue-900 dark:text-blue-300"
+                }`}
+              >
                 {selectedAnswer === question.correctAnswer ? "✅ Correct!" : "📝 Explanation"}
               </h3>
-              <p className="text-gray-700 dark:text-gray-300">
-                {question.explanation}
-              </p>
+              <p className="text-gray-700 dark:text-gray-300">{question.explanation}</p>
             </div>
           )}
         </div>
@@ -484,7 +521,9 @@ export default function QuizPage() {
 
         {/* Quick Navigation */}
         <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 mb-3">Quick Navigation</h3>
+          <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 mb-3">
+            Quick Navigation
+          </h3>
           <div className="grid grid-cols-10 gap-2">
             {shuffledQuestions.map((_, index) => (
               <button
@@ -498,8 +537,8 @@ export default function QuizPage() {
                   index === currentQuestion
                     ? "bg-purple-500 text-white scale-110 shadow-lg"
                     : answeredQuestions[index]
-                    ? "bg-green-500 text-white hover:scale-110"
-                    : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600 hover:scale-110"
+                      ? "bg-green-500 text-white hover:scale-110"
+                      : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600 hover:scale-110"
                 }`}
               >
                 {index + 1}

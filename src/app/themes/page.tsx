@@ -227,9 +227,7 @@ export default function ThemesPage() {
               <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
                 Current Theme: {currentTheme.icon} {currentTheme.name}
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                {currentTheme.description}
-              </p>
+              <p className="text-gray-600 dark:text-gray-400">{currentTheme.description}</p>
             </div>
             <div className="flex gap-3">
               {Object.entries(currentTheme.colors)
@@ -288,9 +286,7 @@ export default function ThemesPage() {
                 <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">
                   {theme.name}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {theme.description}
-                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{theme.description}</p>
               </div>
 
               {/* Color Swatches */}
@@ -307,9 +303,7 @@ export default function ThemesPage() {
               </div>
 
               {/* Gradient Preview */}
-              <div
-                className={`h-12 rounded-lg bg-gradient-to-r ${theme.preview.gradient}`}
-              ></div>
+              <div className={`h-12 rounded-lg bg-gradient-to-r ${theme.preview.gradient}`}></div>
 
               {/* Apply Button */}
               <button
@@ -335,9 +329,7 @@ export default function ThemesPage() {
             <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
               {previewTheme.icon} {previewTheme.name}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {previewTheme.description}
-            </p>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{previewTheme.description}</p>
             <div className="space-y-2">
               {Object.entries(previewTheme.colors)
                 .slice(0, 3)
@@ -396,9 +388,7 @@ export default function ThemesPage() {
             <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
               Try Visualizer
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              See your theme in action
-            </p>
+            <p className="text-gray-600 dark:text-gray-400">See your theme in action</p>
           </Link>
 
           <Link
@@ -411,9 +401,7 @@ export default function ThemesPage() {
             <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400">
               View Achievements
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Track your progress
-            </p>
+            <p className="text-gray-600 dark:text-gray-400">Track your progress</p>
           </Link>
 
           <Link
@@ -426,9 +414,7 @@ export default function ThemesPage() {
             <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-gray-100 group-hover:text-pink-600 dark:group-hover:text-pink-400">
               Take Quiz
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Test your knowledge
-            </p>
+            <p className="text-gray-600 dark:text-gray-400">Test your knowledge</p>
           </Link>
         </div>
       </div>

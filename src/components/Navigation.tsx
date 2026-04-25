@@ -30,15 +30,9 @@ export default function Navigation() {
     { href: "/achievements", label: "Achievements", icon: "🏆" },
   ];
 
-  const adminLinks = [
-    { href: "/admin/docs", label: "Admin", icon: "👑" },
-  ];
+  const adminLinks = [{ href: "/admin/docs", label: "Admin", icon: "👑" }];
 
-  const navLinks = [
-    ...publicLinks,
-    ...(user ? userLinks : []),
-    ...(isAdmin ? adminLinks : []),
-  ];
+  const navLinks = [...publicLinks, ...(user ? userLinks : []), ...(isAdmin ? adminLinks : [])];
 
   return (
     <nav className="sticky top-0 z-50 bg-slate-950/70 border-b border-slate-800/60 shadow-lg backdrop-blur-xl">
@@ -78,7 +72,7 @@ export default function Navigation() {
                 </Link>
               );
             })}
-            
+
             {/* Auth Button */}
             {!user ? (
               <Link
@@ -90,9 +84,13 @@ export default function Navigation() {
               </Link>
             ) : (
               <div className="flex items-center gap-2">
-                <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${
-                  isAdmin ? "bg-linear-to-r from-cyan-400 to-emerald-300 text-slate-950" : "bg-linear-to-r from-sky-400 to-cyan-300 text-slate-950"
-                }`}>
+                <span
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold ${
+                    isAdmin
+                      ? "bg-linear-to-r from-cyan-400 to-emerald-300 text-slate-950"
+                      : "bg-linear-to-r from-sky-400 to-cyan-300 text-slate-950"
+                  }`}
+                >
                   {isAdmin ? "👑" : "🎓"} {user.name}
                 </span>
                 <button
@@ -111,12 +109,7 @@ export default function Navigation() {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-md text-slate-200 hover:bg-slate-900/60"
             >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {mobileMenuOpen ? (
                   <path
                     strokeLinecap="round"
@@ -159,7 +152,7 @@ export default function Navigation() {
                   {link.label}
                 </Link>
               );
-            })}            
+            })}
             {/* Mobile Auth Button */}
             {!user ? (
               <Link
@@ -171,9 +164,13 @@ export default function Navigation() {
               </Link>
             ) : (
               <div className="px-3 py-2 flex items-center gap-2">
-                <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${
-                  isAdmin ? "bg-linear-to-r from-cyan-400 to-emerald-300 text-slate-950" : "bg-linear-to-r from-sky-400 to-cyan-300 text-slate-950"
-                }`}>
+                <span
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold ${
+                    isAdmin
+                      ? "bg-linear-to-r from-cyan-400 to-emerald-300 text-slate-950"
+                      : "bg-linear-to-r from-sky-400 to-cyan-300 text-slate-950"
+                  }`}
+                >
                   {isAdmin ? "👑" : "🎓"} {user.name}
                 </span>
                 <button
@@ -186,7 +183,8 @@ export default function Navigation() {
                   Logout
                 </button>
               </div>
-            )}          </div>
+            )}{" "}
+          </div>
         </div>
       )}
     </nav>
