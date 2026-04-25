@@ -47,7 +47,7 @@ export default function DocsPage() {
               : loadedSections[0].id
           );
         }
-      } catch (error) {
+      } catch {
         setLoadError("Failed to load documentation");
       } finally {
         setIsLoadingSections(false);
@@ -963,7 +963,7 @@ function ReferencesSection() {
           <ul className="space-y-2 text-sm">
             <li className="p-3 bg-green-50 dark:bg-green-900/20 rounded">
               <a href="https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold" target="_blank" rel="noopener noreferrer">
-                Wikipedia: Shamir's Secret Sharing
+                Wikipedia: Shamir&apos;s Secret Sharing
               </a>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Comprehensive overview with examples</p>
             </li>
@@ -1037,7 +1037,7 @@ function ReferencesSection() {
                     Adi Shamir - Communications of the ACM
                   </p>
                   <p className="text-xs text-gray-700 dark:text-gray-300">
-                    The original groundbreaking paper introducing Shamir's Secret Sharing scheme
+                    The original groundbreaking paper introducing Shamir&apos;s Secret Sharing scheme
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -1099,7 +1099,7 @@ function ReferencesSection() {
             {/* Info note */}
             <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 rounded-r-lg">
               <p className="text-xs text-gray-700 dark:text-gray-300">
-                💡 <strong>Tip:</strong> These PDFs provide the theoretical foundation for the concepts implemented in this visualizer. They're perfect for academic study and deeper understanding.
+                💡 <strong>Tip:</strong> These PDFs provide the theoretical foundation for the concepts implemented in this visualizer. They&apos;re perfect for academic study and deeper understanding.
               </p>
             </div>
           </div>
@@ -1134,7 +1134,7 @@ function ReferencesSection() {
             Test Your Knowledge!
           </h3>
           <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
-            Ready to see how much you've learned? Take our interactive quiz covering all the concepts from this documentation.
+            Ready to see how much you&apos;ve learned? Take our interactive quiz covering all the concepts from this documentation.
           </p>
           <Link
             href="/quiz"

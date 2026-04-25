@@ -47,7 +47,7 @@ export default function LagrangeModal({
               throwOnError: false,
               displayMode: true,
             });
-          } catch (e) {
+          } catch {
             // KaTeX render error silently handled
           }
         }

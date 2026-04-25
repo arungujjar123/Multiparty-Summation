@@ -166,16 +166,7 @@ export default function ThemesPage() {
   const [selectedTheme, setSelectedTheme] = useState<string>("default");
   const [previewTheme, setPreviewTheme] = useState<Theme | null>(null);
 
-  useEffect(() => {
-    // Load saved theme
-    const savedTheme = localStorage.getItem("app_theme") || "default";
-    Promise.resolve().then(() => {
-      setSelectedTheme(savedTheme);
-      applyTheme(savedTheme);
-    });
-  }, []);
-
-  const applyTheme = (themeId: string) => {
+  const applyTheme = React.useCallback((themeId: string) => {
     const theme = themes.find((t) => t.id === themeId);
     if (!theme) return;
 
@@ -186,7 +177,16 @@ export default function ThemesPage() {
 
     // Save to localStorage
     localStorage.setItem("app_theme", themeId);
-  };
+  }, []);
+
+  useEffect(() => {
+    // Load saved theme
+    const savedTheme = localStorage.getItem("app_theme") || "default";
+    Promise.resolve().then(() => {
+      setSelectedTheme(savedTheme);
+      applyTheme(savedTheme);
+    });
+  }, [applyTheme]);
 
   const handleThemeSelect = (themeId: string) => {
     setSelectedTheme(themeId);

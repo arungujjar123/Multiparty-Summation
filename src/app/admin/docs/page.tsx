@@ -30,20 +30,7 @@ export default function AdminDocsPage() {
     }
   }, [isAdmin, isLoading, router]);
 
-  useEffect(() => {
-    if (isAdmin) {
-      loadSections();
-    }
-  }, [isAdmin]);
-
-  useEffect(() => {
-    if (selectedSection && sections.length > 0) {
-      const section = sections.find(s => s.id === selectedSection);
-      setEditContent(section?.content || '');
-    }
-  }, [selectedSection, sections]);
-
-  const loadSections = async () => {
+  const loadSections = React.useCallback(async () => {
     setIsLoadingDocs(true);
     setError('');
     const response = await fetch('/api/admin/docs', {
@@ -67,7 +54,20 @@ export default function AdminDocsPage() {
       );
     }
     setIsLoadingDocs(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      loadSections();
+    }
+  }, [isAdmin, loadSections]);
+
+  useEffect(() => {
+    if (selectedSection && sections.length > 0) {
+      const section = sections.find(s => s.id === selectedSection);
+      setEditContent(section?.content || '');
+    }
+  }, [selectedSection, sections]);
 
   const handleSave = async () => {
     if (!selectedSection) return;
