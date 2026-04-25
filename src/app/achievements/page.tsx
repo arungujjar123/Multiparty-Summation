@@ -2,7 +2,7 @@
  * @fileoverview Achievements and Badges page
  */
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
 interface Achievement {
@@ -15,6 +15,24 @@ interface Achievement {
   unlocked: boolean;
   unlockedDate?: string;
   requirement: string;
+}
+
+interface UserProgress {
+  quiz_attempts: number;
+  quiz_perfect_scores: number;
+  visited_docs: boolean;
+  visited_glossary: boolean;
+  visited_faq: boolean;
+  visited_code: boolean;
+  visited_all_pages: boolean;
+  visualizer_runs: number;
+  completed_summation: number;
+  completed_multiplication: number;
+  first_visit_date: string | null;
+  unlocked_count: number;
+  total_points: number;
+  unlocked_all: boolean;
+  [key: string]: string | number | boolean | null;
 }
 
 const ACHIEVEMENTS_DATA: Omit<Achievement, "unlocked" | "unlockedDate">[] = [
@@ -189,11 +207,91 @@ export default function AchievementsPage() {
     completionPercentage: 0,
   });
 
-  useEffect(() => {
-    loadAchievements();
+  const loadUserProgress = useCallback((): UserProgress => {
+    if (typeof window === "undefined") {
+      return {
+        quiz_attempts: 0,
+        quiz_perfect_scores: 0,
+        visited_docs: false,
+        visited_glossary: false,
+        visited_faq: false,
+        visited_code: false,
+        visited_all_pages: false,
+        visualizer_runs: 0,
+        completed_summation: 0,
+        completed_multiplication: 0,
+        first_visit_date: null,
+        unlocked_count: 0,
+        total_points: 0,
+        unlocked_all: false,
+      };
+    }
+
+    return {
+      quiz_attempts: parseInt(localStorage.getItem("quiz_attempts") || "0"),
+      quiz_perfect_scores: parseInt(localStorage.getItem("quiz_perfect_scores") || "0"),
+      visited_docs: localStorage.getItem("visited_docs") === "true",
+      visited_glossary: localStorage.getItem("visited_glossary") === "true",
+      visited_faq: localStorage.getItem("visited_faq") === "true",
+      visited_code: localStorage.getItem("visited_code") === "true",
+      visited_all_pages: 
+        localStorage.getItem("visited_docs") === "true" &&
+        localStorage.getItem("visited_glossary") === "true" &&
+        localStorage.getItem("visited_faq") === "true" &&
+        localStorage.getItem("visited_code") === "true",
+      visualizer_runs: parseInt(localStorage.getItem("visualizer_runs") || "0"),
+      completed_summation: parseInt(localStorage.getItem("completed_summation") || "0"),
+      completed_multiplication: parseInt(localStorage.getItem("completed_multiplication") || "0"),
+      first_visit_date: localStorage.getItem("first_visit_date"),
+      unlocked_count: 0, // Will be calculated
+      total_points: 0, // Will be calculated
+      unlocked_all: false, // Will be calculated
+    };
   }, []);
 
-  const loadAchievements = () => {
+  const checkAchievementRequirement = useCallback((
+    achievement: Omit<Achievement, "unlocked" | "unlockedDate">,
+    progress: UserProgress
+  ): boolean => {
+    try {
+      // Special handling for meta-achievements
+      if (achievement.id === "all-achievements") {
+        const currentUnlocked = achievements.filter((a) => a.unlocked && a.id !== "all-achievements").length;
+        return currentUnlocked >= 10;
+      }
+      if (achievement.id === "point-collector") {
+        const currentPoints = achievements
+          .filter((a) => a.unlocked && a.id !== "point-collector")
+          .reduce((sum, a) => sum + a.points, 0);
+        return currentPoints >= 200;
+      }
+      if (achievement.id === "completionist") {
+        const totalAchievements = ACHIEVEMENTS_DATA.length;
+        const currentUnlocked = achievements.filter((a) => a.unlocked && a.id !== "completionist").length;
+        return currentUnlocked >= totalAchievements - 1;
+      }
+
+      // Evaluate requirement string
+      const requirement = achievement.requirement;
+      const context = { ...progress };
+      
+      // Simple requirement parsing
+      if (requirement.includes(">=")) {
+        const [key, value] = requirement.split(">=").map((s) => s.trim());
+        return (context[key] || 0) >= parseInt(value);
+      }
+      if (requirement.includes("===")) {
+        const [key, value] = requirement.split("===").map((s) => s.trim());
+        return context[key] === (value === "true");
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  }, [achievements]);
+
+  const loadAchievements = useCallback(() => {
     const savedData = typeof window !== "undefined" 
       ? localStorage.getItem("achievements") 
       : null;
@@ -238,76 +336,19 @@ export default function AchievementsPage() {
       (totalUnlocked / ACHIEVEMENTS_DATA.length) * 100
     );
 
-    setAchievements(updatedAchievements);
-    setStats({ totalUnlocked, totalPoints, completionPercentage });
-  };
+    // Defer state updates to next microtask to avoid cascading render warning
+    Promise.resolve().then(() => {
+      setAchievements(updatedAchievements);
+      setStats({ totalUnlocked, totalPoints, completionPercentage });
+    });
+  }, [loadUserProgress, checkAchievementRequirement]);
 
-  const loadUserProgress = () => {
-    if (typeof window === "undefined") return {};
-
-    return {
-      quiz_attempts: parseInt(localStorage.getItem("quiz_attempts") || "0"),
-      quiz_perfect_scores: parseInt(localStorage.getItem("quiz_perfect_scores") || "0"),
-      visited_docs: localStorage.getItem("visited_docs") === "true",
-      visited_glossary: localStorage.getItem("visited_glossary") === "true",
-      visited_faq: localStorage.getItem("visited_faq") === "true",
-      visited_code: localStorage.getItem("visited_code") === "true",
-      visited_all_pages: 
-        localStorage.getItem("visited_docs") === "true" &&
-        localStorage.getItem("visited_glossary") === "true" &&
-        localStorage.getItem("visited_faq") === "true" &&
-        localStorage.getItem("visited_code") === "true",
-      visualizer_runs: parseInt(localStorage.getItem("visualizer_runs") || "0"),
-      completed_summation: parseInt(localStorage.getItem("completed_summation") || "0"),
-      completed_multiplication: parseInt(localStorage.getItem("completed_multiplication") || "0"),
-      first_visit_date: localStorage.getItem("first_visit_date"),
-      unlocked_count: 0, // Will be calculated
-      total_points: 0, // Will be calculated
-      unlocked_all: false, // Will be calculated
-    };
-  };
-
-  const checkAchievementRequirement = (
-    achievement: Omit<Achievement, "unlocked" | "unlockedDate">,
-    progress: any
-  ): boolean => {
-    try {
-      // Special handling for meta-achievements
-      if (achievement.id === "all-achievements") {
-        const currentUnlocked = achievements.filter((a) => a.unlocked && a.id !== "all-achievements").length;
-        return currentUnlocked >= 10;
-      }
-      if (achievement.id === "point-collector") {
-        const currentPoints = achievements
-          .filter((a) => a.unlocked && a.id !== "point-collector")
-          .reduce((sum, a) => sum + a.points, 0);
-        return currentPoints >= 200;
-      }
-      if (achievement.id === "completionist") {
-        const totalAchievements = ACHIEVEMENTS_DATA.length;
-        const currentUnlocked = achievements.filter((a) => a.unlocked && a.id !== "completionist").length;
-        return currentUnlocked >= totalAchievements - 1;
-      }
-
-      // Evaluate requirement string
-      const requirement = achievement.requirement;
-      const context = { ...progress };
-      
-      // Simple requirement parsing
-      if (requirement.includes(">=")) {
-        const [key, value] = requirement.split(">=").map((s) => s.trim());
-        return (context[key] || 0) >= parseInt(value);
-      }
-      if (requirement.includes("===")) {
-        const [key, value] = requirement.split("===").map((s) => s.trim());
-        return context[key] === (value === "true");
-      }
-
-      return false;
-    } catch (error) {
-      return false;
-    }
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadAchievements();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [loadAchievements]);
 
   const resetProgress = () => {
     if (typeof window === "undefined") return;
@@ -358,7 +399,7 @@ export default function AchievementsPage() {
             🏆 Achievements
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-            Track your learning journey and unlock badges as you master Shamir's Secret Sharing!
+            Track your learning journey and unlock badges as you master Shamir&apos;s Secret Sharing!
           </p>
 
           {/* Stats Dashboard */}

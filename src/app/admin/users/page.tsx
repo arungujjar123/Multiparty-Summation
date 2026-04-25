@@ -14,6 +14,24 @@ export default function AdminUsersPage() {
   const [filter, setFilter] = useState<'all' | 'admin' | 'student'>('all');
   const [error, setError] = useState("");
 
+  const loadUsers = async () => {
+    try {
+      const response = await fetch("/api/admin/users", {
+        credentials: "include",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Failed to load users");
+        return;
+      }
+
+      setUsers(data.users || []);
+    } catch {
+      setError("An unexpected error occurred while loading users.");
+    }
+  };
+
   useEffect(() => {
     if (!isLoading && !isAdmin) {
       router.push('/login');
@@ -22,27 +40,17 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     if (isAdmin) {
-      loadUsers();
+      // Use setTimeout to avoid synchronous state update warning
+      const timer = setTimeout(() => {
+        loadUsers();
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isAdmin]);
 
-  const loadUsers = async () => {
-    setError("");
-    const response = await fetch("/api/admin/users", {
-      credentials: "include",
-    });
-    const data = await response.json();
-
-    if (!response.ok) {
-      setError(data.error || "Failed to load users");
-      return;
-    }
-
-    setUsers(data.users || []);
-  };
-
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     if (confirm(`Change user role to ${newRole}?`)) {
+      setError("");
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -67,6 +75,7 @@ export default function AdminUsersPage() {
     }
 
     if (confirm(`Are you sure you want to delete ${userName}?`)) {
+      setError("");
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: "DELETE",
         credentials: "include",

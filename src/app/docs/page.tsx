@@ -201,11 +201,11 @@ function IntroductionSection() {
   return (
     <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
-        📖 introduction
+        📖 Introduction
       </h2>
       
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's Secret Sharing is a cryptographic scheme introduced by <strong>Adi Shamir</strong> in 1979. 
+        Shamir&apos;s Secret Sharing is a cryptographic scheme introduced by <strong>Adi Shamir</strong> in 1979. 
         It allows a secret to be divided into multiple shares, distributed among participants, such that 
         only a threshold number of shares is needed to reconstruct the original secret.
       </p>
@@ -257,12 +257,12 @@ function ShamirSection() {
   return (
     <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
-        🔐 Shamir's Secret Sharing Scheme
+        🔐 Shamir&apos;s Secret Sharing Scheme
       </h2>
 
       <h3 className="text-2xl font-bold mt-6 mb-4 text-gray-800 dark:text-gray-100">Mathematical Foundation</h3>
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's scheme is based on polynomial interpolation over finite fields. A polynomial of degree <code>t-1</code> 
+        Shamir&apos;s scheme is based on polynomial interpolation over finite fields. A polynomial of degree <code>t-1</code> 
         is uniquely determined by <code>t</code> points.
       </p>
 
@@ -316,7 +316,7 @@ function SummationSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's scheme has a beautiful property: <strong>linearity</strong>. This allows parties to compute 
+        Shamir&apos;s scheme has a beautiful property: <strong>linearity</strong>. This allows parties to compute 
         sums of secrets without any interaction, simply by adding their local shares.
       </p>
 
@@ -324,7 +324,7 @@ function SummationSection() {
         <h3 className="text-xl font-bold text-green-900 dark:text-green-300 mb-3">Protocol Steps</h3>
         <ol className="space-y-3 text-gray-700 dark:text-gray-300">
           <li>
-            <strong>Step 1:</strong> Share secrets a and b using Shamir's scheme
+            <strong>Step 1:</strong> Share secrets a and b using Shamir&apos;s scheme
             <div className="ml-4 mt-1 text-sm">Party i receives: f<sub>i</sub> = f(i) and g<sub>i</sub> = g(i)</div>
           </li>
           <li>
@@ -431,7 +431,7 @@ function MultiplicationSection() {
       <div className="bg-linear-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 p-6 rounded-lg my-6 border border-pink-200 dark:border-pink-800 transition-all duration-500 hover:shadow-2xl hover:border-pink-500 hover:scale-[1.02] hover:-translate-y-1">
         <h4 className="font-bold text-lg mb-3 text-pink-900 dark:text-pink-300">🔄 Resharing Visualization</h4>
         <p className="text-gray-700 dark:text-gray-300 mb-3">
-          The resharing step uses Lagrange basis polynomials evaluated at each player's ID:
+          The resharing step uses Lagrange basis polynomials evaluated at each player&apos;s ID:
         </p>
         <div className="bg-white dark:bg-gray-800 p-4 rounded border border-pink-300 dark:border-pink-700 font-mono text-sm">
           s<sub>i,j</sub> = h<sub>i</sub> · λ<sub>i</sub>(j)
@@ -468,7 +468,7 @@ function QuantumProtocolsSection() {
           <strong>Sutradhar, K. & Om, H. (2020)</strong>
         </p>
         <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-          "Hybrid Quantum Protocols for Secure Multiparty Summation and Multiplication"
+          &quot;Hybrid Quantum Protocols for Secure Multiparty Summation and Multiplication&quot;
         </p>
         <p className="text-xs text-purple-700 dark:text-purple-400">
           <em>Scientific Reports</em>, 10, 9097. doi:10.1038/s41598-020-65871-8
@@ -569,11 +569,11 @@ function QuantumProtocolsSection() {
         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
           <li className="flex items-start gap-2">
             <span className="text-purple-500">→</span>
-            Computing h'(yᵢ) = f(yᵢ) × g(yᵢ) mod d locally
+            Computing h&apos;(yᵢ) = f(yᵢ) × g(yᵢ) mod d locally
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-500">→</span>
-            Sharing h'(yᵢ) using new random polynomials zᵢ(x)
+            Sharing h&apos;(yᵢ) using new random polynomials zᵢ(x)
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-500">→</span>
@@ -619,7 +619,7 @@ function QuantumProtocolsSection() {
         <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border-l-4 border-pink-500 transition-all duration-300 hover:shadow-lg hover:border-l-8 hover:scale-[1.02] hover:translate-x-2">
           <h4 className="font-bold text-pink-900 dark:text-pink-300 mb-2">✅ Privacy Preservation</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            No player can obtain other players' private inputs throughout the protocol
+            No player can obtain other players&apos; private inputs throughout the protocol
           </p>
         </div>
       </div>
@@ -876,7 +876,7 @@ function ReferencesSection() {
           <div className="space-y-4 text-sm">
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded">
               <p className="font-semibold text-gray-800 dark:text-gray-200">
-                Shamir, A. (1979). "How to share a secret"
+                Shamir, A. (1979). &quot;How to share a secret&quot;
               </p>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
                 <em>Communications of the ACM</em>, 22(11), 612-613.
@@ -891,10 +891,10 @@ function ReferencesSection() {
                 Ben-Or, M., Goldwasser, S., & Wigderson, A. (1988)
               </p>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
-                "Completeness theorems for non-cryptographic fault-tolerant distributed computation"
+                &quot;Completeness theorems for non-cryptographic fault-tolerant distributed computation&quot;
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                <em>STOC '88</em> - BGW protocol for secure multiplication with resharing.
+                <em>STOC &apos;88</em> - BGW protocol for secure multiplication with resharing.
               </p>
             </div>
 
@@ -903,7 +903,7 @@ function ReferencesSection() {
                 Cramer, R., Damgård, I., & Nielsen, J. B. (2015)
               </p>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
-                "Secure Multiparty Computation and Secret Sharing"
+                &quot;Secure Multiparty Computation and Secret Sharing&quot;
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                 Comprehensive textbook on MPC theory and practice.
