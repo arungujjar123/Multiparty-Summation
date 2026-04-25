@@ -127,7 +127,7 @@ export async function updateDocSection(id: string, updates: Partial<Pick<DocSect
 
   if (!result) return null;
 
-  const { id: updatedId, title, icon, content, order, lastModified, createdAt } = result as any;
+  const { id: updatedId, title, icon, content, order, lastModified, createdAt } = result;
   return { id: updatedId, title, icon, content, order, lastModified, createdAt };
 }
 
