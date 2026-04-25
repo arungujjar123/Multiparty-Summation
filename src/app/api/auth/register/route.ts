@@ -50,7 +50,11 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ user }, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Registration failed" }, { status: 500 });
+  } catch (err: any) {
+    console.error("Registration Error:", err);
+    return NextResponse.json(
+      { error: err?.message || "Registration failed" },
+      { status: 500 }
+    );
   }
 }

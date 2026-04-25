@@ -5,10 +5,18 @@ import { ensureDefaultAdmin, getUserBySessionToken, SESSION_COOKIE_NAME } from "
 export const runtime = "nodejs";
 
 export async function GET() {
-  await ensureDefaultAdmin();
-  const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-  const user = await getUserBySessionToken(token);
+  try {
+    await ensureDefaultAdmin();
+    const cookieStore = await cookies();
+    const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const user = await getUserBySessionToken(token);
 
-  return NextResponse.json({ user }, { status: 200 });
+    return NextResponse.json({ user }, { status: 200 });
+  } catch (err: any) {
+    console.error("Auth Me Error:", err);
+    return NextResponse.json(
+      { error: err?.message || "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
