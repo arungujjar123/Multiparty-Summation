@@ -6,6 +6,9 @@ import { deleteCloudinaryAsset, uploadPdfToCloudinary } from "@/lib/server/cloud
 
 export const runtime = "nodejs";
 
+// Increase body size limit to 10MB for PDF uploads (overrides Next.js 4MB default)
+export const maxDuration = 60;
+
 const MAX_PDF_BYTES = 10 * 1024 * 1024;
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
