@@ -386,3 +386,150 @@ body {
   width: 300px;
   height: 300px;
 }
+
+/* =============================================== */
+/* Docs markdown styling */
+/* =============================================== */
+
+.docs-markdown {
+  color: #e2e8f0;
+}
+
+.docs-markdown h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(90deg, #7c3aed, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.docs-markdown h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #e2e8f0;
+}
+
+.docs-markdown h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #cbd5f5;
+}
+
+.docs-markdown p {
+  line-height: 1.8;
+}
+
+.docs-markdown a {
+  color: #a78bfa;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.docs-markdown a:hover {
+  text-decoration: underline;
+}
+
+.docs-markdown ul,
+.docs-markdown ol {
+  padding-left: 1.5rem;
+}
+
+.docs-markdown li {
+  margin: 0.35rem 0;
+}
+
+.docs-markdown blockquote {
+  border-left: 4px solid #a855f7;
+  background: rgba(124, 58, 237, 0.15);
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  color: #e2e8f0;
+  margin: 1.25rem 0;
+}
+
+.docs-markdown code {
+  background: rgba(148, 163, 184, 0.2);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.35rem;
+  font-size: 0.95em;
+}
+
+.docs-markdown pre {
+  background: #0f172a;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 1rem 1.2rem;
+  border-radius: 0.8rem;
+  overflow: auto;
+}
+
+/* Optional layout helpers for rich markdown */
+.docs-markdown .doc-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin: 1.5rem 0;
+}
+
+.docs-markdown .doc-card {
+  padding: 1rem 1.1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.7);
+  box-shadow: 0 10px 25px rgba(2, 6, 23, 0.25);
+}
+
+.docs-markdown .doc-card h4 {
+  margin-top: 0;
+}
+
+.docs-markdown .doc-card--purple {
+  border-color: rgba(168, 85, 247, 0.5);
+  background: rgba(88, 28, 135, 0.25);
+}
+
+.docs-markdown .doc-card--blue {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(30, 64, 175, 0.2);
+}
+
+.docs-markdown .doc-card--pink {
+  border-color: rgba(236, 72, 153, 0.5);
+  background: rgba(131, 24, 67, 0.25);
+}
+
+.docs-markdown .doc-card--emerald {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(6, 95, 70, 0.25);
+}
+
+@media (prefers-color-scheme: light) {
+  .docs-markdown {
+    color: #0f172a;
+  }
+
+  .docs-markdown h2,
+  .docs-markdown h3,
+  .docs-markdown h4 {
+    color: #0f172a;
+  }
+
+  .docs-markdown blockquote {
+    background: rgba(226, 232, 240, 0.7);
+    color: #0f172a;
+  }
+
+  .docs-markdown pre {
+    background: #f8fafc;
+  }
+
+  .docs-markdown .doc-card {
+    background: #ffffff;
+  }
+}

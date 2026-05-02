@@ -7,11 +7,24 @@ import Link from "next/link";
 import { AchievementTracker } from "@/lib/achievements";
 import { marked } from "marked";
 
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
+
 interface DocSection {
   id: string;
   title: string;
   icon: string;
   content?: string;
+  pdfs?: DocPdf[];
+}
+
+interface DocPdf {
+  url: string;
+  name: string;
+  uploadedAt: string;
+  publicId: string;
 }
 
 export default function DocsPage() {
@@ -70,6 +83,7 @@ export default function DocsPage() {
 
   const visibleSections = sections.length > 0 ? sections : fallbackSections;
   const activeContent = visibleSections.find((section) => section.id === activeSection);
+  const activePdfs = activeContent?.pdfs || [];
 
   const renderSectionContent = () => {
     if (!activeContent) return null;
@@ -178,7 +192,29 @@ export default function DocsPage() {
               {isLoadingSections ? (
                 <div className="text-gray-600 dark:text-gray-400">Loading documentation...</div>
               ) : (
-                renderSectionContent()
+                <>
+                  {activePdfs.length > 0 && (
+                    <div className="mb-6 rounded-lg border border-purple-200 dark:border-purple-700 bg-purple-50/70 dark:bg-purple-900/20 p-4">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 mb-2">
+                        Attachments
+                      </h4>
+                      <div className="space-y-2">
+                        {activePdfs.map((pdf) => (
+                          <a
+                            key={pdf.publicId || pdf.url}
+                            href={pdf.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block text-sm font-semibold text-purple-700 dark:text-purple-300 hover:underline"
+                          >
+                            📄 {pdf.name || "Open PDF"}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {renderSectionContent()}
+                </>
               )}
             </div>
           </div>
@@ -189,14 +225,70 @@ export default function DocsPage() {
 }
 
 function MarkdownContent({ content }: { content: string }) {
-  const html = useMemo(() => marked.parse(content), [content]);
+  const html = useMemo(() => marked.parse(transformDocContent(content)), [content]);
 
   return (
     <div
-      className="prose prose-lg dark:prose-invert max-w-none animate-fade-in"
+      className="prose prose-lg dark:prose-invert max-w-none animate-fade-in docs-markdown"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
+}
+
+function transformDocContent(raw: string) {
+  const lines = raw.split(/\r?\n/);
+  const stack: string[] = [];
+  const output: string[] = [];
+
+  for (const line of lines) {
+    const match = line.match(/^:::\s*([a-zA-Z]+)?(?:\s+([a-zA-Z-]+))?\s*$/);
+    if (!match) {
+      output.push(line);
+      continue;
+    }
+
+    const type = (match[1] || "").toLowerCase();
+    const variant = (match[2] || "").toLowerCase();
+
+    if (!type) {
+      if (stack.length > 0) {
+        stack.pop();
+        output.push("</div>");
+        continue;
+      }
+      output.push(line);
+      continue;
+    }
+
+    if (type === "grid") {
+      stack.push(type);
+      output.push('<div class="doc-grid">');
+      continue;
+    }
+
+    if (type === "card") {
+      stack.push(type);
+      const variantClass = variant ? ` doc-card--${variant}` : "";
+      output.push(`<div class="doc-card${variantClass}">`);
+      continue;
+    }
+
+    if (type === "callout") {
+      stack.push(type);
+      const variantClass = variant ? ` doc-callout--${variant}` : "";
+      output.push(`<div class="doc-callout${variantClass}">`);
+      continue;
+    }
+
+    output.push(line);
+  }
+
+  while (stack.length > 0) {
+    stack.pop();
+    output.push("</div>");
+  }
+
+  return output.join("\n");
 }
 
 function EmptySection() {

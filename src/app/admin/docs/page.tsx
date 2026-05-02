@@ -2,7 +2,7 @@
  * @fileoverview Admin Documentation Management
  */
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -12,6 +12,14 @@ interface DocSection {
   content: string;
   icon: string;
   lastModified: string;
+  pdfs?: DocPdf[];
+}
+
+interface DocPdf {
+  url: string;
+  name: string;
+  uploadedAt: string;
+  publicId: string;
 }
 
 export default function AdminDocsPage() {
@@ -23,6 +31,13 @@ export default function AdminDocsPage() {
   const [saveStatus, setSaveStatus] = useState("");
   const [error, setError] = useState("");
   const [isLoadingDocs, setIsLoadingDocs] = useState(true);
+  const [selectedPdf, setSelectedPdf] = useState<File | null>(null);
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
+  const [pdfStatus, setPdfStatus] = useState("");
+  const [pdfError, setPdfError] = useState("");
+  const pdfInputRef = useRef<HTMLInputElement | null>(null);
+
+  const activeSection = sections.find((section) => section.id === selectedSection);
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
@@ -70,6 +85,12 @@ export default function AdminDocsPage() {
       const content = section?.content || "";
       Promise.resolve().then(() => {
         setEditContent(content);
+        setSelectedPdf(null);
+        setPdfStatus("");
+        setPdfError("");
+        if (pdfInputRef.current) {
+          pdfInputRef.current.value = "";
+        }
       });
     }
   }, [selectedSection, sections]);
@@ -119,6 +140,74 @@ export default function AdminDocsPage() {
     const created = data.section as DocSection;
     setSections((prev) => [...prev, created]);
     setSelectedSection(created.id);
+  };
+
+  const handlePdfUpload = async () => {
+    if (!selectedSection || !selectedPdf) return;
+
+    setPdfError("");
+    setPdfStatus("");
+    setIsUploadingPdf(true);
+
+    try {
+      const formData = new FormData();
+      formData.set("file", selectedPdf);
+
+      const response = await fetch(`/api/admin/docs/${selectedSection}/pdf`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setPdfError(data.error || "Failed to upload PDF");
+        return;
+      }
+
+      const updated = data.section as DocSection;
+      setSections((prev) => prev.map((section) => (section.id === updated.id ? updated : section)));
+      setPdfStatus("✅ PDF uploaded successfully!");
+      setSelectedPdf(null);
+      if (pdfInputRef.current) {
+        pdfInputRef.current.value = "";
+      }
+    } catch {
+      setPdfError("Failed to upload PDF");
+    } finally {
+      setIsUploadingPdf(false);
+    }
+  };
+
+  const handlePdfRemove = async (publicId: string) => {
+    if (!selectedSection || !publicId) return;
+
+    setPdfError("");
+    setPdfStatus("");
+    setIsUploadingPdf(true);
+
+    try {
+      const response = await fetch(`/api/admin/docs/${selectedSection}/pdf`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ publicId }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setPdfError(data.error || "Failed to remove PDF");
+        return;
+      }
+
+      const updated = data.section as DocSection;
+      setSections((prev) => prev.map((section) => (section.id === updated.id ? updated : section)));
+      setPdfStatus("🗑️ PDF removed.");
+    } catch {
+      setPdfError("Failed to remove PDF");
+    } finally {
+      setIsUploadingPdf(false);
+    }
   };
 
   const handleDeleteSection = async (sectionId: string) => {
@@ -228,8 +317,7 @@ export default function AdminDocsPage() {
                 <>
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {sections.find((s) => s.id === selectedSection)?.icon}{" "}
-                      {sections.find((s) => s.id === selectedSection)?.title}
+                      {activeSection?.icon} {activeSection?.title}
                     </h2>
                     {saveStatus && (
                       <span className="text-green-600 dark:text-green-400 font-medium">
@@ -248,6 +336,73 @@ export default function AdminDocsPage() {
                       className="w-full h-96 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
                       placeholder="Enter documentation content here..."
                     />
+                  </div>
+
+                  <div className="mb-6">
+                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                      PDF Attachment
+                    </h3>
+                                    {activeSection?.pdfs && activeSection.pdfs.length > 0 ? (
+                                      <div className="mb-3 space-y-2">
+                                        {activeSection.pdfs.map((pdf) => (
+                                          <div
+                                            key={pdf.publicId || pdf.url}
+                                            className="flex flex-wrap items-center gap-3"
+                                          >
+                                            <a
+                                              href={pdf.url}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                              className="text-sm font-medium text-purple-600 dark:text-purple-400 hover:underline"
+                                            >
+                                              📄 {pdf.name || "View PDF"}
+                                            </a>
+                                            <button
+                                              onClick={() => handlePdfRemove(pdf.publicId)}
+                                              disabled={!pdf.publicId || isUploadingPdf}
+                                              className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-60"
+                                            >
+                                              Remove
+                                            </button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                        No PDF attached yet.
+                      </p>
+                    )}
+
+                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                      <input
+                        ref={pdfInputRef}
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0] || null;
+                          setSelectedPdf(file);
+                          setPdfStatus("");
+                          setPdfError("");
+                        }}
+                        className="block w-full text-sm text-gray-700 dark:text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-900/40 dark:file:text-purple-200"
+                      />
+                      <button
+                        onClick={handlePdfUpload}
+                        disabled={!selectedPdf || isUploadingPdf}
+                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-all disabled:opacity-60"
+                      >
+                        {isUploadingPdf ? "Uploading..." : "Upload PDF"}
+                      </button>
+                    </div>
+
+                    {pdfError && (
+                      <div className="mt-3 text-xs text-red-600 dark:text-red-400">{pdfError}</div>
+                    )}
+                    {pdfStatus && (
+                      <div className="mt-3 text-xs text-green-600 dark:text-green-400">
+                        {pdfStatus}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex gap-3">
