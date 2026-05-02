@@ -175,14 +175,23 @@ export function createShares(
   n: number,
   t: number,
   p: bigint,
-  seed?: number
+  seed?: number,
+  coefficients?: bigint[]
 ): SharesResult {
   if (t > n) throw new Error("Threshold t cannot exceed number of players n");
   if (t < 1) throw new Error("Threshold t must be at least 1");
   if (n < 1) throw new Error("Number of players n must be at least 1");
   if (!isPrime(p, seed)) throw new Error(`p=${p} is not prime`);
 
-  const polynomial = randomPolyWithConstant(secret, t - 1, p, seed);
+  const polynomial =
+    coefficients !== undefined
+      ? [secret, ...coefficients]
+      : randomPolyWithConstant(secret, t - 1, p, seed);
+
+  if (polynomial.length !== t) {
+    throw new Error(`Polynomial must have exactly ${t} coefficients including constant term`);
+  }
+
   const shares: Share[] = [];
 
   for (let i = 1; i <= n; i++) {

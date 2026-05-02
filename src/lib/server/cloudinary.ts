@@ -54,3 +54,5 @@ export async function deleteCloudinaryAsset(publicId: string) {
     ensureCloudinaryConfig();
     return cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
 }
+
+export default cloudinary;

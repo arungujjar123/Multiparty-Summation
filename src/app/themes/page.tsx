@@ -182,11 +182,10 @@ export default function ThemesPage() {
   useEffect(() => {
     // Load saved theme
     const savedTheme = localStorage.getItem("app_theme") || "default";
-    Promise.resolve().then(() => {
-      setSelectedTheme(savedTheme);
-      applyTheme(savedTheme);
-    });
+    setSelectedTheme(savedTheme);
+    applyTheme(savedTheme);
   }, [applyTheme]);
+
 
   const handleThemeSelect = (themeId: string) => {
     setSelectedTheme(themeId);

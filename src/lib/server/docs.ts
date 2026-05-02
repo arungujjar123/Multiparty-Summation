@@ -7,6 +7,7 @@ export interface DocSection {
   title: string;
   icon: string;
   content: string;
+  attachments?: string[]; // Array of PDF URLs
   order: number;
   lastModified: string;
   createdAt: string;
@@ -56,6 +57,7 @@ export async function ensureDefaultDocs() {
     missing.map((section) => ({
       ...section,
       content: "",
+      attachments: [],
       createdAt: now,
       lastModified: now,
     }))
@@ -68,6 +70,14 @@ export async function getDocSections() {
 
   const docs = (await collection.find({}).sort({ order: 1 }).toArray()) as DocSection[];
   return docs.map(mapDocSectionForResponse);
+}
+
+export async function getDocSectionById(id: string) {
+  const db = await getDb();
+  const collection = db.collection<DocSection>(DOCS_COLLECTION);
+  const doc = (await collection.findOne({ id })) as DocSection | null;
+  if (!doc) return null;
+  return mapDocSectionForResponse(doc);
 }
 
 export async function createDocSection(params: { title: string; icon: string }) {
@@ -93,6 +103,7 @@ export async function createDocSection(params: { title: string; icon: string }) 
     title,
     icon,
     content: "",
+    attachments: [],
     order: nextOrder,
     createdAt: now,
     lastModified: now,
@@ -100,12 +111,15 @@ export async function createDocSection(params: { title: string; icon: string }) 
   };
 
   await collection.insertOne(doc);
-  return { section: doc };
+  return { section: mapDocSectionForResponse(doc) };
 }
 
 export async function updateDocSection(
   id: string,
-  updates: Partial<Pick<DocSection, "title" | "icon" | "content">>
+  updates: Partial<Pick<DocSection, "title" | "icon" | "content">> & {
+    attachments?: string[];
+    contentMode?: "replace" | "append";
+  }
 ) {
   const db = await getDb();
   const collection = db.collection<DocSection>(DOCS_COLLECTION);
@@ -122,26 +136,47 @@ export async function updateDocSection(
     payload.icon = updates.icon.trim();
   }
 
-  if (typeof updates.content === "string") {
-    payload.content = updates.content;
+  if (Array.isArray(updates.attachments)) {
+    payload.attachments = updates.attachments;
+    console.log(`[DB Update] Saving ${updates.attachments.length} attachments for section: ${id}`);
   }
 
-  const result = await collection.findOneAndUpdate(
+  if (typeof updates.content === "string") {
+    if (updates.contentMode === "append") {
+      const existing = (await collection.findOne({ id })) as DocSection | null;
+      if (!existing) return null;
+      const existingContent = typeof existing.content === "string" ? existing.content : "";
+      const incomingContent = updates.content;
+
+      if (incomingContent.trim().length === 0) {
+        payload.content = existingContent;
+      } else if (
+        existingContent.length > 0 &&
+        incomingContent.length >= existingContent.length &&
+        incomingContent.startsWith(existingContent)
+      ) {
+        const delta = incomingContent.slice(existingContent.length);
+        payload.content = delta.trim().length > 0 ? `${existingContent}${delta}` : existingContent;
+      } else {
+        payload.content =
+          existingContent.trim().length > 0
+            ? `${existingContent}\n\n${incomingContent}`
+            : incomingContent;
+      }
+    } else {
+      payload.content = updates.content;
+    }
+  }
+
+  const result = (await collection.findOneAndUpdate(
     { id },
     { $set: payload },
     { returnDocument: "after" }
-  );
+  )) as DocSection | null;
 
   if (!result) return null;
 
   return mapDocSectionForResponse(result);
-}
-
-export async function getDocSectionById(id: string) {
-  const db = await getDb();
-  const collection = db.collection<DocSection>(DOCS_COLLECTION);
-  const doc = await collection.findOne({ id });
-  return doc || null;
 }
 
 export async function appendDocSectionPdf(id: string, pdf: DocPdf) {
@@ -161,7 +196,7 @@ export async function appendDocSectionPdf(id: string, pdf: DocPdf) {
       $unset: { pdfUrl: "", pdfName: "", pdfPublicId: "", pdfUploadedAt: "" },
     },
     { returnDocument: "after" }
-  );
+  ) as DocSection | null;
 
   if (!result) return null;
   return mapDocSectionForResponse(result);
@@ -184,7 +219,7 @@ export async function removeDocSectionPdf(id: string, publicId: string) {
       $unset: { pdfUrl: "", pdfName: "", pdfPublicId: "", pdfUploadedAt: "" },
     },
     { returnDocument: "after" }
-  );
+  ) as DocSection | null;
 
   if (!result) return null;
   return mapDocSectionForResponse(result);
@@ -199,6 +234,7 @@ function mapDocSectionForResponse(doc: DocSection) {
     order: doc.order,
     lastModified: doc.lastModified,
     createdAt: doc.createdAt,
+    attachments: doc.attachments || [],
     pdfs: normalizePdfs(doc),
   };
 }

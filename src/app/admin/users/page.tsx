@@ -30,11 +30,13 @@ export default function AdminUsersPage() {
     } catch {
       setError("An unexpected error occurred while loading users.");
     }
+
   };
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
       router.push("/login");
+
     }
   }, [isAdmin, isLoading, router]);
 
@@ -45,6 +47,7 @@ export default function AdminUsersPage() {
         loadUsers();
       }, 0);
       return () => clearTimeout(timer);
+
     }
   }, [isAdmin]);
 

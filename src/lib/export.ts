@@ -3,15 +3,21 @@
  */
 
 import type { PlayerData } from "@/components/PlayersGrid";
+import type { OperationMode } from "@/components/ControlPanel";
 
 export interface RunData {
   parameters: {
     p: string;
     n: number;
     t: number;
-    a: string;
-    b: string;
+    operationMode: OperationMode;
+    secretCount: number;
+    secrets: string[];
     seed?: number;
+    useManualCoefficients?: boolean;
+    manualCoefficients?: string[][];
+    useManualReshareCoefficients?: boolean;
+    manualReshareCoefficients?: string[][];
   };
   players: PlayerData[];
   results: {
@@ -25,21 +31,59 @@ export interface RunData {
  * Export run data as CSV
  */
 export function exportToCSV(data: RunData): void {
+  const secretRows = data.parameters.secrets.map((value, index) => [
+    `Secret ${index < 26 ? String.fromCharCode(97 + index) : `s${index + 1}`}`,
+    value,
+  ]);
+  const coefficientRows =
+    data.parameters.useManualCoefficients && data.parameters.manualCoefficients
+      ? data.parameters.manualCoefficients.map((coeffRow, secretIndex) => [
+        `Coefficients ${secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`}`,
+        coeffRow.join(" | "),
+      ])
+      : [];
+  const reshareCoefficientRows =
+    data.parameters.useManualReshareCoefficients && data.parameters.manualReshareCoefficients
+      ? data.parameters.manualReshareCoefficients.map((coeffRow, playerIndex) => [
+        `Reshare Coeff P${playerIndex + 1}`,
+        coeffRow.join(" | "),
+      ])
+      : [];
+  const shareHeaders = data.parameters.secrets.map((_, index) => {
+    const symbol = index < 26 ? String.fromCharCode(97 + index) : `s${index + 1}`;
+    return `${symbol}(x)`;
+  });
+
   const rows = [
     ["Parameter", "Value"],
     ["Prime (p)", data.parameters.p],
     ["Players (n)", data.parameters.n.toString()],
     ["Threshold (t)", data.parameters.t.toString()],
-    ["Secret a", data.parameters.a],
-    ["Secret b", data.parameters.b],
+    ["Operation Mode", data.parameters.operationMode],
+    ["Total Secrets", data.parameters.secretCount.toString()],
+    ...secretRows,
     ["Seed", data.parameters.seed?.toString() || "random"],
+    ["Manual Coefficients", data.parameters.useManualCoefficients ? "enabled" : "disabled"],
+    ...coefficientRows,
+    [
+      "Manual Reshare Coefficients",
+      data.parameters.useManualReshareCoefficients ? "enabled" : "disabled",
+    ],
+    ...reshareCoefficientRows,
     [""],
     ["Results"],
-    ["Reconstructed Sum (a+b)", data.results.reconSum],
-    ["Reconstructed Product (a*b)", data.results.reconMul],
+    ["Reconstructed Sum", data.results.reconSum],
+    ["Reconstructed Product (all secrets)", data.results.reconMul],
     [""],
-    ["Player", "x", "f(x)", "g(x)", "h_sum", "h_prod", "T(x)"],
-    ...data.players.map((p) => [`Player ${p.x}`, p.x.toString(), p.f, p.g, p.hSum, p.hProd, p.T]),
+    ["Player", "x", ...shareHeaders, "h_sum", "h_prod", "T(x)"],
+    ...data.players.map((player) => [
+      `Player ${player.x}`,
+      player.x.toString(),
+      ...player.secretShares,
+      player.hSum,
+      player.hProd,
+      player.T,
+    ]),
   ];
 
   const csvContent = rows.map((row) => row.join(",")).join("\n");

@@ -68,6 +68,7 @@ const faqData: FAQItem[] = [
     answer:
       "BGW (Ben-Or, Goldwasser, Wigderson) is a protocol for secure multiplication. It handles the degree reduction problem by having parties reshare their multiplication results, creating new degree-(t-1) shares of the product.",
     category: "Operations",
+
   },
   {
     question: "How many messages are exchanged in BGW multiplication?",
