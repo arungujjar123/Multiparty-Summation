@@ -1,5 +1,5 @@
 /**
- * @fileoverview Grid displaying all player cards with their shares
+ * @fileoverview Grid displaying all player cards with their shares, zi polynomials, and zi(xj) values
  */
 "use client";
 import React from "react";
@@ -11,18 +11,24 @@ export interface PlayerData {
   hSum: string;
   hProd: string;
   T: string;
+  // zi polynomial coefficients for this player
+  ziPoly?: string[];
+  // zi(xj) shares sent by this player to all other players
+  ziShares?: string[];
 }
 
 interface PlayersGridProps {
   players: PlayerData[];
   highlightedPlayers?: Set<number>;
   currentStep?: string;
+  selectedPlayers?: Set<number>;
 }
 
 export default function PlayersGrid({
   players,
   highlightedPlayers,
   currentStep,
+  selectedPlayers,
 }: PlayersGridProps) {
   if (players.length === 0) {
     return (
@@ -36,7 +42,7 @@ export default function PlayersGrid({
   const getVisibleFields = (step?: string): Set<string> => {
     const visible = new Set<string>(["x", "f", "g"]);
 
-    if (!step) return new Set(["x", "f", "g", "hSum", "hProd", "T"]);
+    if (!step) return new Set(["x", "f", "g", "hSum", "hProd", "ziPoly", "ziShares", "T"]);
 
     if (
       step === "compute-shares" ||
@@ -58,6 +64,15 @@ export default function PlayersGrid({
       visible.add("hProd");
     }
 
+    if (
+      step === "reshare-send" ||
+      step === "reshare-aggregate" ||
+      step === "reconstruct"
+    ) {
+      visible.add("ziPoly");
+      visible.add("ziShares");
+    }
+
     if (step === "reshare-aggregate" || step === "reconstruct") {
       visible.add("T");
     }
@@ -67,10 +82,25 @@ export default function PlayersGrid({
 
   const visibleFields = getVisibleFields(currentStep);
 
+  const formatPoly = (coeffs: string[]): string => {
+    const parts: string[] = [];
+    coeffs.forEach((c, i) => {
+      if (i === 0) {
+        parts.push(c);
+      } else if (i === 1) {
+        parts.push(`${c}x`);
+      } else {
+        parts.push(`${c}x^${i}`);
+      }
+    });
+    return parts.join(" + ");
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {players.map((player, idx) => {
         const isHighlighted = highlightedPlayers?.has(idx);
+        const isSelected = selectedPlayers?.has(idx + 1);
         const playerId = typeof player.x === "bigint" ? Number(player.x) : player.x;
 
         return (
@@ -79,12 +109,21 @@ export default function PlayersGrid({
             className={`rounded-lg p-4 border-2 transition-all duration-300 ${
               isHighlighted
                 ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-105"
-                : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                : isSelected
+                  ? "border-teal-400 bg-teal-50/50 dark:bg-teal-900/10 shadow-md"
+                  : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
             }`}
           >
-            <h3 className="font-bold text-lg mb-3 text-gray-800 dark:text-gray-100">
-              Player {playerId}
-            </h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">
+                Player {playerId}
+              </h3>
+              {isSelected && (
+                <span className="text-xs bg-teal-100 dark:bg-teal-800 text-teal-700 dark:text-teal-200 px-2 py-0.5 rounded-full">
+                  Selected
+                </span>
+              )}
+            </div>
 
             <div className="space-y-2 text-sm">
               {visibleFields.has("f") && (
@@ -103,7 +142,7 @@ export default function PlayersGrid({
 
               {visibleFields.has("hSum") && (
                 <div className="flex justify-between border-t pt-2 dark:border-gray-600">
-                  <span className="text-gray-600 dark:text-gray-400">h_sum:</span>
+                  <span className="text-gray-600 dark:text-gray-400">h(yᵢ) = f+g:</span>
                   <span className="font-mono text-green-600 dark:text-green-400">
                     {player.hSum}
                   </span>
@@ -112,16 +151,41 @@ export default function PlayersGrid({
 
               {visibleFields.has("hProd") && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">h_prod:</span>
+                  <span className="text-gray-600 dark:text-gray-400">h&apos;(yᵢ) = f×g:</span>
                   <span className="font-mono text-orange-600 dark:text-orange-400">
                     {player.hProd}
                   </span>
                 </div>
               )}
 
+              {/* Show zi polynomial */}
+              {visibleFields.has("ziPoly") && player.ziPoly && (
+                <div className="border-t pt-2 dark:border-gray-600">
+                  <span className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">
+                    z{playerId}(x) = {formatPoly(player.ziPoly)}
+                  </span>
+                </div>
+              )}
+
+              {/* Show zi(xj) shares */}
+              {visibleFields.has("ziShares") && player.ziShares && (
+                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 rounded text-xs">
+                  {player.ziShares.map((share, j) => (
+                    <div key={j} className="flex justify-between">
+                      <span className="text-indigo-600 dark:text-indigo-400">
+                        z{playerId}(x{j + 1}):
+                      </span>
+                      <span className="font-mono text-indigo-700 dark:text-indigo-300">
+                        {share}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {visibleFields.has("T") && (
                 <div className="flex justify-between border-t pt-2 dark:border-gray-600">
-                  <span className="text-gray-600 dark:text-gray-400">T({playerId}):</span>
+                  <span className="text-gray-600 dark:text-gray-400">Tᵢ:</span>
                   <span className="font-mono text-indigo-600 dark:text-indigo-400">{player.T}</span>
                 </div>
               )}

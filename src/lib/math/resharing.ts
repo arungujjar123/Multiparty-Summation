@@ -1,24 +1,19 @@
 /**
  * @fileoverview Multiplication with resharing (Shamir MPC)
  *
- * Protocol (BGW-style):
+ * Protocol (BGW-style degree reduction):
  * 1. Each player i computes h_i = f_i * g_i (local product)
- * 2. h_i values are shares of degree-2(t-1) polynomial H(x) where H(0) = a*b
- * 3. To reduce to degree t-1, use resharing with degree reduction:
- *    - Reconstruct H(0) from h_i values (needs 2t-1 shares)
- *    - Then reshare this value as new degree t-1 secret
- *
- * Simplified approach used here:
- *    - Each player i reshares h_i using polynomial z_i(x) with z_i(0) = h_i
- *    - Player j receives all z_i(j) and computes T_j = sum_i z_i(j)
- *    - The T_j values are shares of a NEW polynomial T(x) where T(0) = sum_i h_i
- *    - But we need T(0) = H(0) = a*b, not sum_i h_i
- *    - So instead, we first reconstruct H(0) from the h shares, then reshare that
+ * 2. The h values lie on a degree-2(t-1) polynomial H(x) with H(0) = a*b
+ * 3. To reduce degree: each player i creates a random polynomial z_i(x) of degree t-1
+ *    with z_i(0) = h_i, and sends z_i(j) to player j
+ * 4. Player j computes T_j = Σ λ_i · z_i(j), where λ_i are Lagrange coefficients
+ *    for the set of 2t-1 players used, evaluated at 0
+ * 5. The T values are shares of a degree t-1 polynomial with T(0) = a*b
  */
 
 import { mod, localProdShares } from "./shamir";
-import { randomPolyWithConstant, evalPoly } from "./polynomial";
-import { lagrangeAtZero } from "./lagrange";
+import { randomPolyWithConstant, evalPoly, polyFromCoeffs } from "./polynomial";
+import { lagrangeAtZero, computeLambdas } from "./lagrange";
 
 export interface ReshareMessage {
   from: number;
@@ -35,21 +30,24 @@ export interface ResharingResult {
 }
 
 /**
- * Perform multiplication with resharing
- * Uses degree reduction: reconstruct from degree-2(t-1) to reshare as degree t-1
+ * Perform multiplication with resharing using BGW degree reduction
  *
- * @param fShares - shares of first secret (f_i)
- * @param gShares - shares of second secret (g_i)
+ * @param fShares - shares of first secret (f_i values)
+ * @param gShares - shares of second secret (g_i values)
  * @param t - threshold
  * @param p - prime modulus
  * @param seed - optional seed for deterministic testing
+ * @param customZiCoeffs - optional custom zi polynomial coefficients per player
+ *   customZiCoeffs[i] = [placeholder, a1, a2, ...] for player i
+ *   The constant term (index 0) is OVERRIDDEN with h_i
  */
 export function multiplicationReshare(
   fShares: bigint[],
   gShares: bigint[],
   t: number,
   p: bigint,
-  seed?: number
+  seed?: number,
+  customZiCoeffs?: bigint[][]
 ): ResharingResult {
   const n = fShares.length;
   if (n !== gShares.length) throw new Error("fShares and gShares must have same length");
@@ -57,41 +55,36 @@ export function multiplicationReshare(
     throw new Error(`Need at least ${2 * t - 1} shares for degree reduction (have ${n})`);
   }
 
-  // Step 1: Local products
+  // Step 1: Local products h_i = f_i * g_i
   const h = localProdShares(fShares, gShares, p);
 
-  // Step 2: Reconstruct H(0) = a*b from the h shares (degree 2(t-1) polynomial)
-  // Need 2t-1 points to interpolate degree 2(t-1) polynomial
-  const hPoints = h.slice(0, 2 * t - 1).map((y, i) => ({ x: BigInt(i + 1), y }));
+  // Step 2: Reconstruct H(0) = a*b from h shares (for verification)
+  const numSharesNeeded = 2 * t - 1;
+  const hPoints = h.slice(0, numSharesNeeded).map((y, i) => ({ x: BigInt(i + 1), y }));
   const product = lagrangeAtZero(hPoints, p);
 
-  // Step 3: Reshare the product as a new degree t-1 secret
-  // Each player creates a polynomial with constant = product (simulating distributed resharing)
-  // In real MPC, each player would only know a share, but for simulation we do centralized reshare
+  // Step 3: Each player i creates z_i(x) with z_i(0) = h_i (degree t-1)
   const zPolys: bigint[][] = [];
   let currentSeed = seed;
 
-  // Generate a single master polynomial for the reshared secret
-  const masterPoly = randomPolyWithConstant(product, t - 1, p, currentSeed);
-
-  // Each player's z polynomial is the master polynomial (in reality each would have different random polys)
-  // But for correct reconstruction, we need the sum of z_i(j) to equal the new share
-  // Better approach: each player contributes to the new sharing
   for (let i = 0; i < n; i++) {
-    // For simplicity: player 0 creates the full polynomial, others contribute 0
-    // This is not secure MPC but demonstrates the concept
-    if (i === 0) {
-      zPolys.push(masterPoly);
+    if (customZiCoeffs && customZiCoeffs[i]) {
+      // Use custom coefficients: constant term = h_i, higher terms from user
+      const userCoeffs = customZiCoeffs[i];
+      const poly: bigint[] = [h[i]]; // z_i(0) = h_i
+      for (let k = 1; k < t; k++) {
+        poly.push(k < userCoeffs.length ? mod(userCoeffs[k], p) : 0n);
+      }
+      zPolys.push(polyFromCoeffs(poly, p));
     } else {
-      const zeroPoly = new Array(t).fill(0n);
-      zPolys.push(zeroPoly);
+      zPolys.push(randomPolyWithConstant(h[i], t - 1, p, currentSeed));
     }
     if (currentSeed !== undefined) {
       currentSeed = (currentSeed + 1) * 48271;
     }
   }
 
-  // Step 4: Generate resharing messages
+  // Step 4: Generate resharing messages z_i(j) for all i,j
   const messages: ReshareMessage[] = [];
   for (let i = 0; i < n; i++) {
     for (let j = 1; j <= n; j++) {
@@ -100,11 +93,21 @@ export function multiplicationReshare(
     }
   }
 
-  // Step 5: Aggregate T-shares
+  // Step 5: Compute Lagrange coefficients λ_i for the first 2t-1 points
+  // These are the recombination vectors: λ_i such that Σ λ_i · h_i = a*b
+  const recombPoints = hPoints; // Points (1, h_1), (2, h_2), ..., (2t-1, h_{2t-1})
+  const lambdas = computeLambdas(recombPoints, p);
+
+  // Step 6: Compute T_j = Σ_{i=1}^{2t-1} λ_i · z_i(j) for each player j
+  // This ensures T(0) = Σ λ_i · z_i(0) = Σ λ_i · h_i = a*b
   const Tshares: bigint[] = new Array(n).fill(0n);
-  for (const msg of messages) {
-    const j = msg.to - 1;
-    Tshares[j] = mod(Tshares[j] + msg.value, p);
+  for (let j = 0; j < n; j++) {
+    let sum = 0n;
+    for (let i = 0; i < numSharesNeeded; i++) {
+      const zi_at_j = evalPoly(zPolys[i], BigInt(j + 1), p);
+      sum = mod(sum + mod(lambdas[i] * zi_at_j, p), p);
+    }
+    Tshares[j] = sum;
   }
 
   return { h, product, zPolys, messages, Tshares };

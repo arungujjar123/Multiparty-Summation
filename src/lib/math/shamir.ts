@@ -3,9 +3,9 @@
  * All arithmetic is done modulo prime p using BigInt
  */
 
-import { randomPolyWithConstant, evalPoly } from "./polynomial";
+import { randomPolyWithConstant, evalPoly, polyFromCoeffs } from "./polynomial";
 
-export { randomPolyWithConstant, evalPoly };
+export { randomPolyWithConstant, evalPoly, polyFromCoeffs };
 
 /**
  * Convert number or string to BigInt
@@ -183,6 +183,31 @@ export function createShares(
   if (!isPrime(p, seed)) throw new Error(`p=${p} is not prime`);
 
   const polynomial = randomPolyWithConstant(secret, t - 1, p, seed);
+  const shares: Share[] = [];
+
+  for (let i = 1; i <= n; i++) {
+    const x = BigInt(i);
+    const y = evalPoly(polynomial, x, p);
+    shares.push({ x, y });
+  }
+
+  return { polynomial, shares };
+}
+
+/**
+ * Create Shamir shares from a user-provided polynomial coefficients array
+ * coeffs = [a0, a1, a2, ...] where a0 is the secret
+ * The polynomial degree should be t-1 (i.e., coeffs.length === t)
+ */
+export function createSharesFromPoly(
+  coeffs: bigint[],
+  n: number,
+  p: bigint
+): SharesResult {
+  if (n < 1) throw new Error("Number of players n must be at least 1");
+  if (!isPrime(p)) throw new Error(`p=${p} is not prime`);
+
+  const polynomial = polyFromCoeffs(coeffs, p);
   const shares: Share[] = [];
 
   for (let i = 1; i <= n; i++) {

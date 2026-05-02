@@ -49,3 +49,12 @@ export function randomPolyWithConstant(
 
   return poly;
 }
+
+/**
+ * Create polynomial from user-provided coefficients
+ * coeffs = [a0, a1, a2, ...] representing a0 + a1*x + a2*x^2 + ...
+ * All values reduced mod p
+ */
+export function polyFromCoeffs(coeffs: bigint[], p: bigint): bigint[] {
+  return coeffs.map((c) => mod(c, p));
+}
