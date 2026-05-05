@@ -182,6 +182,7 @@ export default function ThemesPage() {
   useEffect(() => {
     // Load saved theme
     const savedTheme = localStorage.getItem("app_theme") || "default";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedTheme(savedTheme);
     applyTheme(savedTheme);
   }, [applyTheme]);

@@ -4,7 +4,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { AchievementTracker } from "@/lib/achievements";
 
 interface Achievement {
   id: string;
@@ -343,6 +342,7 @@ export default function AchievementsPage() {
   }, [loadUserProgress, checkAchievementRequirement]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadAchievements();
   }, [loadAchievements]);
 

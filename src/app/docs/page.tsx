@@ -3,7 +3,6 @@
  */
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
 import { AchievementTracker } from "@/lib/achievements";
 import { marked } from "marked";
 
@@ -339,7 +338,7 @@ function IntroductionSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's Secret Sharing is a cryptographic scheme introduced by <strong>Adi Shamir</strong> in 1979.
+        Shamir&apos;s Secret Sharing is a cryptographic scheme introduced by <strong>Adi Shamir</strong> in 1979.
         It allows a secret to be divided into multiple shares, distributed among participants, such that
         only a threshold number of shares is needed to reconstruct the original secret.
       </p>
@@ -391,14 +390,14 @@ function ShamirSection() {
   return (
     <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
-        🔐 Shamir's Secret Sharing Scheme
+        🔐 Shamir&apos;s Secret Sharing Scheme
       </h2>
 
       <h3 className="text-2xl font-bold mt-6 mb-4 text-gray-800 dark:text-gray-100">
         Mathematical Foundation
       </h3>
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's scheme is based on polynomial interpolation over finite fields. A polynomial of degree <code>t-1</code>
+        Shamir&apos;s scheme is based on polynomial interpolation over finite fields. A polynomial of degree <code>t-1</code>
         is uniquely determined by <code>t</code> points.
       </p>
 
@@ -442,7 +441,7 @@ function SummationSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir's scheme has a beautiful property: <strong>linearity</strong>. This allows parties to compute
+        Shamir&apos;s scheme has a beautiful property: <strong>linearity</strong>. This allows parties to compute
         sums of secrets without any interaction, simply by adding their local shares.
       </p>
 
@@ -452,7 +451,7 @@ function SummationSection() {
         </h3>
         <ol className="space-y-3 text-gray-700 dark:text-gray-300">
           <li>
-            <strong>Step 1:</strong> Share secrets a and b using Shamir's scheme
+            <strong>Step 1:</strong> Share secrets a and b using Shamir&apos;s scheme
             <div className="ml-4 mt-1 text-sm">Party i receives: f<sub>i</sub> = f(i) and g<sub>i</sub> = g(i)</div>
           </li>
           <li>
