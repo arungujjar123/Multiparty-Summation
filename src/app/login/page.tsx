@@ -78,12 +78,12 @@ export default function LoginPage() {
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
           {/* Demo Credentials */}
           <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <p className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">
+            {/* <p className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">
               Demo Credentials:
-            </p>
-            <p className="text-xs text-blue-700 dark:text-blue-400">
+            </p> */}
+            {/* <p className="text-xs text-blue-700 dark:text-blue-400">
               <strong>Admin:</strong> admin@shamir.edu / admin123
-            </p>
+            </p> */}
             <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
               <strong>Student:</strong> Sign up with any email
             </p>
