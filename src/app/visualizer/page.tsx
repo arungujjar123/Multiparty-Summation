@@ -195,68 +195,68 @@ export default function HomePage() {
 
       const manualCoefficientValues: bigint[][] | undefined = useManualCoefficients
         ? parsedSecrets.map((_, secretIndex) => {
-          const degree = Math.max(t - 1, 0);
-          const row = manualCoefficients[secretIndex] ?? [];
-          if (row.length !== degree) {
-            const symbol =
-              secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
-            throw new Error(`Secret ${symbol} needs exactly ${degree} coefficient(s)`);
-          }
-
-          return row.map((coefficientValue, coeffIndex) => {
-            let parsed: bigint;
-            try {
-              parsed = toBig(coefficientValue || "0");
-            } catch {
+            const degree = Math.max(t - 1, 0);
+            const row = manualCoefficients[secretIndex] ?? [];
+            if (row.length !== degree) {
               const symbol =
                 secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
-              throw new Error(
-                `Coefficient a${coeffIndex + 1} for secret ${symbol} must be a valid integer`
-              );
+              throw new Error(`Secret ${symbol} needs exactly ${degree} coefficient(s)`);
             }
 
-            if (parsed < 0n || parsed >= P) {
-              const symbol =
-                secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
-              throw new Error(
-                `Coefficient a${coeffIndex + 1} for secret ${symbol} must be in range [0, ${P - 1n}]`
-              );
-            }
+            return row.map((coefficientValue, coeffIndex) => {
+              let parsed: bigint;
+              try {
+                parsed = toBig(coefficientValue || "0");
+              } catch {
+                const symbol =
+                  secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
+                throw new Error(
+                  `Coefficient a${coeffIndex + 1} for secret ${symbol} must be a valid integer`
+                );
+              }
 
-            return parsed;
-          });
-        })
+              if (parsed < 0n || parsed >= P) {
+                const symbol =
+                  secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
+                throw new Error(
+                  `Coefficient a${coeffIndex + 1} for secret ${symbol} must be in range [0, ${P - 1n}]`
+                );
+              }
+
+              return parsed;
+            });
+          })
         : undefined;
 
       const manualReshareCoefficientValues: bigint[][] | undefined = useManualReshareCoefficients
         ? Array.from({ length: n }, (_, playerIndex) => {
-          const degree = Math.max(t - 1, 0);
-          const row = manualReshareCoefficients[playerIndex] ?? [];
-          if (row.length !== degree) {
-            throw new Error(
-              `Player P${playerIndex + 1} needs exactly ${degree} resharing coefficient(s)`
-            );
-          }
-
-          return row.map((coefficientValue, coeffIndex) => {
-            let parsed: bigint;
-            try {
-              parsed = toBig(coefficientValue || "0");
-            } catch {
+            const degree = Math.max(t - 1, 0);
+            const row = manualReshareCoefficients[playerIndex] ?? [];
+            if (row.length !== degree) {
               throw new Error(
-                `Resharing coefficient a${coeffIndex + 1} for player P${playerIndex + 1} must be a valid integer`
+                `Player P${playerIndex + 1} needs exactly ${degree} resharing coefficient(s)`
               );
             }
 
-            if (parsed < 0n || parsed >= P) {
-              throw new Error(
-                `Resharing coefficient a${coeffIndex + 1} for player P${playerIndex + 1} must be in range [0, ${P - 1n}]`
-              );
-            }
+            return row.map((coefficientValue, coeffIndex) => {
+              let parsed: bigint;
+              try {
+                parsed = toBig(coefficientValue || "0");
+              } catch {
+                throw new Error(
+                  `Resharing coefficient a${coeffIndex + 1} for player P${playerIndex + 1} must be a valid integer`
+                );
+              }
 
-            return parsed;
-          });
-        })
+              if (parsed < 0n || parsed >= P) {
+                throw new Error(
+                  `Resharing coefficient a${coeffIndex + 1} for player P${playerIndex + 1} must be in range [0, ${P - 1n}]`
+                );
+              }
+
+              return parsed;
+            });
+          })
         : undefined;
 
       const shareGroups = parsedSecrets.map((secretValue, index) =>
@@ -416,7 +416,6 @@ export default function HomePage() {
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
             🔐 Interactive visualization of Shamir secret sharing with summation and multiplication
-            
           </p>
           <div className="mt-4 flex justify-center gap-4 text-sm text-gray-500 dark:text-gray-500">
             <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700">
@@ -505,22 +504,22 @@ export default function HomePage() {
                   ? ["generate-polynomials", "compute-shares", "compute-local-sum", "reconstruct"]
                   : operationMode === "multiply"
                     ? [
-                      "generate-polynomials",
-                      "compute-shares",
-                      "compute-local-prod",
-                      "reshare-send",
-                      "reshare-aggregate",
-                      "reconstruct",
-                    ]
+                        "generate-polynomials",
+                        "compute-shares",
+                        "compute-local-prod",
+                        "reshare-send",
+                        "reshare-aggregate",
+                        "reconstruct",
+                      ]
                     : [
-                      "generate-polynomials",
-                      "compute-shares",
-                      "compute-local-sum",
-                      "compute-local-prod",
-                      "reshare-send",
-                      "reshare-aggregate",
-                      "reconstruct",
-                    ]
+                        "generate-polynomials",
+                        "compute-shares",
+                        "compute-local-sum",
+                        "compute-local-prod",
+                        "reshare-send",
+                        "reshare-aggregate",
+                        "reconstruct",
+                      ]
             }
             onRunStep={handleStepChange}
             intervalMs={1500}
@@ -560,47 +559,49 @@ export default function HomePage() {
                 {(operationMode === "shamir" ||
                   operationMode === "sum" ||
                   operationMode === "both") && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.2 }}
-                      className={`p-6 bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border-2 border-green-200 dark:border-green-800 shadow-md transition-all duration-300 ${isComplete ? "shadow-2xl shadow-green-500/50 scale-105" : ""
-                        }`}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className={`p-6 bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border-2 border-green-200 dark:border-green-800 shadow-md transition-all duration-300 ${
+                      isComplete ? "shadow-2xl shadow-green-500/50 scale-105" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">{operationMode === "shamir" ? "🔐" : "➕"}</span>
+                      <p className="text-sm font-semibold text-green-900 dark:text-green-100">
+                        {operationMode === "shamir"
+                          ? "Shamir Secret Reconstruction"
+                          : "Summation (all secrets)"}
+                      </p>
+                    </div>
+                    <p className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
+                      {reconSum ?? "-"}
+                    </p>
+                    <p className="text-xs text-green-700 dark:text-green-300 mb-3">
+                      Expected:{" "}
+                      {operationMode === "shamir" ? (secrets[0] ?? "-") : getExpectedSumText()}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setModalType("sum");
+                        setShowLagrangeModal(true);
+                      }}
+                      className="w-full text-sm bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-4 rounded-lg transition-all transform hover:scale-105 font-medium shadow-md"
                     >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-2xl">{operationMode === "shamir" ? "🔐" : "➕"}</span>
-                        <p className="text-sm font-semibold text-green-900 dark:text-green-100">
-                          {operationMode === "shamir"
-                            ? "Shamir Secret Reconstruction"
-                            : "Summation (all secrets)"}
-                        </p>
-                      </div>
-                      <p className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
-                        {reconSum ?? "-"}
-                      </p>
-                      <p className="text-xs text-green-700 dark:text-green-300 mb-3">
-                        Expected:{" "}
-                        {operationMode === "shamir" ? (secrets[0] ?? "-") : getExpectedSumText()}
-                      </p>
-                      <button
-                        onClick={() => {
-                          setModalType("sum");
-                          setShowLagrangeModal(true);
-                        }}
-                        className="w-full text-sm bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-4 rounded-lg transition-all transform hover:scale-105 font-medium shadow-md"
-                      >
-                        📊 View Lagrange Details
-                      </button>
-                    </motion.div>
-                  )}
+                      📊 View Lagrange Details
+                    </button>
+                  </motion.div>
+                )}
 
                 {(operationMode === "multiply" || operationMode === "both") && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.3 }}
-                    className={`p-6 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-800 shadow-md transition-all duration-300 ${isComplete ? "shadow-2xl shadow-purple-500/50 scale-105" : ""
-                      }`}
+                    className={`p-6 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-800 shadow-md transition-all duration-300 ${
+                      isComplete ? "shadow-2xl shadow-purple-500/50 scale-105" : ""
+                    }`}
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-2xl">✖️</span>
@@ -674,13 +675,13 @@ export default function HomePage() {
           shares={
             modalType === "sum"
               ? playersData.map((p) => ({
-                x: Number(p.x),
-                y: p.hSum,
-              }))
+                  x: Number(p.x),
+                  y: p.hSum,
+                }))
               : playersData.map((p) => ({
-                x: Number(p.x),
-                y: p.T,
-              }))
+                  x: Number(p.x),
+                  y: p.T,
+                }))
           }
           threshold={t}
           p={p}

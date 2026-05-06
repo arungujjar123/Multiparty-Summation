@@ -46,8 +46,7 @@ export default function Navigation() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-transparent bg-clip-text bg-linear-to-r from-cyan-300 to-sky-300">
-                  SSS
-                  & MPC
+                  SSS & MPC
                 </h1>
                 <p className="text-xs text-slate-400">Visualizer</p>
               </div>
@@ -62,10 +61,11 @@ export default function Navigation() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${isActive
-                    ? "bg-linear-to-r from-cyan-400 to-sky-500 text-slate-950 shadow-md shadow-cyan-500/40 scale-105"
-                    : "text-slate-200/80 hover:text-white hover:bg-slate-900/60"
-                    }`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                    isActive
+                      ? "bg-linear-to-r from-cyan-400 to-sky-500 text-slate-950 shadow-md shadow-cyan-500/40 scale-105"
+                      : "text-slate-200/80 hover:text-white hover:bg-slate-900/60"
+                  }`}
                 >
                   <span>{link.icon}</span>
                   {link.label}
@@ -85,10 +85,11 @@ export default function Navigation() {
             ) : (
               <div className="flex items-center gap-2">
                 <span
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold ${isAdmin
-                    ? "bg-linear-to-r from-cyan-400 to-emerald-300 text-slate-950"
-                    : "bg-linear-to-r from-sky-400 to-cyan-300 text-slate-950"
-                    }`}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold ${
+                    isAdmin
+                      ? "bg-linear-to-r from-cyan-400 to-emerald-300 text-slate-950"
+                      : "bg-linear-to-r from-sky-400 to-cyan-300 text-slate-950"
+                  }`}
                 >
                   {isAdmin ? "👑" : "🎓"} {user.name}
                 </span>
@@ -141,10 +142,11 @@ export default function Navigation() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${isActive
-                    ? "bg-linear-to-r from-cyan-400 to-sky-500 text-slate-950"
-                    : "text-slate-200/80 hover:text-white hover:bg-slate-900/60"
-                    }`}
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    isActive
+                      ? "bg-linear-to-r from-cyan-400 to-sky-500 text-slate-950"
+                      : "text-slate-200/80 hover:text-white hover:bg-slate-900/60"
+                  }`}
                 >
                   <span className="mr-2">{link.icon}</span>
                   {link.label}
@@ -163,10 +165,11 @@ export default function Navigation() {
             ) : (
               <div className="px-3 py-2 flex items-center gap-2">
                 <span
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold ${isAdmin
-                    ? "bg-linear-to-r from-cyan-400 to-emerald-300 text-slate-950"
-                    : "bg-linear-to-r from-sky-400 to-cyan-300 text-slate-950"
-                    }`}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold ${
+                    isAdmin
+                      ? "bg-linear-to-r from-cyan-400 to-emerald-300 text-slate-950"
+                      : "bg-linear-to-r from-sky-400 to-cyan-300 text-slate-950"
+                  }`}
                 >
                   {isAdmin ? "👑" : "🎓"} {user.name}
                 </span>

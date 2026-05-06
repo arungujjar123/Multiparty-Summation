@@ -82,37 +82,41 @@ export default function ControlPanel({
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setOperationMode("shamir")}
-              className={`min-h-11 py-2 px-2 rounded-lg text-sm font-medium leading-tight whitespace-normal break-words transition-all ${operationMode === "shamir"
+              className={`min-h-11 py-2 px-2 rounded-lg text-sm font-medium leading-tight whitespace-normal break-words transition-all ${
+                operationMode === "shamir"
                   ? "bg-linear-to-r from-cyan-500 to-sky-500 text-white shadow-md scale-105"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                }`}
+              }`}
             >
               Shamir secret sharing
             </button>
             <button
               onClick={() => setOperationMode("sum")}
-              className={`min-h-11 py-2 px-2 rounded-lg text-sm font-medium leading-tight whitespace-normal break-words transition-all ${operationMode === "sum"
+              className={`min-h-11 py-2 px-2 rounded-lg text-sm font-medium leading-tight whitespace-normal break-words transition-all ${
+                operationMode === "sum"
                   ? "bg-linear-to-r from-green-500 to-emerald-500 text-white shadow-md scale-105"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                }`}
+              }`}
             >
               Summation
             </button>
             <button
               onClick={() => setOperationMode("multiply")}
-              className={`min-h-11 py-2 px-2 rounded-lg text-sm font-medium leading-tight whitespace-normal break-words transition-all ${operationMode === "multiply"
+              className={`min-h-11 py-2 px-2 rounded-lg text-sm font-medium leading-tight whitespace-normal break-words transition-all ${
+                operationMode === "multiply"
                   ? "bg-linear-to-r from-purple-500 to-pink-500 text-white shadow-md scale-105"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                }`}
+              }`}
             >
               Multiplication
             </button>
             <button
               onClick={() => setOperationMode("both")}
-              className={`min-h-11 py-2 px-2 rounded-lg text-sm font-medium leading-tight whitespace-normal break-words transition-all ${operationMode === "both"
+              className={`min-h-11 py-2 px-2 rounded-lg text-sm font-medium leading-tight whitespace-normal break-words transition-all ${
+                operationMode === "both"
                   ? "bg-linear-to-r from-blue-500 to-indigo-500 text-white shadow-md scale-105"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                }`}
+              }`}
             >
               Both
             </button>
