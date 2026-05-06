@@ -112,53 +112,71 @@ export default function DocsPage() {
     };
 
     const renderAttachments = (urls: string[], pdfs: DocPdf[] = []) => {
-        const allUrls = [...new Set([...urls, ...pdfs.map(p => p.url)])];
-        if (allUrls.length === 0) return null;
+      const allUrls = [...new Set([...urls, ...pdfs.map((p) => p.url)])];
+      if (allUrls.length === 0) return null;
 
-        return (
-            <div className="mt-8 space-y-4 animate-fade-in">
-              <div className="flex items-center gap-3 py-4 border-b border-purple-100 dark:border-purple-900/40">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 m-0">
-                  📂 Document Gallery
-                </h3>
-                <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-full">
-                  {allUrls.length} Files
-                </span>
-              </div>
+      return (
+        <div className="mt-8 space-y-4 animate-fade-in">
+          <div className="flex items-center gap-3 py-4 border-b border-purple-100 dark:border-purple-900/40">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 m-0">
+              📂 Document Gallery
+            </h3>
+            <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-full">
+              {allUrls.length} Files
+            </span>
+          </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {allUrls.map((url, idx) => {
-                  const pdfInfo = pdfs.find(p => p.url === url);
-                  const displayName = pdfInfo?.name || url.split('/').pop()?.split('?')[0] || 'PDF Document';
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {allUrls.map((url, idx) => {
+              const pdfInfo = pdfs.find((p) => p.url === url);
+              const displayName =
+                pdfInfo?.name || url.split("/").pop()?.split("?")[0] || "PDF Document";
 
-                  return (
-                    <div key={idx} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-purple-100 dark:border-purple-900/40 rounded-xl shadow-md hover:shadow-lg transition-all hover:border-purple-300 dark:hover:border-purple-700">
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <span className="text-2xl shrink-0">📄</span>
-                        <div className="overflow-hidden">
-                          <h4 className="font-bold m-0 text-sm text-gray-800 dark:text-gray-200 truncate pr-2">
-                            {displayName}
-                          </h4>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <a href={url} target="_blank" rel="noopener noreferrer" className="p-2 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-lg transition-all group" title="View PDF">
-                          👁️
-                        </a>
-                        <a href={url} download target="_blank" rel="noopener noreferrer" className="p-2 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-600 dark:text-green-400 rounded-lg transition-all group" title="Download PDF">
-                          📥
-                        </a>
-                      </div>
+              return (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-purple-100 dark:border-purple-900/40 rounded-xl shadow-md hover:shadow-lg transition-all hover:border-purple-300 dark:hover:border-purple-700"
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <span className="text-2xl shrink-0">📄</span>
+                    <div className="overflow-hidden">
+                      <h4 className="font-bold m-0 text-sm text-gray-800 dark:text-gray-200 truncate pr-2">
+                        {displayName}
+                      </h4>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-lg transition-all group"
+                      title="View PDF"
+                    >
+                      👁️
+                    </a>
+                    <a
+                      href={url}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-600 dark:text-green-400 rounded-lg transition-all group"
+                      title="Download PDF"
+                    >
+                      📥
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
     };
 
     const coreComponent = getCoreComponent();
-    const hasDbContent = typeof activeContent.content === "string" && activeContent.content.trim().length > 0;
+    const hasDbContent =
+      typeof activeContent.content === "string" && activeContent.content.trim().length > 0;
     const dbAttachments = activeContent.attachments || [];
     const dbPdfs = activeContent.pdfs || [];
 
@@ -183,8 +201,14 @@ export default function DocsPage() {
     <div className="min-h-screen hero-surface hero-grid py-12 px-6 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-400/10 dark:bg-purple-600/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/10 dark:bg-blue-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s', animationDuration: '4s' }}></div>
-        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-400/10 dark:bg-pink-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s', animationDuration: '5s' }}></div>
+        <div
+          className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-400/10 dark:bg-blue-600/5 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s", animationDuration: "4s" }}
+        ></div>
+        <div
+          className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-400/10 dark:bg-pink-600/5 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s", animationDuration: "5s" }}
+        ></div>
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
@@ -213,13 +237,19 @@ export default function DocsPage() {
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
-                    className={`group w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 transform flex items-center gap-3 ${activeSection === section.id
+                    className={`group w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 transform flex items-center gap-3 ${
+                      activeSection === section.id
                         ? "bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50 scale-105 -translate-x-1"
                         : "text-gray-700 dark:text-gray-300 hover:bg-linear-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 hover:scale-102 hover:shadow-md hover:translate-x-1"
-                      }`}
+                    }`}
                   >
-                    <span className={`text-lg transition-transform duration-300 ${activeSection === section.id ? "animate-bounce" : "group-hover:scale-125 group-hover:rotate-12"
-                      }`}>
+                    <span
+                      className={`text-lg transition-transform duration-300 ${
+                        activeSection === section.id
+                          ? "animate-bounce"
+                          : "group-hover:scale-125 group-hover:rotate-12"
+                      }`}
+                    >
                       {section.icon}
                     </span>
                     <span className={activeSection === section.id ? "font-bold" : ""}>
@@ -240,8 +270,8 @@ export default function DocsPage() {
               )}
               {isLoadingSections ? (
                 <div className="flex flex-col items-center justify-center py-20">
-                   <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-                   <p className="text-gray-600 dark:text-gray-400">Loading documentation...</p>
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+                  <p className="text-gray-600 dark:text-gray-400">Loading documentation...</p>
                 </div>
               ) : (
                 renderSectionContent()
@@ -338,9 +368,10 @@ function IntroductionSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir&apos;s Secret Sharing is a cryptographic scheme introduced by <strong>Adi Shamir</strong> in 1979.
-        It allows a secret to be divided into multiple shares, distributed among participants, such that
-        only a threshold number of shares is needed to reconstruct the original secret.
+        Shamir&apos;s Secret Sharing is a cryptographic scheme introduced by{" "}
+        <strong>Adi Shamir</strong> in 1979. It allows a secret to be divided into multiple shares,
+        distributed among participants, such that only a threshold number of shares is needed to
+        reconstruct the original secret.
       </p>
 
       <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-6 rounded-r-lg my-6 transition-all duration-500 hover:shadow-lg hover:border-l-8 hover:scale-[1.02] hover:bg-blue-100 dark:hover:bg-blue-900/30">
@@ -397,7 +428,8 @@ function ShamirSection() {
         Mathematical Foundation
       </h3>
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir&apos;s scheme is based on polynomial interpolation over finite fields. A polynomial of degree <code>t-1</code>
+        Shamir&apos;s scheme is based on polynomial interpolation over finite fields. A polynomial
+        of degree <code>t-1</code>
         is uniquely determined by <code>t</code> points.
       </p>
 
@@ -410,7 +442,8 @@ function ShamirSection() {
             <strong>1.</strong> Choose a prime p and secret s ∈ ℤ<sub>p</sub>
           </li>
           <li>
-            <strong>2.</strong> Generate random polynomial: f(x) = s + a<sub>1</sub>x + a<sub>2</sub>x² + ... + a<sub>t-1</sub>x<sup>t-1</sup> (mod p)
+            <strong>2.</strong> Generate random polynomial: f(x) = s + a<sub>1</sub>x + a
+            <sub>2</sub>x² + ... + a<sub>t-1</sub>x<sup>t-1</sup> (mod p)
           </li>
           <li>
             <strong>3.</strong> Create shares: (i, f(i)) for i = 1, 2, ..., n
@@ -441,8 +474,9 @@ function SummationSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Shamir&apos;s scheme has a beautiful property: <strong>linearity</strong>. This allows parties to compute
-        sums of secrets without any interaction, simply by adding their local shares.
+        Shamir&apos;s scheme has a beautiful property: <strong>linearity</strong>. This allows
+        parties to compute sums of secrets without any interaction, simply by adding their local
+        shares.
       </p>
 
       <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-6 rounded-r-lg my-6 transition-all duration-500 hover:shadow-xl hover:border-l-8 hover:scale-[1.02] hover:bg-green-100 dark:hover:bg-green-900/40">
@@ -452,11 +486,15 @@ function SummationSection() {
         <ol className="space-y-3 text-gray-700 dark:text-gray-300">
           <li>
             <strong>Step 1:</strong> Share secrets a and b using Shamir&apos;s scheme
-            <div className="ml-4 mt-1 text-sm">Party i receives: f<sub>i</sub> = f(i) and g<sub>i</sub> = g(i)</div>
+            <div className="ml-4 mt-1 text-sm">
+              Party i receives: f<sub>i</sub> = f(i) and g<sub>i</sub> = g(i)
+            </div>
           </li>
           <li>
             <strong>Step 2:</strong> Each party locally computes sum share
-            <div className="ml-4 mt-1 text-sm font-mono">h<sub>i</sub> = f<sub>i</sub> + g<sub>i</sub> (mod p)</div>
+            <div className="ml-4 mt-1 text-sm font-mono">
+              h<sub>i</sub> = f<sub>i</sub> + g<sub>i</sub> (mod p)
+            </div>
           </li>
           <li>
             <strong>Step 3:</strong> Reconstruct using t shares via Lagrange interpolation
@@ -476,8 +514,9 @@ function MultiplicationSection() {
       </h2>
 
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-        Unlike addition, multiplication is more complex. The naive approach increases polynomial degree
-        from <code>t-1</code> to <code>2(t-1)</code>, requiring <strong>degree reduction</strong> through resharing.
+        Unlike addition, multiplication is more complex. The naive approach increases polynomial
+        degree from <code>t-1</code> to <code>2(t-1)</code>, requiring{" "}
+        <strong>degree reduction</strong> through resharing.
       </p>
     </div>
   );
@@ -494,13 +533,25 @@ function QuantumProtocolsSection() {
 }
 
 function SecuritySection() {
-    return <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in"><h2>🛡️ Security Properties</h2></div>;
+  return (
+    <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
+      <h2>🛡️ Security Properties</h2>
+    </div>
+  );
 }
 
 function ImplementationSection() {
-    return <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in"><h2>💻 Implementation Details</h2></div>;
+  return (
+    <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
+      <h2>💻 Implementation Details</h2>
+    </div>
+  );
 }
 
 function ReferencesSection() {
-    return <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in"><h2>📚 References</h2></div>;
+  return (
+    <div className="prose prose-lg dark:prose-invert max-w-none animate-fade-in">
+      <h2>📚 References</h2>
+    </div>
+  );
 }

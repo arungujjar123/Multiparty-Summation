@@ -46,8 +46,9 @@ export default function HomePage() {
   const resizeCoefficientMatrix = (matrix: string[][], secretsLen: number, degree: number) => {
     return Array.from({ length: secretsLen }, (_, secretIndex) => {
       const existingRow = matrix[secretIndex] ?? [];
-      const normalizedRow = Array.from({ length: degree }, (_, coeffIndex) =>
-        existingRow[coeffIndex] ?? "0"
+      const normalizedRow = Array.from(
+        { length: degree },
+        (_, coeffIndex) => existingRow[coeffIndex] ?? "0"
       );
       return normalizedRow;
     });
@@ -60,8 +61,9 @@ export default function HomePage() {
   ) => {
     return Array.from({ length: playersLen }, (_, playerIndex) => {
       const existingRow = matrix[playerIndex] ?? [];
-      const normalizedRow = Array.from({ length: degree }, (_, coeffIndex) =>
-        existingRow[coeffIndex] ?? "0"
+      const normalizedRow = Array.from(
+        { length: degree },
+        (_, coeffIndex) => existingRow[coeffIndex] ?? "0"
       );
       return normalizedRow;
     });
@@ -196,7 +198,8 @@ export default function HomePage() {
             const degree = Math.max(t - 1, 0);
             const row = manualCoefficients[secretIndex] ?? [];
             if (row.length !== degree) {
-              const symbol = secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
+              const symbol =
+                secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
               throw new Error(`Secret ${symbol} needs exactly ${degree} coefficient(s)`);
             }
 
@@ -205,13 +208,19 @@ export default function HomePage() {
               try {
                 parsed = toBig(coefficientValue || "0");
               } catch {
-                const symbol = secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
-                throw new Error(`Coefficient a${coeffIndex + 1} for secret ${symbol} must be a valid integer`);
+                const symbol =
+                  secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
+                throw new Error(
+                  `Coefficient a${coeffIndex + 1} for secret ${symbol} must be a valid integer`
+                );
               }
 
               if (parsed < 0n || parsed >= P) {
-                const symbol = secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
-                throw new Error(`Coefficient a${coeffIndex + 1} for secret ${symbol} must be in range [0, ${P - 1n}]`);
+                const symbol =
+                  secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`;
+                throw new Error(
+                  `Coefficient a${coeffIndex + 1} for secret ${symbol} must be in range [0, ${P - 1n}]`
+                );
               }
 
               return parsed;
@@ -381,9 +390,7 @@ export default function HomePage() {
           : undefined,
         useManualReshareCoefficients,
         manualReshareCoefficients: useManualReshareCoefficients
-          ? manualReshareCoefficients
-              .slice(0, n)
-              .map((row) => row.slice(0, Math.max(t - 1, 0)))
+          ? manualReshareCoefficients.slice(0, n).map((row) => row.slice(0, Math.max(t - 1, 0)))
           : undefined,
       },
       players: playersData,
@@ -495,25 +502,25 @@ export default function HomePage() {
               operationMode === "shamir"
                 ? ["generate-polynomials", "compute-shares", "reconstruct"]
                 : operationMode === "sum"
-                ? ["generate-polynomials", "compute-shares", "compute-local-sum", "reconstruct"]
-                : operationMode === "multiply"
-                  ? [
-                      "generate-polynomials",
-                      "compute-shares",
-                      "compute-local-prod",
-                      "reshare-send",
-                      "reshare-aggregate",
-                      "reconstruct",
-                    ]
-                  : [
-                      "generate-polynomials",
-                      "compute-shares",
-                      "compute-local-sum",
-                      "compute-local-prod",
-                      "reshare-send",
-                      "reshare-aggregate",
-                      "reconstruct",
-                    ]
+                  ? ["generate-polynomials", "compute-shares", "compute-local-sum", "reconstruct"]
+                  : operationMode === "multiply"
+                    ? [
+                        "generate-polynomials",
+                        "compute-shares",
+                        "compute-local-prod",
+                        "reshare-send",
+                        "reshare-aggregate",
+                        "reconstruct",
+                      ]
+                    : [
+                        "generate-polynomials",
+                        "compute-shares",
+                        "compute-local-sum",
+                        "compute-local-prod",
+                        "reshare-send",
+                        "reshare-aggregate",
+                        "reconstruct",
+                      ]
             }
             onRunStep={handleStepChange}
             intervalMs={1500}
@@ -547,8 +554,12 @@ export default function HomePage() {
                 )}
               </div>
 
-              <div className={`grid grid-cols-1 ${operationMode === "both" ? "md:grid-cols-2" : ""} gap-4`}>
-                {(operationMode === "shamir" || operationMode === "sum" || operationMode === "both") && (
+              <div
+                className={`grid grid-cols-1 ${operationMode === "both" ? "md:grid-cols-2" : ""} gap-4`}
+              >
+                {(operationMode === "shamir" ||
+                  operationMode === "sum" ||
+                  operationMode === "both") && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -569,7 +580,8 @@ export default function HomePage() {
                       {reconSum ?? "-"}
                     </p>
                     <p className="text-xs text-green-700 dark:text-green-300 mb-3">
-                      Expected: {operationMode === "shamir" ? secrets[0] ?? "-" : getExpectedSumText()}
+                      Expected:{" "}
+                      {operationMode === "shamir" ? (secrets[0] ?? "-") : getExpectedSumText()}
                     </p>
                     <button
                       onClick={() => {

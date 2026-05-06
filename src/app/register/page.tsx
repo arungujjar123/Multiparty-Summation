@@ -37,7 +37,6 @@ export default function RegisterPage() {
       }
     } catch {
       setError("An unexpected error occurred. Please try again.");
-
     } finally {
       setLoading(false);
     }

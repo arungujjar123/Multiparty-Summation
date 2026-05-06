@@ -166,7 +166,7 @@ export default function ControlPanel({
             max={n}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
           />
-          {(operationMode === "multiply" || operationMode === "both") ? (
+          {operationMode === "multiply" || operationMode === "both" ? (
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Need {2 * t - 1}+ players for multiplication
             </p>
@@ -238,7 +238,8 @@ export default function ControlPanel({
           </label>
 
           <p className="text-xs text-amber-800 dark:text-amber-300">
-            If enabled, enter {Math.max(t - 1, 0)} coefficient(s) for each secret polynomial: a1..a{Math.max(t - 1, 0)}
+            If enabled, enter {Math.max(t - 1, 0)} coefficient(s) for each secret polynomial: a1..a
+            {Math.max(t - 1, 0)}
           </p>
 
           {useManualCoefficients && (
@@ -259,7 +260,9 @@ export default function ControlPanel({
                           key={`coeff-${secretIndex}-${coeffIndex}`}
                           type="text"
                           value={manualCoefficients[secretIndex]?.[coeffIndex] ?? ""}
-                          onChange={(e) => setCoefficientAt(secretIndex, coeffIndex, e.target.value)}
+                          onChange={(e) =>
+                            setCoefficientAt(secretIndex, coeffIndex, e.target.value)
+                          }
                           className="w-full px-3 py-2 border border-amber-300 dark:border-amber-700 rounded-md focus:ring-2 focus:ring-amber-500 dark:bg-gray-700 dark:text-gray-100"
                           placeholder={`a${coeffIndex + 1}`}
                         />
@@ -285,7 +288,8 @@ export default function ControlPanel({
             </label>
 
             <p className="text-xs text-purple-800 dark:text-purple-300">
-              For multiplication degree-reduction, set z_i(x) coefficients a1..a{Math.max(t - 1, 0)} for each player. Constant term is derived by protocol.
+              For multiplication degree-reduction, set z_i(x) coefficients a1..a{Math.max(t - 1, 0)}{" "}
+              for each player. Constant term is derived by protocol.
             </p>
 
             {useManualReshareCoefficients && (
@@ -350,7 +354,11 @@ export default function ControlPanel({
               onChange={(e) => setSeed(e.target.value ? Number(e.target.value) : undefined)}
               disabled={useManualCoefficients}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
-              placeholder={useManualCoefficients ? "Disabled in manual coefficient mode" : "Leave empty for secure random"}
+              placeholder={
+                useManualCoefficients
+                  ? "Disabled in manual coefficient mode"
+                  : "Leave empty for secure random"
+              }
             />
           </div>
         )}

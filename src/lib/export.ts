@@ -38,16 +38,16 @@ export function exportToCSV(data: RunData): void {
   const coefficientRows =
     data.parameters.useManualCoefficients && data.parameters.manualCoefficients
       ? data.parameters.manualCoefficients.map((coeffRow, secretIndex) => [
-        `Coefficients ${secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`}`,
-        coeffRow.join(" | "),
-      ])
+          `Coefficients ${secretIndex < 26 ? String.fromCharCode(97 + secretIndex) : `s${secretIndex + 1}`}`,
+          coeffRow.join(" | "),
+        ])
       : [];
   const reshareCoefficientRows =
     data.parameters.useManualReshareCoefficients && data.parameters.manualReshareCoefficients
       ? data.parameters.manualReshareCoefficients.map((coeffRow, playerIndex) => [
-        `Reshare Coeff P${playerIndex + 1}`,
-        coeffRow.join(" | "),
-      ])
+          `Reshare Coeff P${playerIndex + 1}`,
+          coeffRow.join(" | "),
+        ])
       : [];
   const shareHeaders = data.parameters.secrets.map((_, index) => {
     const symbol = index < 26 ? String.fromCharCode(97 + index) : `s${index + 1}`;

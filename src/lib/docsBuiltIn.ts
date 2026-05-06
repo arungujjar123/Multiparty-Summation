@@ -1,5 +1,5 @@
 export const BUILT_IN_DOC_CONTENT: Record<string, string> = {
-    introduction: `# Introduction
+  introduction: `# Introduction
 
 Shamir's Secret Sharing is a cryptographic scheme that splits a secret into multiple shares so that only a threshold number of shares can reconstruct it.
 
@@ -17,7 +17,7 @@ Shamir's Secret Sharing is a cryptographic scheme that splits a secret into mult
 - Threshold cryptography and signing workflows.
 - Secure multi-party computation (MPC).
 `,
-    shamir: `# Shamir's Secret Sharing Scheme
+  shamir: `# Shamir's Secret Sharing Scheme
 
 ## Mathematical Foundation
 
@@ -51,7 +51,7 @@ Polynomial: f(x) = 4 + 3x + 2x^2 (mod 11)
 
 Shares: (1,9), (2,7), (3,10), (4,5), (5,6)
 `,
-    summation: `# Secure Summation Protocol
+  summation: `# Secure Summation Protocol
 
 Shamir's scheme is linear, so secure summation can be performed non-interactively at the share level.
 
@@ -80,7 +80,7 @@ For secrets A = 2 and B = 3 in mod 7:
 
 So the reconstructed sum is 5.
 `,
-    multiplication: `# Multiplication Protocol
+  multiplication: `# Multiplication Protocol
 
 Multiplication is more complex than addition because multiplying two degree-(t-1) polynomials yields degree 2(t-1).
 
@@ -99,7 +99,7 @@ In the resharing round with n parties, each party sends to every other party, pr
 
 Correctness and privacy hold under threshold assumptions and honest-majority style conditions used by the protocol variant.
 `,
-    quantum: `# Quantum Protocols
+  quantum: `# Quantum Protocols
 
 Hybrid quantum protocols combine threshold secret sharing with quantum communication techniques.
 
@@ -119,7 +119,7 @@ Hybrid quantum protocols combine threshold secret sharing with quantum communica
 
 Quantum protocols are still research-heavy, but they provide useful insight into future secure computation systems where both classical and quantum resources are available.
 `,
-    security: `# Security Properties
+  security: `# Security Properties
 
 ## Confidentiality
 
@@ -138,7 +138,7 @@ Quantum protocols are still research-heavy, but they provide useful insight into
 - Validate share formats and participant identity.
 - Protect storage and transport channels for shares.
 `,
-    implementation: `# Implementation
+  implementation: `# Implementation
 
 ## Implementation Checklist
 
@@ -162,7 +162,7 @@ Quantum protocols are still research-heavy, but they provide useful insight into
 - Summation correctness.
 - Multiplication with resharing.
 `,
-    references: `# References & Further Reading
+  references: `# References & Further Reading
 
 ## Original Papers
 
@@ -248,7 +248,7 @@ This educational tool was built to make Shamir secret sharing and secure multi-p
 };
 
 const LEGACY_PLACEHOLDER_CONTENT: Record<string, string> = {
-    introduction: `# Introduction
+  introduction: `# Introduction
 
 Shamir's Secret Sharing lets you split a secret into multiple shares so that only a threshold number of shares can reconstruct the secret.
 
@@ -259,7 +259,7 @@ Shamir's Secret Sharing lets you split a secret into multiple shares so that onl
 - Linearity: supports secure addition on shares.
 - Homomorphic behavior: operations on shares map to operations on secrets.
 `,
-    shamir: `# Shamir's Secret Sharing Scheme
+  shamir: `# Shamir's Secret Sharing Scheme
 
 ## Mathematical Foundation
 
@@ -288,7 +288,7 @@ Polynomial: f(x) = 4 + 3x + 2x^2 (mod 11)
 
 Shares: (1,9), (2,7), (3,10), (4,5), (5,6)
 `,
-    summation: `# Secure Summation Protocol
+  summation: `# Secure Summation Protocol
 
 Shamir's linearity allows secure summation without revealing private inputs.
 
@@ -298,7 +298,7 @@ S(j) = sum_i f_i(j)
 
 Then the final sum is reconstructed from threshold-many S(j) values.
 `,
-    multiplication: `# Multiplication Protocol
+  multiplication: `# Multiplication Protocol
 
 Multiplication is harder than addition because multiplying two degree-(t-1) polynomials gives degree 2(t-1).
 
@@ -308,17 +308,17 @@ BGW-style multiplication:
 2. Parties reshare to reduce degree back to t-1.
 3. Parties combine reshared values.
 `,
-    quantum: `# Quantum Protocols
+  quantum: `# Quantum Protocols
 
 Hybrid quantum protocols combine threshold sharing with quantum communication primitives to improve resilience and security assumptions.
 `,
-    security: `# Security Properties
+  security: `# Security Properties
 
 - Information-theoretic secrecy for t-1 shares.
 - No single trusted party required.
 - Robustness depends on threshold selection and protocol model.
 `,
-    implementation: `# Implementation
+  implementation: `# Implementation
 
 Implementation checklist:
 
@@ -328,7 +328,7 @@ Implementation checklist:
 4. Use safe modular arithmetic for interpolation.
 5. Validate shares and inputs.
 `,
-    references: `# References
+  references: `# References
 
 1. Adi Shamir, How to Share a Secret (1979).
 2. Ben-Or, Goldwasser, and Wigderson, Completeness Theorems (1988).
@@ -413,29 +413,32 @@ This educational tool was built to make Shamir secret sharing and secure multi-p
 `;
 
 function normalizeContent(content: string): string {
-    return content.replace(/\r\n/g, "\n").trim();
+  return content.replace(/\r\n/g, "\n").trim();
 }
 
 export function getBuiltInDocContent(sectionId: string): string {
-    return BUILT_IN_DOC_CONTENT[sectionId] || "";
+  return BUILT_IN_DOC_CONTENT[sectionId] || "";
 }
 
 export function resolveEditorDocContent(sectionId: string, savedContent: string): string {
-    const fallbackContent = getBuiltInDocContent(sectionId);
-    const trimmedSaved = normalizeContent(savedContent);
+  const fallbackContent = getBuiltInDocContent(sectionId);
+  const trimmedSaved = normalizeContent(savedContent);
 
-    if (trimmedSaved.length === 0) {
-        return fallbackContent;
-    }
+  if (trimmedSaved.length === 0) {
+    return fallbackContent;
+  }
 
-    const legacy = LEGACY_PLACEHOLDER_CONTENT[sectionId];
-    if (legacy && trimmedSaved === normalizeContent(legacy)) {
-        return fallbackContent;
-    }
+  const legacy = LEGACY_PLACEHOLDER_CONTENT[sectionId];
+  if (legacy && trimmedSaved === normalizeContent(legacy)) {
+    return fallbackContent;
+  }
 
-    if (sectionId === "references" && trimmedSaved === normalizeContent(LEGACY_REFERENCES_FULL_CONTENT)) {
-        return fallbackContent;
-    }
+  if (
+    sectionId === "references" &&
+    trimmedSaved === normalizeContent(LEGACY_REFERENCES_FULL_CONTENT)
+  ) {
+    return fallbackContent;
+  }
 
-    return savedContent;
+  return savedContent;
 }

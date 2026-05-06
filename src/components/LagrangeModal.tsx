@@ -123,7 +123,8 @@ export default function LagrangeModal({
                   Select Players for Reconstruction
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Choose any {requiredShares} player(s). Click a new player to replace the oldest selected one.
+                  Choose any {requiredShares} player(s). Click a new player to replace the oldest
+                  selected one.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {shares.map((share) => {
@@ -168,93 +169,96 @@ export default function LagrangeModal({
 
               {!isSelectionComplete && (
                 <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200">
-                  Select exactly {requiredShares} player(s) to view lambda coefficients and reconstruction details.
+                  Select exactly {requiredShares} player(s) to view lambda coefficients and
+                  reconstruction details.
                 </div>
               )}
 
               {/* Lambda coefficients */}
               {details && (
                 <div>
-                <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  Lagrange Coefficients (λᵢ)
-                </h3>
-                <div className="space-y-3">
-                  {details.points.map((pt, i) => (
-                    <div
-                      key={i}
-                      className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700"
-                    >
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">
-                          λ_{i + 1} for x = {pt.x.toString()}:
-                        </span>
-                        <span className="font-mono text-purple-600 dark:text-purple-400 text-lg">
-                          {details.lambdas[i].toString()}
-                        </span>
-                      </div>
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Lagrange Coefficients (λᵢ)
+                  </h3>
+                  <div className="space-y-3">
+                    {details.points.map((pt, i) => (
+                      <div
+                        key={i}
+                        className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700"
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-semibold text-gray-700 dark:text-gray-300">
+                            λ_{i + 1} for x = {pt.x.toString()}:
+                          </span>
+                          <span className="font-mono text-purple-600 dark:text-purple-400 text-lg">
+                            {details.lambdas[i].toString()}
+                          </span>
+                        </div>
 
-                      {/* Formula for this lambda */}
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        <div
-                          className="katex-formula"
-                          data-formula={`\\lambda_{${i + 1}} = \\prod_{j \\neq ${i + 1}} \\frac{0 - x_j}{x_{${i + 1}} - x_j} \\pmod{${p}}`}
-                        ></div>
-                      </div>
+                        {/* Formula for this lambda */}
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          <div
+                            className="katex-formula"
+                            data-formula={`\\lambda_{${i + 1}} = \\prod_{j \\neq ${i + 1}} \\frac{0 - x_j}{x_{${i + 1}} - x_j} \\pmod{${p}}`}
+                          ></div>
+                        </div>
 
-                      {/* Detailed calculation */}
-                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-500 font-mono">
-                        {details.points
-                          .filter((_, j) => j !== i)
-                          .map((otherPt, j) => (
-                            <div key={j}>
-                              × (0 - {otherPt.x.toString()}) / ({pt.x.toString()} -{" "}
-                              {otherPt.x.toString()})
-                            </div>
-                          ))}
+                        {/* Detailed calculation */}
+                        <div className="mt-2 text-xs text-gray-500 dark:text-gray-500 font-mono">
+                          {details.points
+                            .filter((_, j) => j !== i)
+                            .map((otherPt, j) => (
+                              <div key={j}>
+                                × (0 - {otherPt.x.toString()}) / ({pt.x.toString()} -{" "}
+                                {otherPt.x.toString()})
+                              </div>
+                            ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {/* Individual terms */}
               {details && (
                 <div>
-                <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">Terms (yᵢ × λᵢ)</h3>
-                <div className="space-y-2">
-                  {details.terms.map((term, i) => (
-                    <div
-                      key={i}
-                      className="flex justify-between items-center bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800"
-                    >
-                      <span className="text-gray-700 dark:text-gray-300">
-                        {details.points[i].y.toString()} × {details.lambdas[i].toString()} =
-                      </span>
-                      <span className="font-mono font-bold text-green-600 dark:text-green-400">
-                        {term.toString()}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Terms (yᵢ × λᵢ)
+                  </h3>
+                  <div className="space-y-2">
+                    {details.terms.map((term, i) => (
+                      <div
+                        key={i}
+                        className="flex justify-between items-center bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800"
+                      >
+                        <span className="text-gray-700 dark:text-gray-300">
+                          {details.points[i].y.toString()} × {details.lambdas[i].toString()} =
+                        </span>
+                        <span className="font-mono font-bold text-green-600 dark:text-green-400">
+                          {term.toString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {/* Final sum */}
               {details && (
                 <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border-2 border-indigo-300 dark:border-indigo-700">
-                <h3 className="font-bold text-indigo-900 dark:text-indigo-100 mb-2">
-                  Final Result
-                </h3>
-                <div
-                  className="katex-formula text-center mb-2"
-                  data-formula={`f(0) = ${details.terms.map((t) => t.toString()).join(" + ")} \\pmod{${p}}`}
-                ></div>
-                <div className="text-center">
-                  <span className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-                    {details.result.toString()}
-                  </span>
-                </div>
+                  <h3 className="font-bold text-indigo-900 dark:text-indigo-100 mb-2">
+                    Final Result
+                  </h3>
+                  <div
+                    className="katex-formula text-center mb-2"
+                    data-formula={`f(0) = ${details.terms.map((t) => t.toString()).join(" + ")} \\pmod{${p}}`}
+                  ></div>
+                  <div className="text-center">
+                    <span className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+                      {details.result.toString()}
+                    </span>
+                  </div>
                 </div>
               )}
             </>

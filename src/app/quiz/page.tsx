@@ -396,8 +396,12 @@ export default function QuizPage() {
       <div className="min-h-screen hero-surface hero-grid py-12 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border-2 border-gray-200 dark:border-gray-700">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-3">Loading Quiz...</h1>
-            <p className="text-gray-600 dark:text-gray-400">Preparing questions from your existing documentation.</p>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-3">
+              Loading Quiz...
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Preparing questions from your existing documentation.
+            </p>
           </div>
         </div>
       </div>
@@ -409,7 +413,9 @@ export default function QuizPage() {
       <div className="min-h-screen hero-surface hero-grid py-12 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 border-2 border-gray-200 dark:border-gray-700">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-3">No Quiz Questions Available</h1>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-3">
+              No Quiz Questions Available
+            </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               Add content in your docs sections to automatically generate quiz questions.
             </p>

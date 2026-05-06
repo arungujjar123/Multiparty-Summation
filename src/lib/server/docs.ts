@@ -28,15 +28,15 @@ export interface DocPdf {
 export const DEFAULT_DOC_SECTIONS: Array<
   Omit<DocSection, "content" | "lastModified" | "createdAt">
 > = [
-    { id: "introduction", title: "Introduction", icon: "📖", order: 1 },
-    { id: "shamir", title: "Shamir's Scheme", icon: "🔐", order: 2 },
-    { id: "summation", title: "Summation Protocol", icon: "➕", order: 3 },
-    { id: "multiplication", title: "Multiplication Protocol", icon: "✖️", order: 4 },
-    { id: "quantum", title: "Quantum Protocols", icon: "⚛️", order: 5 },
-    { id: "security", title: "Security Properties", icon: "🛡️", order: 6 },
-    { id: "implementation", title: "Implementation", icon: "💻", order: 7 },
-    { id: "references", title: "References", icon: "📚", order: 8 },
-  ];
+  { id: "introduction", title: "Introduction", icon: "📖", order: 1 },
+  { id: "shamir", title: "Shamir's Scheme", icon: "🔐", order: 2 },
+  { id: "summation", title: "Summation Protocol", icon: "➕", order: 3 },
+  { id: "multiplication", title: "Multiplication Protocol", icon: "✖️", order: 4 },
+  { id: "quantum", title: "Quantum Protocols", icon: "⚛️", order: 5 },
+  { id: "security", title: "Security Properties", icon: "🛡️", order: 6 },
+  { id: "implementation", title: "Implementation", icon: "💻", order: 7 },
+  { id: "references", title: "References", icon: "📚", order: 8 },
+];
 
 export async function ensureDefaultDocs() {
   const db = await getDb();
@@ -189,14 +189,14 @@ export async function appendDocSectionPdf(id: string, pdf: DocPdf) {
   const now = new Date().toISOString();
   const pdfs = [...normalizePdfs(existing), pdf];
 
-  const result = await collection.findOneAndUpdate(
+  const result = (await collection.findOneAndUpdate(
     { id },
     {
       $set: { pdfs, lastModified: now },
       $unset: { pdfUrl: "", pdfName: "", pdfPublicId: "", pdfUploadedAt: "" },
     },
     { returnDocument: "after" }
-  ) as DocSection | null;
+  )) as DocSection | null;
 
   if (!result) return null;
   return mapDocSectionForResponse(result);
@@ -212,14 +212,14 @@ export async function removeDocSectionPdf(id: string, publicId: string) {
   const now = new Date().toISOString();
   const pdfs = normalizePdfs(existing).filter((pdf) => pdf.publicId !== publicId);
 
-  const result = await collection.findOneAndUpdate(
+  const result = (await collection.findOneAndUpdate(
     { id },
     {
       $set: { pdfs, lastModified: now },
       $unset: { pdfUrl: "", pdfName: "", pdfPublicId: "", pdfUploadedAt: "" },
     },
     { returnDocument: "after" }
-  ) as DocSection | null;
+  )) as DocSection | null;
 
   if (!result) return null;
   return mapDocSectionForResponse(result);

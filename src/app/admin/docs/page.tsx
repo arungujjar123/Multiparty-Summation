@@ -25,25 +25,25 @@ interface DocPdf {
 }
 
 const DEFAULT_SECTION_IDS = new Set([
-  'introduction',
-  'shamir',
-  'summation',
-  'multiplication',
-  'quantum',
-  'security',
-  'implementation',
-  'references',
+  "introduction",
+  "shamir",
+  "summation",
+  "multiplication",
+  "quantum",
+  "security",
+  "implementation",
+  "references",
 ]);
 
 export default function AdminDocsPage() {
   const { isAdmin, isLoading } = useAuth();
   const router = useRouter();
   const [sections, setSections] = useState<DocSection[]>([]);
-  const [selectedSection, setSelectedSection] = useState<string>('');
-  const [editContent, setEditContent] = useState('');
-  const [saveStatus, setSaveStatus] = useState('');
-  const [uploadStatus, setUploadStatus] = useState('');
-  const [error, setError] = useState('');
+  const [selectedSection, setSelectedSection] = useState<string>("");
+  const [editContent, setEditContent] = useState("");
+  const [saveStatus, setSaveStatus] = useState("");
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [error, setError] = useState("");
   const [isLoadingDocs, setIsLoadingDocs] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
@@ -106,40 +106,40 @@ export default function AdminDocsPage() {
 
   const handleSave = async () => {
     if (!selectedSection || isSaving) return;
-    setError('');
-    setSaveStatus('');
+    setError("");
+    setSaveStatus("");
 
     if (!editContent.trim()) {
-      setError('Content cannot be empty');
+      setError("Content cannot be empty");
       return;
     }
 
     setIsSaving(true);
     try {
       const response = await fetch(`/api/admin/docs/${selectedSection}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           content: editContent,
-          attachments: sections.find(s => s.id === selectedSection)?.attachments || [],
-          contentMode: 'replace'
+          attachments: sections.find((s) => s.id === selectedSection)?.attachments || [],
+          contentMode: "replace",
         }),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        setError(data.error || 'Failed to save section');
+        setError(data.error || "Failed to save section");
         return;
       }
 
       const updated = data.section as DocSection;
       setSections((prev) => prev.map((section) => (section.id === updated.id ? updated : section)));
-      setEditContent(updated.content || '');
-      setSaveStatus('✅ Updated successfully!');
-      setTimeout(() => setSaveStatus(''), 3000);
+      setEditContent(updated.content || "");
+      setSaveStatus("✅ Updated successfully!");
+      setTimeout(() => setSaveStatus(""), 3000);
     } catch {
-      setError('Failed to save section');
+      setError("Failed to save section");
     } finally {
       setIsSaving(false);
     }
@@ -148,52 +148,52 @@ export default function AdminDocsPage() {
   const handleUploadPdf = async () => {
     if (!selectedSection || isUploadingPdf) return;
     if (!selectedPdfFile) {
-      setError('Please choose a PDF file first');
+      setError("Please choose a PDF file first");
       return;
     }
 
     const MAX_PDF_SIZE = 50 * 1024 * 1024;
     if (selectedPdfFile.size > MAX_PDF_SIZE) {
-      setError('PDF is too large. Maximum allowed size is 50 MB.');
+      setError("PDF is too large. Maximum allowed size is 50 MB.");
       return;
     }
 
-    setError('');
-    setUploadStatus('');
+    setError("");
+    setUploadStatus("");
     setIsUploadingPdf(true);
 
     try {
-      const sigResponse = await fetch('/api/admin/docs/upload-signature', {
-        method: 'POST',
-        credentials: 'include',
+      const sigResponse = await fetch("/api/admin/docs/upload-signature", {
+        method: "POST",
+        credentials: "include",
       });
 
       const sigData = await sigResponse.json();
       if (!sigResponse.ok) {
-        setError(sigData.error || 'Failed to get upload signature');
+        setError(sigData.error || "Failed to get upload signature");
         return;
       }
 
       const formData = new FormData();
-      formData.append('file', selectedPdfFile);
-      formData.append('api_key', sigData.apiKey);
-      formData.append('timestamp', String(sigData.timestamp));
-      formData.append('signature', sigData.signature);
-      formData.append('folder', sigData.folder);
-      formData.append('resource_type', 'raw');
-      formData.append('use_filename', 'true');
-      formData.append('unique_filename', 'true');
-      formData.append('access_mode', 'public');
+      formData.append("file", selectedPdfFile);
+      formData.append("api_key", sigData.apiKey);
+      formData.append("timestamp", String(sigData.timestamp));
+      formData.append("signature", sigData.signature);
+      formData.append("folder", sigData.folder);
+      formData.append("resource_type", "raw");
+      formData.append("use_filename", "true");
+      formData.append("unique_filename", "true");
+      formData.append("access_mode", "public");
 
       const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${sigData.cloudName}/raw/upload`;
       const uploadResponse = await fetch(cloudinaryUrl, {
-        method: 'POST',
+        method: "POST",
         body: formData,
       });
 
       const uploadData = await uploadResponse.json();
       if (!uploadResponse.ok) {
-        setError(uploadData.error?.message || 'Cloudinary upload failed');
+        setError(uploadData.error?.message || "Cloudinary upload failed");
         return;
       }
 
@@ -203,63 +203,67 @@ export default function AdminDocsPage() {
       const snippet = `\n### 📄 PDF Document: ${fileName}\n\n<div class="pdf-download-link" style="margin: 10px 0;">\n  <a href="${fileUrl}" target="_blank" download="${fileName}" style="display: inline-flex; items-center: center; gap: 8px; padding: 10px 20px; background: #6366f1; color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">\n    📥 Download PDF: ${fileName}\n  </a>\n</div>\n`;
       setEditContent((prev) => `${prev}${snippet}`);
 
-      setSections(prev => prev.map(s => {
-        if (s.id === selectedSection) {
-          const updatedAttachments = [...(s.attachments || []), fileUrl];
-          return { ...s, attachments: updatedAttachments };
-        }
-        return s;
-      }));
+      setSections((prev) =>
+        prev.map((s) => {
+          if (s.id === selectedSection) {
+            const updatedAttachments = [...(s.attachments || []), fileUrl];
+            return { ...s, attachments: updatedAttachments };
+          }
+          return s;
+        })
+      );
 
-      setUploadStatus('✅ PDF uploaded. Link added to editor and gallery.');
+      setUploadStatus("✅ PDF uploaded. Link added to editor and gallery.");
       setSelectedPdfFile(null);
       setFileInputKey((prev) => prev + 1);
     } catch {
-      setError('Failed to upload PDF');
+      setError("Failed to upload PDF");
     } finally {
       setIsUploadingPdf(false);
     }
   };
 
   const handleRemoveAttachment = (url: string) => {
-    setSections(prev => prev.map(s => {
-      if (s.id === selectedSection) {
-        return {
-          ...s,
-          attachments: (s.attachments || []).filter(a => a !== url)
-        };
-      }
-      return s;
-    }));
+    setSections((prev) =>
+      prev.map((s) => {
+        if (s.id === selectedSection) {
+          return {
+            ...s,
+            attachments: (s.attachments || []).filter((a) => a !== url),
+          };
+        }
+        return s;
+      })
+    );
   };
 
   const handleRestoreBuiltInContent = async () => {
     if (!selectedSection || !DEFAULT_SECTION_IDS.has(selectedSection)) return;
 
-    setError('');
-    setSaveStatus('');
+    setError("");
+    setSaveStatus("");
     setIsSaving(true);
     try {
       const response = await fetch(`/api/admin/docs/${selectedSection}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ content: '', contentMode: 'replace' }),
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ content: "", contentMode: "replace" }),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        setError(data.error || 'Failed to restore built-in content');
+        setError(data.error || "Failed to restore built-in content");
         return;
       }
 
       const updated = data.section as DocSection;
       setSections((prev) => prev.map((section) => (section.id === updated.id ? updated : section)));
-      setEditContent('');
-      setSaveStatus('✅ Restored built-in section content.');
-      setTimeout(() => setSaveStatus(''), 3000);
+      setEditContent("");
+      setSaveStatus("✅ Restored built-in section content.");
+      setTimeout(() => setSaveStatus(""), 3000);
     } catch {
-      setError('Failed to restore built-in content');
+      setError("Failed to restore built-in content");
     } finally {
       setIsSaving(false);
     }
@@ -368,10 +372,11 @@ export default function AdminDocsPage() {
                 {sections.map((section) => (
                   <div
                     key={section.id}
-                    className={`group flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-300 ${selectedSection === section.id
-                        ? 'bg-linear-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                        : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
+                    className={`group flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-300 ${
+                      selectedSection === section.id
+                        ? "bg-linear-to-r from-purple-600 to-pink-600 text-white shadow-lg"
+                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+                    }`}
                     onClick={() => setSelectedSection(section.id)}
                   >
                     <div className="flex items-center gap-3 flex-1">
@@ -383,7 +388,7 @@ export default function AdminDocsPage() {
                         e.stopPropagation();
                         handleDeleteSection(section.id);
                       }}
-                      className={`px-2 py-2 rounded-lg transition-all ${selectedSection === section.id ? 'bg-white/20 hover:bg-white/40' : 'bg-red-500 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100'}`}
+                      className={`px-2 py-2 rounded-lg transition-all ${selectedSection === section.id ? "bg-white/20 hover:bg-white/40" : "bg-red-500 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100"}`}
                     >
                       🗑️
                     </button>
@@ -437,15 +442,18 @@ export default function AdminDocsPage() {
                         disabled={isUploadingPdf || !selectedPdfFile}
                         className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-bold rounded-xl transition-all shadow-md active:scale-95"
                       >
-                        {isUploadingPdf ? 'Uploading...' : 'Upload PDF'}
+                        {isUploadingPdf ? "Uploading..." : "Upload PDF"}
                       </button>
                     </div>
                     {uploadStatus && (
-                      <p className="text-xs font-bold text-green-600 dark:text-green-400">{uploadStatus}</p>
+                      <p className="text-xs font-bold text-green-600 dark:text-green-400">
+                        {uploadStatus}
+                      </p>
                     )}
                   </div>
 
-                  {((activeSection?.attachments?.length ?? 0) > 0 || (activeSection?.pdfs?.length ?? 0) > 0) && (
+                  {((activeSection?.attachments?.length ?? 0) > 0 ||
+                    (activeSection?.pdfs?.length ?? 0) > 0) && (
                     <div className="mb-6 p-5 bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800/50 rounded-2xl shadow-sm">
                       <h3 className="text-sm font-bold text-purple-900 dark:text-purple-400 mb-3 flex items-center gap-2">
                         <span>📄</span> Attached Files Gallery
@@ -453,9 +461,17 @@ export default function AdminDocsPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {/* Both branch's PDF systems are supported */}
                         {activeSection?.attachments?.map((url, idx) => (
-                          <div key={`attr-${idx}`} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl border border-purple-100 dark:border-purple-900/50 shadow-sm group">
-                            <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-blue-600 hover:text-blue-700 truncate flex-1 mr-2">
-                              {url.split('/').pop()}
+                          <div
+                            key={`attr-${idx}`}
+                            className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl border border-purple-100 dark:border-purple-900/50 shadow-sm group"
+                          >
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-bold text-blue-600 hover:text-blue-700 truncate flex-1 mr-2"
+                            >
+                              {url.split("/").pop()}
                             </a>
                             <button
                               onClick={() => handleRemoveAttachment(url)}
@@ -466,11 +482,21 @@ export default function AdminDocsPage() {
                           </div>
                         ))}
                         {activeSection?.pdfs?.map((pdf, idx) => (
-                           <div key={`pdf-${idx}`} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl border border-purple-100 dark:border-purple-900/50 shadow-sm group">
-                            <a href={pdf.url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-blue-600 hover:text-blue-700 truncate flex-1 mr-2">
-                              {pdf.name || pdf.url.split('/').pop()}
+                          <div
+                            key={`pdf-${idx}`}
+                            className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl border border-purple-100 dark:border-purple-900/50 shadow-sm group"
+                          >
+                            <a
+                              href={pdf.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-bold text-blue-600 hover:text-blue-700 truncate flex-1 mr-2"
+                            >
+                              {pdf.name || pdf.url.split("/").pop()}
                             </a>
-                            <p className="text-[10px] text-gray-400 mr-2">{new Date(pdf.uploadedAt).toLocaleDateString()}</p>
+                            <p className="text-[10px] text-gray-400 mr-2">
+                              {new Date(pdf.uploadedAt).toLocaleDateString()}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -483,8 +509,8 @@ export default function AdminDocsPage() {
                       disabled={isSaving}
                       className="px-8 py-3 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 text-white font-extrabold rounded-xl shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2"
                     >
-                      <span>{isSaving ? '⏳' : '💾'}</span>
-                      {isSaving ? 'Saving...' : 'Update Documentation'}
+                      <span>{isSaving ? "⏳" : "💾"}</span>
+                      {isSaving ? "Saving..." : "Update Documentation"}
                     </button>
                     {DEFAULT_SECTION_IDS.has(selectedSection) && (
                       <button
@@ -508,7 +534,9 @@ export default function AdminDocsPage() {
 
                   <div className="mt-6 p-4 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-xl">
                     <p className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
-                      <strong>💡 Pro Tip:</strong> Your changes are live immediately after saving. Use the preview in the main docs page to verify formatting. Cloudinary uploads bypass server limits for large PDFs.
+                      <strong>💡 Pro Tip:</strong> Your changes are live immediately after saving.
+                      Use the preview in the main docs page to verify formatting. Cloudinary uploads
+                      bypass server limits for large PDFs.
                     </p>
                   </div>
                 </>

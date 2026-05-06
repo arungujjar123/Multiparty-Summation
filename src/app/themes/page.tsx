@@ -187,7 +187,6 @@ export default function ThemesPage() {
     applyTheme(savedTheme);
   }, [applyTheme]);
 
-
   const handleThemeSelect = (themeId: string) => {
     setSelectedTheme(themeId);
     applyTheme(themeId);
