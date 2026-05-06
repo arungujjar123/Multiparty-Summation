@@ -32,15 +32,15 @@ export default function HomePage() {
               Secure MPC Lab
             </div>
             <h1 className="mt-6 text-5xl md:text-6xl lg:text-7xl font-[var(--font-display)] font-bold leading-tight text-white animate-fade-in-up">
-              Shamir Secret Sharing
+              Shamir Secret Sharing & Multiparty Computation
               <span className="block text-transparent bg-clip-text bg-linear-to-r from-cyan-300 via-sky-300 to-teal-300">
                 Visualized for real-world protocols
               </span>
             </h1>
-            <p className="mt-6 text-lg md:text-xl text-slate-300 max-w-2xl">
+            {/* <p className="mt-6 text-lg md:text-xl text-slate-300 max-w-2xl">
               Explore threshold security, polynomial sharing, and secure summation with a live
               simulator built for clarity and speed.
-            </p>
+            </p> */}
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               <Link
                 href="/visualizer"
@@ -104,14 +104,14 @@ export default function HomePage() {
                     <span>Reconstruction</span>
                     <span className="text-emerald-300">Ready</span>
                   </div>
-                  <p className="mt-3 text-3xl font-semibold text-white">42</p>
+                  <p className="mt-3 text-3xl font-semibold text-white">Secret</p>
                   <p className="text-xs text-slate-400">t shares combined securely.</p>
                 </div>
               </div>
             </div>
             <div className="absolute -bottom-6 -left-6 glass-panel rounded-2xl p-4 text-sm text-slate-200 shadow-xl shadow-emerald-500/20">
               <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Protocol</p>
-              <p className="mt-2 font-semibold">Summation + Resharing</p>
+              <p className="mt-2 font-semibold">SSS & MPC</p>
               <p className="text-slate-400 text-xs">Visual step timeline included.</p>
             </div>
           </div>
