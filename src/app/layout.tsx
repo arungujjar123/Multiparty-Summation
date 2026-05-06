@@ -36,8 +36,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 Shamir Secret Sharing Visualization • Secure Multi-Party Computation
               </p>
               <p className="text-[10px] text-gray-400 dark:text-gray-600">
-                © {new Date().getFullYear()} Shamir MPC Visualizer. All rights reserved by Dr.
-                Kartick Sutradhar.
+                © {new Date().getFullYear()} All rights reserved by{" "}
+                <span className="text-gray-900 dark:text-white font-medium">
+                  Dr. Kartick Sutradhar.
+                </span>
               </p>
             </div>
           </footer>
