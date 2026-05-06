@@ -70,8 +70,10 @@ export function multiplicationReshare(
   // Step 1: Local products
   const h = localProdShares(fShares, gShares, p);
 
-  // Step 2: Reconstruct H(0) = a*b from exactly 2t-1 shares (degree 2(t-1)).
-  const interpolationPoints = h.slice(0, 2 * t - 1).map((y, i) => ({ x: BigInt(i + 1), y }));
+  // Step 2: Reconstruct H(0) = a*b from all available shares (degree 2(t-1)).
+  // Using all n shares ensures the most accurate degree reduction and matches
+  // protocols that utilize the entire qualified set.
+  const interpolationPoints = h.map((y, i) => ({ x: BigInt(i + 1), y }));
   const product = lagrangeAtZero(interpolationPoints, p);
 
   // Step 3: Degree reduction via weighted resharing.
@@ -108,13 +110,15 @@ export function multiplicationReshare(
     }
   }
 
-  // Step 5: Aggregate T-shares: T_j = sum_i z_i(x_j)
-  // NOTE: The Lagrange weights (lambdas) are NOT applied here.
-  // They are used only during the final reconstruction from T-shares.
+  // Step 5: Aggregate T-shares: T_j = sum_i lambda_i * z_i(x_j)
+  // Each player j receives z_i(j) and computes the weighted sum using
+  // Lagrange coefficients to perform degree reduction from 2(t-1) to t-1.
   const Tshares: bigint[] = new Array(n).fill(0n);
   for (const msg of messages) {
+    const i = msg.from - 1;
     const j = msg.to - 1;
-    Tshares[j] = mod(Tshares[j] + msg.value, p);
+    const weightedValue = mod(lambdas[i] * msg.value, p);
+    Tshares[j] = mod(Tshares[j] + weightedValue, p);
   }
 
   return { h, product, lambdas, weightedConstants, zPolys, messages, Tshares };
