@@ -133,13 +133,11 @@ function randomBigInt(min: bigint, max: bigint, seed?: number): bigint {
   let result: bigint;
   do {
     const randomBytes = new Uint8Array(bytes);
-    if (typeof window !== "undefined" && window.crypto) {
-      window.crypto.getRandomValues(randomBytes);
+    // Web Crypto is available in browsers and in Node.js 19+ (server routes).
+    if (typeof globalThis.crypto?.getRandomValues === "function") {
+      globalThis.crypto.getRandomValues(randomBytes);
     } else {
-      // Node.js environment - use dynamic import alternative
-      throw new Error(
-        "Server-side random generation not implemented. Use seed parameter for testing."
-      );
+      throw new Error("No secure random source available. Use seed parameter for testing.");
     }
     result = BigInt(
       "0x" + Array.from(randomBytes, (b) => b.toString(16).padStart(2, "0")).join("")

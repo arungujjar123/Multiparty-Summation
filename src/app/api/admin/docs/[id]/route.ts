@@ -1,10 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { cookies } from "next/headers";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/server/auth";
 import { deleteDocSection, updateDocSection } from "@/lib/server/docs";
+import { isAiConfigured } from "@/lib/server/ai";
+import { deleteSectionIndex, syncSectionIndexSafe } from "@/lib/server/rag";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Leaves time for re-indexing the section for the Copilot after the response.
+export const maxDuration = 60;
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -33,6 +37,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: "Section not found" }, { status: 404 });
   }
 
+  // Keep the Copilot's search index in sync with the edited content and PDFs.
+  if (isAiConfigured()) after(() => syncSectionIndexSafe(id));
+
   return NextResponse.json({ section }, { status: 200 });
 }
 
@@ -55,6 +62,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   if (!deleted) {
     return NextResponse.json({ error: "Section not found" }, { status: 404 });
   }
+
+  after(() => deleteSectionIndex(id).catch((e) => console.error("[RAG] cleanup failed", e)));
 
   return NextResponse.json({ success: true }, { status: 200 });
 }

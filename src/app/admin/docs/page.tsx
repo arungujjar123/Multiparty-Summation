@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { resolveEditorDocContent } from "@/lib/docsBuiltIn";
+import CopilotIndexPanel from "@/components/CopilotIndexPanel";
 
 interface DocSection {
   id: string;
@@ -348,6 +349,8 @@ export default function AdminDocsPage() {
           </h1>
           <p className="text-gray-600 dark:text-gray-400">Edit and manage documentation content</p>
         </div>
+
+        <CopilotIndexPanel />
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm animate-fade-in">

@@ -13,12 +13,13 @@ An interactive web application that simulates and visualizes Shamir secret shari
 - **Math Inspector**: Modal showing Lagrange interpolation details with KaTeX rendering
 - **Secure RNG**: Uses crypto.getRandomValues() for secure randomness
 - **Input Validation**: Prime validation and parameter checks
+- **Cryptography Copilot** (`/copilot`): Gemini-powered chat that answers from the docs and uploaded PDFs (RAG with MongoDB Atlas Vector Search) and calls deterministic tools to verify (t, n) parameters and debug failed reconstructions. See [COPILOT_GUIDE.md](COPILOT_GUIDE.md).
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 20+ and npm
+- Node.js 22+ and npm (required by the AI SDK)
 
 ### Installation
 

@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { cookies } from "next/headers";
 import { getUserBySessionToken, SESSION_COOKIE_NAME } from "@/lib/server/auth";
 import { appendDocSectionPdf, getDocSectionById, removeDocSectionPdf } from "@/lib/server/docs";
 import { deleteCloudinaryAsset, uploadPdfToCloudinary } from "@/lib/server/cloudinary";
+import { isAiConfigured } from "@/lib/server/ai";
+import { syncSectionIndexSafe } from "@/lib/server/rag";
 
 export const runtime = "nodejs";
 
@@ -72,6 +74,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Section not found" }, { status: 404 });
   }
 
+  if (isAiConfigured()) after(() => syncSectionIndexSafe(id));
+
   return NextResponse.json({ section: updated }, { status: 200 });
 }
 
@@ -115,6 +119,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   if (!updated) {
     return NextResponse.json({ error: "Section not found" }, { status: 404 });
   }
+
+  if (isAiConfigured()) after(() => syncSectionIndexSafe(id));
 
   return NextResponse.json({ section: updated }, { status: 200 });
 }

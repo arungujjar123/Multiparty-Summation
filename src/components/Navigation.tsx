@@ -25,6 +25,7 @@ export default function Navigation() {
   ];
 
   const userLinks = [
+    { href: "/copilot", label: "Copilot", icon: "🤖" },
     { href: "/quiz", label: "Quiz", icon: "🎯" },
     { href: "/dashboard", label: "Dashboard", icon: "📊" },
     { href: "/achievements", label: "Achievements", icon: "🏆" },
