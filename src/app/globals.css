@@ -574,3 +574,34 @@ iframe {
     height: 400px !important;
   }
 }
+
+/* Markdown rendered from Copilot answers */
+.copilot-md > * + * {
+  margin-top: 0.6em;
+}
+.copilot-md h1,
+.copilot-md h2,
+.copilot-md h3 {
+  font-weight: 700;
+  font-size: 1em;
+}
+.copilot-md ul {
+  list-style: disc;
+  padding-left: 1.25em;
+}
+.copilot-md ol {
+  list-style: decimal;
+  padding-left: 1.25em;
+}
+.copilot-md code {
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  border-radius: 0.25em;
+  background: rgba(148, 163, 184, 0.2);
+}
+.copilot-md hr {
+  border-color: rgba(148, 163, 184, 0.35);
+}
+.copilot-md a {
+  text-decoration: underline;
+}

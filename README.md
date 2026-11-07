@@ -14,6 +14,53 @@ An interactive web application that simulates and visualizes Shamir secret shari
 - **Secure RNG**: Uses crypto.getRandomValues() for secure randomness
 - **Input Validation**: Prime validation and parameter checks
 
+## AI & Privacy-Preserving ML Features
+
+| Page         | What it does                                                                                                                                                                                                                              |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/federated` | **Federated learning with Shamir secure aggregation.** Clients train logistic regression locally; their updates are secret-shared, summed share-wise and only the total is reconstructed. Tolerates clients dropping out after sharing.   |
+| `/copilot`   | **Cryptography Copilot.** An LLM agent (Vercel AI SDK, function calling) that verifies (t, n) parameters and root-causes failed reconstructions. All math runs in deterministic tools; the model only chooses tools and explains results. |
+| `/nl-to-mpc` | **Natural language → MPC protocol.** The LLM extracts facts from a plain-English requirement into a typed spec; a deterministic compiler picks t and p, validates them and emits protocol steps plus a "Run in Visualizer" link.          |
+
+```mermaid
+flowchart LR
+  subgraph LLM["LLM (Gemini via Vercel AI SDK, fallback chain)"]
+    A[Copilot agent loop]
+    B[Structured extraction]
+  end
+  subgraph Deterministic["Deterministic TypeScript (unit-tested)"]
+    T["MPC tools<br/>validateParams · nextPrime · generateShares<br/>reconstruct · diagnoseReconstruction"]
+    C["Protocol compiler<br/>t, p, steps"]
+    M["Shamir math<br/>shares · Lagrange · resharing"]
+    F["Secure aggregation<br/>FedAvg trainer"]
+  end
+  A -- function calls --> T
+  B -- ProtocolSpec --> C
+  C --> T
+  T --> M
+  F --> M
+```
+
+### Measured results
+
+- **Federated learning** (5 clients, t=3, 30 rounds, non-IID): 94.5% test accuracy for both secure and plaintext FedAvg; max aggregation error 2×10⁻⁵ (fixed-point rounding only); unchanged with 1–2 clients offline per round.
+- **NL-to-MPC**: 15/15 labelled requirements compiled correctly (validity, n, t, operation, p), including two infeasible ones that must be rejected; median extraction latency 9.7s (`scripts/eval-nl-to-mpc.mjs`). The set is small and self-written.
+- **Copilot**: locates a corrupted share among 5 and still recovers the secret; chains `validateParams → nextPrime → validateParams` to repair unsafe parameters.
+
+### Setup
+
+Copy `.env.example` to `.env` and set `GEMINI_API_KEY` (free key from Google AI Studio). Optional:
+
+- `AI_MODELS`: comma-separated fallback chain (default `gemini-3.5-flash,gemini-3.5-flash-lite,gemini-flash-lite-latest`). On 429/404/5xx/timeout the next model answers.
+- `AI_ATTEMPT_TIMEOUT_MS`: time a model may take to start answering before falling back (default 30000).
+- `AI_RATE_LIMIT_PER_HOUR`: LLM requests per signed-in user per hour (default 30).
+
+AI routes require sign-in. Run the extraction eval against a running dev server with:
+
+```bash
+node --env-file=.env scripts/eval-nl-to-mpc.mjs
+```
+
 ## Getting Started
 
 ### Prerequisites
@@ -70,23 +117,20 @@ npm run format:check
 shamir-secret/
 ├── src/
 │   ├── app/                    # Next.js App Router
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   └── globals.css
-│   ├── components/             # React components
-│   │   ├── ControlPanel.tsx
-│   │   ├── PlayersGrid.tsx
-│   │   ├── Stepper.tsx
-│   │   ├── NetworkMatrix.tsx
-│   │   └── LagrangeModal.tsx
+│   │   ├── visualizer/         # Shamir MPC visualizer
+│   │   ├── federated/          # Federated learning demo
+│   │   ├── copilot/            # Cryptography Copilot chat
+│   │   ├── nl-to-mpc/          # Natural language → protocol
+│   │   └── api/                # Auth, docs, copilot, nl-to-mpc routes
+│   ├── components/             # React components (incl. LineChart, SafeMarkdown)
 │   └── lib/
-│       └── math/               # Core math library
-│           ├── shamir.ts       # Main Shamir logic
-│           ├── polynomial.ts   # Polynomial utilities
-│           ├── lagrange.ts     # Lagrange interpolation
-│           └── resharing.ts    # Multiplication resharing
-├── tests/                      # Unit tests
-│   └── math.test.ts
+│       ├── math/               # Core math: shamir, polynomial, lagrange, resharing
+│       ├── fl/                 # Fixed-point encoding, dataset, model, secure aggregation, FedAvg
+│       ├── mpc/                # Deterministic tools, protocol schema and compiler
+│       ├── ai/                 # Model config, fallback chain, copilot tools, error mapping
+│       └── server/             # Auth, MongoDB, rate limiting, Cloudinary
+├── scripts/                    # NL-to-MPC eval cases and runner
+├── tests/                      # Jest unit tests (math, fl, mpc tools, compiler, fallback, …)
 ├── .vscode/                    # VSCode settings
 ├── jest.config.js
 ├── tsconfig.json
@@ -135,6 +179,8 @@ This project follows a phased development approach:
 - **Styling**: Tailwind CSS 4
 - **Animations**: Framer Motion
 - **Math Rendering**: KaTeX
+- **AI**: Vercel AI SDK v7 (`streamText` agent loop, `Output.object` structured output), Google Gemini, zod
+- **Data**: MongoDB (users, sessions, rate limits)
 - **Testing**: Jest + ts-jest
 - **Linting**: ESLint (Next.js recommended config)
 - **Formatting**: Prettier
