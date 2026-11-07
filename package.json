@@ -13,6 +13,9 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.112",
+    "@ai-sdk/react": "^4.0.167",
+    "ai": "^7.0.163",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.9.0",
     "framer-motion": "^11",
@@ -21,7 +24,8 @@
     "mongodb": "^6.12.0",
     "next": "16.0.8",
     "react": "19.2.1",
-    "react-dom": "19.2.1"
+    "react-dom": "19.2.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

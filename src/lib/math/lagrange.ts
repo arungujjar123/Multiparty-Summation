@@ -45,6 +45,33 @@ export function lagrangeAtZero(points: Point[], p: bigint): bigint {
 }
 
 /**
+ * Lagrange interpolation at an arbitrary point x
+ * Evaluates the unique degree-(k-1) polynomial through the k given points
+ */
+export function lagrangeAt(points: Point[], x: bigint, p: bigint): bigint {
+  if (points.length === 0) throw new Error("Need at least one point");
+
+  let result = 0n;
+
+  for (let i = 0; i < points.length; i++) {
+    const { x: xi, y: yi } = points[i];
+    let basis = 1n;
+
+    for (let j = 0; j < points.length; j++) {
+      if (i === j) continue;
+      const xj = points[j].x;
+      const num = mod(x - xj, p);
+      const denom = mod(xi - xj, p);
+      basis = mod(basis * mod(num * modInverse(denom, p), p), p);
+    }
+
+    result = mod(result + mod(yi * basis, p), p);
+  }
+
+  return result;
+}
+
+/**
  * Compute individual lambda_i for inspection/display
  */
 export function computeLambdas(points: Point[], p: bigint): bigint[] {

@@ -1,0 +1,77 @@
+[
+  {
+    "id": "hospitals-icu",
+    "requirement": "Seven hospitals want to know the total number of ICU patients. Each has at most 10,000. No three hospitals together should be able to see another hospital's count.",
+    "expect": { "ok": true, "n": 7, "t": 4, "operation": "sum", "p": "70001" }
+  },
+  {
+    "id": "banks-product",
+    "requirement": "Five banks want the product of their two risk scores (each up to 50) computed jointly, and no two banks may collude to learn a score.",
+    "expect": { "ok": true, "n": 5, "t": 3, "operation": "product", "p": "2503" }
+  },
+  {
+    "id": "vault-pin",
+    "requirement": "Split our vault's 6-digit PIN among 5 directors so that any 3 of them can open it.",
+    "expect": { "ok": true, "n": 5, "t": 3, "operation": "share", "p": "1000003" }
+  },
+  {
+    "id": "offices-offline",
+    "requirement": "Our 4 branch offices (Delhi, Mumbai, Pune, Chennai) want total quarterly revenue in rupees (max 5 lakh each), and it must still work if one office is offline.",
+    "expect": { "ok": true, "n": 4, "t": 3, "operation": "sum", "p": "2000003" }
+  },
+  {
+    "id": "salary-no-single",
+    "requirement": "Three companies want to compute their combined payroll. No single company should be able to see another company's figure.",
+    "expect": { "ok": true, "n": 3, "t": 2, "operation": "sum" }
+  },
+  {
+    "id": "voting",
+    "requirement": "10 voters each cast a yes (1) or no (0) vote. We need the tally, and any 4 colluding voters must learn nothing about other votes.",
+    "expect": { "ok": true, "n": 10, "t": 5, "operation": "sum", "p": "11" }
+  },
+  {
+    "id": "product-too-few",
+    "requirement": "Four parties want to multiply their secret values together, and no two of them may collude to learn anything.",
+    "expect": { "ok": false, "n": 4, "t": 3, "operation": "product" }
+  },
+  {
+    "id": "seed-all-three",
+    "requirement": "Split a wallet recovery seed among 3 friends; all 3 must be present to recover it.",
+    "expect": { "ok": true, "n": 3, "t": 3, "operation": "share" }
+  },
+  {
+    "id": "hospitals-offline-and-collusion",
+    "requirement": "Eight hospitals want their total treatment cost. The computation must succeed even if 3 hospitals are offline, and no 4 hospitals together may learn another's cost.",
+    "expect": { "ok": true, "n": 8, "t": 5, "operation": "sum" }
+  },
+  {
+    "id": "impossible-availability",
+    "requirement": "Five parties want to sum their bids. No 3 of them may collude, and it must still work with 3 parties offline.",
+    "expect": { "ok": false, "n": 5, "t": 4, "operation": "sum" }
+  },
+  {
+    "id": "two-companies",
+    "requirement": "Two companies want the sum of their revenues and neither should learn the other's revenue.",
+    "expect": { "ok": true, "n": 2, "t": 2, "operation": "sum" }
+  },
+  {
+    "id": "named-ages",
+    "requirement": "Alice, Bob, Carol and Dave want to compute the sum of their ages; any two of them together can reveal the result.",
+    "expect": { "ok": true, "n": 4, "t": 2, "operation": "sum" }
+  },
+  {
+    "id": "sensors",
+    "requirement": "12 sensors report temperature readings up to 100. We need the total, and it must stay private even if up to 5 sensors are compromised and collude.",
+    "expect": { "ok": true, "n": 12, "t": 6, "operation": "sum", "p": "1201" }
+  },
+  {
+    "id": "board-majority",
+    "requirement": "A board of 9 members shares a launch code; a simple majority must agree before it can be used.",
+    "expect": { "ok": true, "n": 9, "t": 5, "operation": "share" }
+  },
+  {
+    "id": "three-way-product",
+    "requirement": "Three hospitals want the product of their three values, each below 20. No single hospital may learn another's value.",
+    "expect": { "ok": true, "n": 3, "t": 2, "operation": "product", "p": "8009" }
+  }
+]

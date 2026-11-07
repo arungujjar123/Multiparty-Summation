@@ -21,10 +21,13 @@ export default function Navigation() {
   const publicLinks = [
     { href: "/", label: "Home", icon: "🏠" },
     { href: "/visualizer", label: "Visualizer", icon: "🔬" },
+    { href: "/federated", label: "Federated", icon: "🧠" },
     { href: "/docs", label: "Documentation", icon: "📚" },
   ];
 
   const userLinks = [
+    { href: "/copilot", label: "Copilot", icon: "🤖" },
+    { href: "/nl-to-mpc", label: "NL→MPC", icon: "🧩" },
     { href: "/quiz", label: "Quiz", icon: "🎯" },
     { href: "/dashboard", label: "Dashboard", icon: "📊" },
     { href: "/achievements", label: "Achievements", icon: "🏆" },
@@ -54,20 +57,20 @@ export default function Navigation() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden xl:flex items-center gap-1">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
                     isActive
                       ? "bg-linear-to-r from-cyan-400 to-sky-500 text-slate-950 shadow-md shadow-cyan-500/40 scale-105"
                       : "text-slate-200/80 hover:text-white hover:bg-slate-900/60"
                   }`}
                 >
-                  <span>{link.icon}</span>
+                  <span className="hidden 2xl:inline">{link.icon}</span>
                   {link.label}
                 </Link>
               );
@@ -104,7 +107,7 @@ export default function Navigation() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="xl:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-md text-slate-200 hover:bg-slate-900/60"
@@ -133,7 +136,7 @@ export default function Navigation() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-slate-950/95 border-t border-slate-800/60">
+        <div className="xl:hidden bg-slate-950/95 border-t border-slate-800/60">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;

@@ -131,6 +131,32 @@ export default function HomePage() {
     );
   }, [n, t]);
 
+  // Prefill from URL, e.g. /visualizer?p=101&n=5&t=3&op=sum&secrets=4,7,2 (used by NL-to-MPC)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.size === 0) return;
+
+    const op = params.get("op");
+    if (op === "shamir" || op === "sum" || op === "multiply" || op === "both") {
+      setOperationMode(op);
+    }
+    const pParam = params.get("p");
+    if (pParam && /^\d+$/.test(pParam)) setP(pParam);
+    const nParam = Number(params.get("n"));
+    if (Number.isInteger(nParam) && nParam >= 1 && nParam <= 50) setN(nParam);
+    const tParam = Number(params.get("t"));
+    if (Number.isInteger(tParam) && tParam >= 1) setT(tParam);
+    const secretList = (params.get("secrets") ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => /^\d+$/.test(s))
+      .slice(0, 12);
+    if (secretList.length > 0) {
+      setSecretCountState(secretList.length);
+      setSecrets(secretList);
+    }
+  }, []);
+
   const getExpectedSumText = () => {
     try {
       const P = toBig(p);
